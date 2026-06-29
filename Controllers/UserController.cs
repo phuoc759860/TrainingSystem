@@ -48,7 +48,7 @@ namespace TrainingSystem.Controllers
             {
                 Name = dto.Name,
                 Email = dto.Email,
-                PasswordHash = dto.PasswordHash,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
                 RoleID = dto.RoleID
             };
 
@@ -67,6 +67,30 @@ namespace TrainingSystem.Controllers
             };
 
             return CreatedAtAction(nameof(GetUser), new { id = user.UserID }, result);
+        }
+
+
+        //LOGIN
+        [HttpPost("login")]
+        public IActionResult Login(LoginDto dto)
+        {
+            var user = _context.Users
+                .FirstOrDefault(u => u.Email == dto.Email);
+
+            if (user == null)
+                return Unauthorized("Invalid email.");
+
+            if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+                return Unauthorized("Invalid password.");
+
+            return Ok(new
+            {
+                message = "Login successful",
+                user.UserID,
+                user.Name,
+                user.Email,
+                user.RoleID
+            });
         }
 
         [HttpGet]
