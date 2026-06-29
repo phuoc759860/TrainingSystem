@@ -66,7 +66,10 @@ namespace TrainingSystem.Controllers
             var trainer = await _context.Users.FindAsync(dto.TrainerID);
 
             if (trainer == null)
-                return BadRequest("Trainer does not exist.");
+                return NotFound(new
+                {
+                  message = "Trainer does not exist."  
+                });
 
             var course = new Course
             {
@@ -104,7 +107,10 @@ namespace TrainingSystem.Controllers
                 .AnyAsync(u => u.UserID == dto.TrainerID);
 
             if (!trainerExists)
-                return BadRequest("Trainer does not exist.");
+                return NotFound(new
+                {
+                    message = "Trainer does not exist."
+                });
 
             course.Title = dto.Title;
             course.Description = dto.Description;

@@ -78,7 +78,10 @@ namespace TrainingSystem.Controllers
             var exam = await _context.Exams.FindAsync(dto.ExamID);
 
             if (exam == null)
-                return BadRequest("Exam not found.");
+                return NotFound(new
+                {
+                    message = "Exam not found."
+                });
 
             var question = new QuestionBank
             {

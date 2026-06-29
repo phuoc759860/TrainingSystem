@@ -66,8 +66,10 @@ namespace TrainingSystem.Controllers
             var lesson = await _context.Lessons.FindAsync(dto.LessonID);
 
             if (lesson == null)
-                return BadRequest("Lesson does not exist.");
-
+                return NotFound(new
+                {
+                    message = "Lesson does not exist."
+                });
             var material = new Material
             {
                 Title = dto.Title,
@@ -106,7 +108,10 @@ namespace TrainingSystem.Controllers
                 .AnyAsync(l => l.LessonID == dto.LessonID);
 
             if (!lessonExists)
-                return BadRequest("Lesson does not exist.");
+                return NotFound(new
+                {
+                    message = "Lesson does not exist."
+                });
 
             material.Title = dto.Title;
             material.FilePath = dto.FilePath;

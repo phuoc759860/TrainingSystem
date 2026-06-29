@@ -26,7 +26,10 @@ namespace TrainingSystem.Controllers
 
             if (!roleExists)
             {
-                return BadRequest("Role does not exist.");
+                return NotFound(new
+                {
+                    message = "Role does not exist."
+                });
             }
 
             // Check duplicate email
@@ -35,7 +38,10 @@ namespace TrainingSystem.Controllers
 
             if (emailExists)
             {
-                return BadRequest("Email already exists.");
+                return NotFound(new
+                {
+                    message = "Email already exists."
+                });
             }
 
             var user = new User
@@ -97,7 +103,10 @@ namespace TrainingSystem.Controllers
                 .FirstOrDefaultAsync();
 
             if (user == null)
-                return NotFound();
+                return NotFound(new
+                {
+                    message = "User not found."
+                });
 
             return Ok(user);
 }

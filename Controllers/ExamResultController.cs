@@ -80,12 +80,18 @@ namespace TrainingSystem.Controllers
             var user = await _context.Users.FindAsync(dto.UserID);
 
             if (user == null)
-                return BadRequest("User not found.");
+                return NotFound(new
+                {
+                    message = "User not found."
+                });
 
             var exam = await _context.Exams.FindAsync(dto.ExamID);
 
             if (exam == null)
-                return BadRequest("Exam not found.");
+                return NotFound(new
+                {
+                    message = "Exam not found."
+                });
 
             var result = new ExamResult
             {
@@ -129,12 +135,18 @@ namespace TrainingSystem.Controllers
             var user = await _context.Users.FindAsync(dto.UserID);
 
             if (user == null)
-                return BadRequest("User not found.");
+                return NotFound(new
+                {
+                    message = "User not found."
+                });
 
             var exam = await _context.Exams.FindAsync(dto.ExamID);
 
             if (exam == null)
-                return BadRequest("Exam not found.");
+                return NotFound(new
+                {
+                    message = "Exam not found."
+                });
 
             result.UserID = dto.UserID;
             result.ExamID = dto.ExamID;

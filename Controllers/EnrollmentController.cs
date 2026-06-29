@@ -72,19 +72,28 @@ namespace TrainingSystem.Controllers
             var user = await _context.Users.FindAsync(dto.UserID);
 
             if (user == null)
-                return BadRequest("User does not exist.");
+                return NotFound(new
+                {
+                    message = "User does not exist."
+                });
 
             var course = await _context.Courses.FindAsync(dto.CourseID);
 
             if (course == null)
-                return BadRequest("Course does not exist.");
+                return NotFound(new
+                {
+                    message = "Course does not exist."
+                });
 
             bool exists = await _context.Enrollments.AnyAsync(e =>
                 e.UserID == dto.UserID &&
                 e.CourseID == dto.CourseID);
 
             if (exists)
-                return BadRequest("User already enrolled.");
+                return NotFound(new
+                {
+                    message = "User already enrolled."
+                });
 
             var enrollment = new Enrollment
             {

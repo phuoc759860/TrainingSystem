@@ -66,7 +66,10 @@ namespace TrainingSystem.Controllers
             var course = await _context.Courses.FindAsync(dto.CourseID);
 
             if (course == null)
-                return BadRequest("Course does not exist.");
+                return NotFound(new
+                {
+                    message = "Course does not exist."
+                });
 
             var lesson = new Lesson
             {
