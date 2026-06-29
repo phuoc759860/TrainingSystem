@@ -6,7 +6,9 @@ D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Tra
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\TrainingSystem.runtimeconfig.json
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\TrainingSystem.dll
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\TrainingSystem.pdb
+D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\BCrypt-Net-Next.dll
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Humanizer.dll
+D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Microsoft.Bcl.AsyncInterfaces.dll
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Microsoft.Build.Locator.dll
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Microsoft.CodeAnalysis.dll
@@ -20,6 +22,12 @@ D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Mic
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Microsoft.EntityFrameworkCore.Design.dll
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Microsoft.EntityFrameworkCore.Relational.dll
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Microsoft.Extensions.DependencyModel.dll
+D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Microsoft.IdentityModel.Abstractions.dll
+D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Microsoft.IdentityModel.JsonWebTokens.dll
+D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Microsoft.IdentityModel.Logging.dll
+D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Microsoft.IdentityModel.Protocols.dll
+D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Microsoft.IdentityModel.Tokens.dll
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Microsoft.OpenApi.dll
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Mono.TextTemplating.dll
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\MySqlConnector.dll
@@ -33,6 +41,7 @@ D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Sys
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\System.Composition.Hosting.dll
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\System.Composition.Runtime.dll
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\System.Composition.TypedParts.dll
+D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\System.IdentityModel.Tokens.Jwt.dll
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\cs\Microsoft.CodeAnalysis.resources.dll
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\de\Microsoft.CodeAnalysis.resources.dll
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\es\Microsoft.CodeAnalysis.resources.dll
@@ -106,6 +115,7 @@ D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\obj\Debug\net10.0\Tra
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\obj\Debug\net10.0\TrainingSystem.csproj.CoreCompileInputs.cache
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\obj\Debug\net10.0\TrainingSystem.MvcApplicationPartsAssemblyInfo.cs
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\obj\Debug\net10.0\TrainingSystem.MvcApplicationPartsAssemblyInfo.cache
+D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\obj\Debug\net10.0\TrainingSystem.sourcelink.json
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\obj\Debug\net10.0\rjimswa.dswa.cache.json
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\obj\Debug\net10.0\rjsmrazor.dswa.cache.json
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\obj\Debug\net10.0\rjsmcshtml.dswa.cache.json
@@ -121,13 +131,3 @@ D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\obj\Debug\net10.0\ref
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\obj\Debug\net10.0\TrainingSystem.pdb
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\obj\Debug\net10.0\TrainingSystem.genruntimeconfig.cache
 D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\obj\Debug\net10.0\ref\TrainingSystem.dll
-D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\BCrypt-Net-Next.dll
-D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
-D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Microsoft.IdentityModel.Abstractions.dll
-D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Microsoft.IdentityModel.JsonWebTokens.dll
-D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Microsoft.IdentityModel.Logging.dll
-D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Microsoft.IdentityModel.Protocols.dll
-D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
-D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\Microsoft.IdentityModel.Tokens.dll
-D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\bin\Debug\net10.0\System.IdentityModel.Tokens.Jwt.dll
-D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\obj\Debug\net10.0\TrainingSystem.sourcelink.json

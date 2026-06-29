@@ -28,12 +28,12 @@ namespace TrainingSystem.Data
         {
             modelBuilder.Entity<Enrollment>()
                 .HasOne(e => e.User)
-                .WithMany()
+                .WithMany(u => u.Enrollments)
                 .HasForeignKey(e => e.UserID);
 
             modelBuilder.Entity<Enrollment>()
                 .HasOne(e => e.Course)
-                .WithMany()
+                .WithMany(c => c.Enrollments)
                 .HasForeignKey(e => e.CourseID);
         }
     }

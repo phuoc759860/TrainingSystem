@@ -121,13 +121,23 @@ namespace TrainingSystem.Migrations
                     b.Property<int>("ExamID")
                         .HasColumnType("int");
 
+                    b.Property<bool>("Passed")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<decimal>("Score")
                         .HasColumnType("decimal(65,30)");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("UserID")
                         .HasColumnType("int");
 
                     b.HasKey("ResultID");
+
+                    b.HasIndex("ExamID");
+
+                    b.HasIndex("UserID");
 
                     b.ToTable("ExamResult");
                 });
@@ -142,6 +152,9 @@ namespace TrainingSystem.Migrations
 
                     b.Property<int>("CourseID")
                         .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -192,11 +205,34 @@ namespace TrainingSystem.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<string>("CorrectAnswer")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("ExamID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OptionA")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("OptionB")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("OptionC")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("OptionD")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("QuestionType")
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<decimal>("Score")
+                        .HasColumnType("decimal(65,30)");
+
                     b.HasKey("QuestionID");
+
+                    b.HasIndex("ExamID");
 
                     b.ToTable("QuestionBanks");
                 });
@@ -297,6 +333,25 @@ namespace TrainingSystem.Migrations
                     b.Navigation("Course");
                 });
 
+            modelBuilder.Entity("TrainingSystem.Models.ExamResult", b =>
+                {
+                    b.HasOne("TrainingSystem.Models.Exam", "Exam")
+                        .WithMany("ExamResults")
+                        .HasForeignKey("ExamID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TrainingSystem.Models.User", "User")
+                        .WithMany("ExamResults")
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Exam");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TrainingSystem.Models.Lesson", b =>
                 {
                     b.HasOne("TrainingSystem.Models.Course", "Course")
@@ -319,6 +374,17 @@ namespace TrainingSystem.Migrations
                     b.Navigation("Lesson");
                 });
 
+            modelBuilder.Entity("TrainingSystem.Models.QuestionBank", b =>
+                {
+                    b.HasOne("TrainingSystem.Models.Exam", "Exam")
+                        .WithMany("Questions")
+                        .HasForeignKey("ExamID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Exam");
+                });
+
             modelBuilder.Entity("TrainingSystem.Models.User", b =>
                 {
                     b.HasOne("TrainingSystem.Models.Role", "Role")
@@ -337,6 +403,13 @@ namespace TrainingSystem.Migrations
                     b.Navigation("Lessons");
                 });
 
+            modelBuilder.Entity("TrainingSystem.Models.Exam", b =>
+                {
+                    b.Navigation("ExamResults");
+
+                    b.Navigation("Questions");
+                });
+
             modelBuilder.Entity("TrainingSystem.Models.Lesson", b =>
                 {
                     b.Navigation("Materials");
@@ -350,6 +423,8 @@ namespace TrainingSystem.Migrations
             modelBuilder.Entity("TrainingSystem.Models.User", b =>
                 {
                     b.Navigation("Enrollments");
+
+                    b.Navigation("ExamResults");
                 });
 #pragma warning restore 612, 618
         }

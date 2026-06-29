@@ -15,5 +15,8 @@ public class User
     public Role? Role { get; set; }
 
     public ICollection<Enrollment>? Enrollments { get; set; }
+
+    public ICollection<ExamResult> ExamResults { get; set; }
+    = new List<ExamResult>();
 }
 }

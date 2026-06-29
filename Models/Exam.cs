@@ -12,5 +12,11 @@ namespace TrainingSystem.Models
         public int CourseID { get; set; }
 
         public Course? Course { get; set; }
+
+        public ICollection<QuestionBank> Questions { get; set; }
+            = new List<QuestionBank>();
+
+        public ICollection<ExamResult> ExamResults { get; set; }
+            = new List<ExamResult>();
     }
 }

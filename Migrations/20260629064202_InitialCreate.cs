@@ -7,45 +7,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TrainingSystem.Migrations
 {
     /// <inheritdoc />
-    public partial class AddEnrollmentStatus : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterDatabase()
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "ExamResult",
-                columns: table => new
-                {
-                    ResultID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    UserID = table.Column<int>(type: "int", nullable: false),
-                    ExamID = table.Column<int>(type: "int", nullable: false),
-                    Score = table.Column<decimal>(type: "decimal(65,30)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ExamResult", x => x.ResultID);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "QuestionBanks",
-                columns: table => new
-                {
-                    QuestionID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Content = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    QuestionType = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_QuestionBanks", x => x.QuestionID);
-                })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
@@ -185,6 +152,8 @@ namespace TrainingSystem.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Title = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    Description = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     CourseID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -195,6 +164,71 @@ namespace TrainingSystem.Migrations
                         column: x => x.CourseID,
                         principalTable: "Courses",
                         principalColumn: "CourseID",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "ExamResult",
+                columns: table => new
+                {
+                    ResultID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    UserID = table.Column<int>(type: "int", nullable: false),
+                    ExamID = table.Column<int>(type: "int", nullable: false),
+                    Score = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
+                    Passed = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExamResult", x => x.ResultID);
+                    table.ForeignKey(
+                        name: "FK_ExamResult_Exams_ExamID",
+                        column: x => x.ExamID,
+                        principalTable: "Exams",
+                        principalColumn: "ExamID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ExamResult_Users_UserID",
+                        column: x => x.UserID,
+                        principalTable: "Users",
+                        principalColumn: "UserID",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "QuestionBanks",
+                columns: table => new
+                {
+                    QuestionID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    ExamID = table.Column<int>(type: "int", nullable: false),
+                    Content = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    QuestionType = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    OptionA = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    OptionB = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    OptionC = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    OptionD = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CorrectAnswer = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Score = table.Column<decimal>(type: "decimal(65,30)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_QuestionBanks", x => x.QuestionID);
+                    table.ForeignKey(
+                        name: "FK_QuestionBanks_Exams_ExamID",
+                        column: x => x.ExamID,
+                        principalTable: "Exams",
+                        principalColumn: "ExamID",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
@@ -249,6 +283,16 @@ namespace TrainingSystem.Migrations
                 column: "UserID1");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ExamResult_ExamID",
+                table: "ExamResult",
+                column: "ExamID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ExamResult_UserID",
+                table: "ExamResult",
+                column: "UserID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Exams_CourseID",
                 table: "Exams",
                 column: "CourseID");
@@ -262,6 +306,11 @@ namespace TrainingSystem.Migrations
                 name: "IX_Materials_LessonID",
                 table: "Materials",
                 column: "LessonID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_QuestionBanks_ExamID",
+                table: "QuestionBanks",
+                column: "ExamID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_RoleID",
@@ -279,9 +328,6 @@ namespace TrainingSystem.Migrations
                 name: "ExamResult");
 
             migrationBuilder.DropTable(
-                name: "Exams");
-
-            migrationBuilder.DropTable(
                 name: "Materials");
 
             migrationBuilder.DropTable(
@@ -289,6 +335,9 @@ namespace TrainingSystem.Migrations
 
             migrationBuilder.DropTable(
                 name: "Lessons");
+
+            migrationBuilder.DropTable(
+                name: "Exams");
 
             migrationBuilder.DropTable(
                 name: "Courses");
