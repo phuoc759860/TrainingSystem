@@ -23,5 +23,18 @@ namespace TrainingSystem.Data
         public DbSet<QuestionBank> QuestionBanks { get; set; }
 
         public DbSet<ExamResult> ExamResult { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Enrollment>()
+                .HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserID);
+
+            modelBuilder.Entity<Enrollment>()
+                .HasOne(e => e.Course)
+                .WithMany()
+                .HasForeignKey(e => e.CourseID);
+        }
     }
 }

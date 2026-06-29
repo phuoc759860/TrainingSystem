@@ -59,6 +59,9 @@ namespace TrainingSystem.Migrations
                     b.Property<int>("CourseID")
                         .HasColumnType("int");
 
+                    b.Property<int?>("CourseID1")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("EnrollDate")
                         .HasColumnType("datetime(6)");
 
@@ -69,22 +72,29 @@ namespace TrainingSystem.Migrations
                     b.Property<int>("UserID")
                         .HasColumnType("int");
 
+                    b.Property<int?>("UserID1")
+                        .HasColumnType("int");
+
                     b.HasKey("EnrollmentID");
 
                     b.HasIndex("CourseID");
 
+                    b.HasIndex("CourseID1");
+
                     b.HasIndex("UserID");
+
+                    b.HasIndex("UserID1");
 
                     b.ToTable("Enrollments");
                 });
 
             modelBuilder.Entity("TrainingSystem.Models.Exam", b =>
                 {
-                    b.Property<int>("ResultID")
+                    b.Property<int>("ExamID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("ResultID"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("ExamID"));
 
                     b.Property<int>("CourseID")
                         .HasColumnType("int");
@@ -93,7 +103,7 @@ namespace TrainingSystem.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.HasKey("ResultID");
+                    b.HasKey("ExamID");
 
                     b.HasIndex("CourseID");
 
@@ -257,11 +267,19 @@ namespace TrainingSystem.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("TrainingSystem.Models.Course", null)
+                        .WithMany("Enrollments")
+                        .HasForeignKey("CourseID1");
+
                     b.HasOne("TrainingSystem.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("TrainingSystem.Models.User", null)
+                        .WithMany("Enrollments")
+                        .HasForeignKey("UserID1");
 
                     b.Navigation("Course");
 
@@ -282,7 +300,7 @@ namespace TrainingSystem.Migrations
             modelBuilder.Entity("TrainingSystem.Models.Lesson", b =>
                 {
                     b.HasOne("TrainingSystem.Models.Course", "Course")
-                        .WithMany()
+                        .WithMany("Lessons")
                         .HasForeignKey("CourseID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -312,6 +330,13 @@ namespace TrainingSystem.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("TrainingSystem.Models.Course", b =>
+                {
+                    b.Navigation("Enrollments");
+
+                    b.Navigation("Lessons");
+                });
+
             modelBuilder.Entity("TrainingSystem.Models.Lesson", b =>
                 {
                     b.Navigation("Materials");
@@ -320,6 +345,11 @@ namespace TrainingSystem.Migrations
             modelBuilder.Entity("TrainingSystem.Models.Role", b =>
                 {
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("TrainingSystem.Models.User", b =>
+                {
+                    b.Navigation("Enrollments");
                 });
 #pragma warning restore 612, 618
         }

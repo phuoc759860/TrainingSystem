@@ -12,8 +12,8 @@ namespace TrainingSystem.Models
 
         public Course? Course { get; set; }
 
-        public DateTime EnrollDate { get; set; }
+        public DateTime EnrollDate { get; set; } = DateTime.Now;
 
-        public string Status { get; set; } = "In Progress";
+        public string Status { get; set; } = "Enrolled";
     }
 }

@@ -15,7 +15,7 @@ namespace TrainingSystem.Controllers
         {
             _context = context;
         }
-        [Authorize(Roles = "Admin, Trainer")]
+        //[Authorize(Roles = "Admin, Trainer")]
         [HttpPost]
         public IActionResult CreateCourse(Course course)
         {
