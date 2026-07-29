@@ -1,0 +1,44 @@
+# Build outputs
+bin/
+obj/
+dist/
+publish/
+wwwroot/
+
+# Dependencies
+node_modules/
+
+# IDE / Editor
+.vs/
+.vscode/
+*.user
+*.suo
+*.csproj.user
+
+# Environment / Secrets
+appsettings.Development.json
+.env
+.env.local
+.env.*.local
+
+# Uploads (user-generated content)
+TrainingSystem/uploads/*
+!TrainingSystem/uploads/.gitkeep
+
+# OS files
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Logs
+*.log
+logs/
+server.err
+
+# NuGet
+*.nupkg
+*.snupkg
+
+# Misc
+*.swp
+*.tmp

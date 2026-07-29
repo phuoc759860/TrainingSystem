@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: traininghub-api
+    runtime: dotnet
+    rootDir: TrainingSystem
+    buildCommand: dotnet publish -c Release -o ./publish
+    startCommand: dotnet ./publish/TrainingSystem.dll
+    healthCheckPath: /swagger/index.html
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: traininghub-db
+          property: connectionString
+      - key: Jwt__Key
+        generateValue: true
+      - key: Jwt__Issuer
+        value: TrainingSystem
+      - key: Jwt__Audience
+        value: TrainingSystemUsers
+      - key: FrontendUrl
+        sync: false
+
+  - type: mysql
+    name: traininghub-db
+    plan: free
+    databaseName: onlinetrainingsystem
