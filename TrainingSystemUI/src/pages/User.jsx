@@ -7,9 +7,9 @@ import {
 } from "../services/UserService";
 import { getRoles } from "../services/RoleService";
 import ConfirmDialog from "../components/ConfirmDialog";
-import Toast from "../components/Toast";
 import SidePanel from "../components/SidePanel";
 import Pagination from "../components/Pagination";
+import useToast from "../hooks/useToast";
 
 const blankForm = () => ({
     name: "",
@@ -27,7 +27,7 @@ function User() {
     const [saving, setSaving] = useState(false);
     const [panelOpen, setPanelOpen] = useState(false);
     const [confirmState, setConfirmState] = useState(null);
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -46,8 +46,8 @@ function User() {
             setUsers(res.data.items);
             setTotalPages(res.data.totalPages);
         }
-        catch {
-            setToast({ message: "Couldn't load users. Try refreshing.", type: "error" });
+        catch (err) { console.error(err);
+            showToast("Couldn't load users. Try refreshing.", "error");
         }
         finally {
             setLoading(false);
@@ -91,11 +91,11 @@ function User() {
 
     const handleSubmit = async () => {
         if (!form.name.trim() || !form.email.trim() || !form.roleID) {
-            setToast({ message: "Name, email, and role are required.", type: "error" });
+            showToast("Name, email, and role are required.", "error");
             return;
         }
         if (editingId == null && !form.password) {
-            setToast({ message: "Password is required for new users.", type: "error" });
+            showToast("Password is required for new users.", "error");
             return;
         }
 
@@ -105,11 +105,11 @@ function User() {
 
             if (editingId == null) {
                 await createUser(form);
-                setToast({ message: "User created.", type: "success" });
+                showToast("User created.", "success");
             }
             else {
                 await updateUser(editingId, form);
-                setToast({ message: "User updated.", type: "success" });
+                showToast("User updated.", "success");
             }
 
             closePanel();
@@ -117,8 +117,8 @@ function User() {
 
         }
         catch (err) {
-            console.log(err);
-            setToast({ message: "Operation failed.", type: "error" });
+            console.error(err);
+            showToast("Operation failed.", "error");
         }
         finally {
             setSaving(false);
@@ -135,12 +135,13 @@ function User() {
             onConfirm: async () => {
                 try {
                     await deleteUser(user.userID);
-                    setToast({ message: "User deleted.", type: "success" });
+                    showToast("User deleted.", "success");
                     loadUsers();
                 }
                 catch (err) {
+                    console.error(err);
                     const msg = err?.response?.data?.message || err?.response?.data?.title || "Couldn't delete that user.";
-                    setToast({ message: msg, type: "error" });
+                    showToast(msg, "error");
                 }
             }
         });
@@ -315,7 +316,7 @@ function User() {
             </SidePanel>
 
             <ConfirmDialog state={confirmState} onClose={() => setConfirmState(null)} />
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
 
         </div>
 

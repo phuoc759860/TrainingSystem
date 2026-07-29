@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getExamAttempt, gradeExamAttempt } from "../services/ExamResultService";
-import Toast from "../components/Toast";
+import useToast from "../hooks/useToast";
 
 function getRubricLabel(points, max) {
     if (max === 0) return { label: "N/A", color: "var(--ink-soft)" };
@@ -21,7 +21,7 @@ function GradeAttempt() {
     const [points, setPoints] = useState({});
     const [notes, setNotes] = useState({});
     const [saving, setSaving] = useState(false);
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
 
     useEffect(() => {
         load();
@@ -59,12 +59,12 @@ function GradeAttempt() {
             };
 
             await gradeExamAttempt(id, payload);
-            setToast({ message: "Grading saved.", type: "success" });
+            showToast("Grading saved.", "success");
             setTimeout(() => navigate("/exam-results"), 800);
         }
         catch (err) {
-            console.log(err);
-            setToast({ message: "Failed to save grading.", type: "error" });
+            console.error(err);
+            showToast("Failed to save grading.", "error");
         }
         finally {
             setSaving(false);
@@ -253,7 +253,7 @@ function GradeAttempt() {
                 </button>
             </div>
 
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
         </div>
     );
 }

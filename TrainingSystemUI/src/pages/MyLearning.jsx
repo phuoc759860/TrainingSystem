@@ -8,7 +8,7 @@ import {
     startTracking,
     updateProgress
 } from "../services/LessonProgressService";
-import Toast from "../components/Toast";
+import useToast from "../hooks/useToast";
 
 function MyLearning() {
     const navigate = useNavigate();
@@ -16,7 +16,7 @@ function MyLearning() {
     const [enrollments, setEnrollments] = useState([]);
     const [courseData, setCourseData] = useState({});
     const [loading, setLoading] = useState(true);
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
 
     useEffect(() => {
         loadData();
@@ -43,8 +43,9 @@ function MyLearning() {
             results.forEach(r => { dataMap[r.courseId] = r.data; });
             setCourseData(dataMap);
         }
-        catch {
-            setToast({ message: "Couldn't load your courses.", type: "error" });
+        catch (err) {
+            console.error(err);
+            showToast("Couldn't load your courses.", "error");
         }
         finally {
             setLoading(false);
@@ -57,7 +58,7 @@ function MyLearning() {
             const point = res.data;
 
             if (point.completed) {
-                setToast({ message: "You've completed all lessons in this course!", type: "success" });
+                showToast("You've completed all lessons in this course!", "success");
                 return;
             }
 
@@ -67,14 +68,15 @@ function MyLearning() {
                 navigate(`/learn/${point.lessonId}`);
             }
         }
-        catch {
-            setToast({ message: "Couldn't load resume point.", type: "error" });
+        catch (err) {
+            console.error(err);
+            showToast("Couldn't load resume point.", "error");
         }
     };
 
     const handleLessonClick = async (courseId, lesson) => {
         if (lesson.isUnlocked === false) {
-            setToast({ message: "Complete the previous lesson first to unlock this one.", type: "error" });
+            showToast("Complete the previous lesson first to unlock this one.", "error");
             return;
         }
         try {
@@ -82,8 +84,9 @@ function MyLearning() {
             navigate(`/learn/${lesson.lessonID}`);
         }
         catch (err) {
+            console.error(err);
             const msg = err.response?.data?.message || "Couldn't start tracking this lesson.";
-            setToast({ message: msg, type: "error" });
+            showToast(msg, "error");
         }
     };
 
@@ -93,8 +96,9 @@ function MyLearning() {
             await updateProgress(res.data.lessonProgressID, { isCompleted: !isCompleted });
             loadData();
         }
-        catch {
-            setToast({ message: "Couldn't update progress.", type: "error" });
+        catch (err) {
+            console.error(err);
+            showToast("Couldn't update progress.", "error");
         }
     };
 
@@ -222,7 +226,7 @@ function MyLearning() {
                 </div>
             )}
 
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
 
         </div>
     );

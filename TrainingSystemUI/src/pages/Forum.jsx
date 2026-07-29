@@ -4,7 +4,7 @@ import useAuth from "../hooks/useAuth";
 import { getThreads, getThread, createThread, createReply } from "../services/ForumService";
 import { getCourses } from "../services/CourseService";
 import SidePanel from "../components/SidePanel";
-import Toast from "../components/Toast";
+import useToast from "../hooks/useToast";
 
 function Forum() {
     const { courseId } = useParams();
@@ -12,7 +12,7 @@ function Forum() {
     const [threads, setThreads] = useState([]);
     const [selectedThread, setSelectedThread] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
     const [panelOpen, setPanelOpen] = useState(false);
     const [saving, setSaving] = useState(false);
     const [courseTitle, setCourseTitle] = useState("");
@@ -37,8 +37,8 @@ function Forum() {
         try {
             const res = await getCourses("", 1, 100);
             setCourses(res.data.items || []);
-        } catch {
-            setToast({ message: "Could not load courses.", type: "error" });
+        } catch (err) { console.error(err);
+            showToast("Could not load courses.", "error");
         } finally {
             setLoading(false);
         }
@@ -49,8 +49,8 @@ function Forum() {
         try {
             const res = await getThreads(courseId);
             setThreads(res.data);
-        } catch {
-            setToast({ message: "Could not load discussions.", type: "error" });
+        } catch (err) { console.error(err);
+            showToast("Could not load discussions.", "error");
         } finally {
             setLoading(false);
         }
@@ -61,32 +61,32 @@ function Forum() {
             const res = await getCourses("", 1, 100);
             const c = res.data.items.find(c => c.courseID === parseInt(courseId));
             if (c) setCourseTitle(c.title);
-        } catch { /* ok */ }
+        } catch (err) { console.error(err); }
     };
 
     const openThread = async (id) => {
         try {
             const res = await getThread(id);
             setSelectedThread(res.data);
-        } catch {
-            setToast({ message: "Could not load thread.", type: "error" });
+        } catch (err) { console.error(err);
+            showToast("Could not load thread.", "error");
         }
     };
 
     const handleCreateThread = async () => {
         if (!form.title.trim() || !form.content.trim()) {
-            setToast({ message: "Title and content are required.", type: "error" });
+            showToast("Title and content are required.", "error");
             return;
         }
         setSaving(true);
         try {
             await createThread({ courseID: parseInt(courseId), title: form.title, content: form.content });
-            setToast({ message: "Thread created! +5 points", type: "success" });
+            showToast("Thread created! +5 points", "success");
             setPanelOpen(false);
             setForm({ title: "", content: "" });
             loadData();
-        } catch {
-            setToast({ message: "Failed to create thread.", type: "error" });
+        } catch (err) { console.error(err);
+            showToast("Failed to create thread.", "error");
         } finally {
             setSaving(false);
         }
@@ -102,9 +102,9 @@ function Forum() {
                 replies: [...prev.replies, res.data]
             }));
             setReplyText("");
-            setToast({ message: "Reply posted! +2 points", type: "success" });
-        } catch {
-            setToast({ message: "Failed to post reply.", type: "error" });
+            showToast("Reply posted! +2 points", "success");
+        } catch (err) { console.error(err);
+            showToast("Failed to post reply.", "error");
         } finally {
             setReplying(false);
         }
@@ -257,7 +257,7 @@ function Forum() {
                 </div>
             </SidePanel>
 
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
         </div>
     );
 }

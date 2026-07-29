@@ -10,7 +10,7 @@ import {
 import useAuth from "../hooks/useAuth";
 import { getStudentGrades, getCourseGrades } from "../services/GradeService";
 import SidePanel from "../components/SidePanel";
-import Toast from "../components/Toast";
+import useToast from "../hooks/useToast";
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
     ResponsiveContainer, Cell, LabelList, PieChart, Pie, Sector
@@ -615,7 +615,7 @@ function Statistics() {
 
     const [activeTab, setActiveTab] = useState("class");
     const [courses, setCourses] = useState([]);
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
 
     // ---------- shared: student detail panel ----------
     const [panelOpen, setPanelOpen] = useState(false);
@@ -634,8 +634,9 @@ function Statistics() {
             const res = await getStudentDetail(userId);
             setDetail(res.data);
         }
-        catch {
-            setToast({ message: "Couldn't load student details.", type: "error" });
+        catch (err) {
+            console.error(err);
+            showToast("Couldn't load student details.", "error");
             setPanelOpen(false);
         }
         finally {
@@ -720,8 +721,9 @@ function Statistics() {
             const res = await getAvailableCourses();
             setCourses(res.data);
         }
-        catch {
-            setToast({ message: "Couldn't load courses.", type: "error" });
+        catch (err) {
+            console.error(err);
+            showToast("Couldn't load courses.", "error");
         }
     };
 
@@ -731,8 +733,9 @@ function Statistics() {
             const res = await getClassOverview();
             setAllStudents(res.data);
         }
-        catch {
-            setToast({ message: "Couldn't load students.", type: "error" });
+        catch (err) {
+            console.error(err);
+            showToast("Couldn't load students.", "error");
         }
         finally {
             setStudentsLoading(false);
@@ -745,8 +748,9 @@ function Statistics() {
             const res = await getTrainers();
             setAllTrainers(res.data);
         }
-        catch {
-            setToast({ message: "Couldn't load trainers.", type: "error" });
+        catch (err) {
+            console.error(err);
+            showToast("Couldn't load trainers.", "error");
         }
         finally {
             setTrainersLoading(false);
@@ -763,8 +767,9 @@ function Statistics() {
             const res = await getTrainerDetail(userId);
             setDetail(res.data);
         }
-        catch {
-            setToast({ message: "Couldn't load trainer details.", type: "error" });
+        catch (err) {
+            console.error(err);
+            showToast("Couldn't load trainer details.", "error");
             setPanelOpen(false);
         }
         finally {
@@ -778,8 +783,9 @@ function Statistics() {
             const res = await getClassOverview(classCourseId);
             setClassStudents(res.data);
         }
-        catch {
-            setToast({ message: "Couldn't load class statistics.", type: "error" });
+        catch (err) {
+            console.error(err);
+            showToast("Couldn't load class statistics.", "error");
         }
         finally {
             setClassLoading(false);
@@ -792,8 +798,9 @@ function Statistics() {
             const res = await getExamRanking(examCourseId);
             setExamRanking(res.data);
         }
-        catch {
-            setToast({ message: "Couldn't load exam ranking.", type: "error" });
+        catch (err) {
+            console.error(err);
+            showToast("Couldn't load exam ranking.", "error");
         }
         finally {
             setExamLoading(false);
@@ -806,8 +813,9 @@ function Statistics() {
             const res = await getCourseGrades(gradesCourseId);
             setGradesData(res.data);
         }
-        catch {
-            setToast({ message: "Couldn't load grades.", type: "error" });
+        catch (err) {
+            console.error(err);
+            showToast("Couldn't load grades.", "error");
         }
         finally {
             setGradesLoading(false);
@@ -1706,7 +1714,7 @@ function Statistics() {
                 )}
             </SidePanel>
 
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
 
         </div>
     );

@@ -10,8 +10,8 @@ import {
 } from "../services/LessonProgressService";
 import { getQuizzes } from "../services/QuizService";
 import * as pdfjsLib from "pdfjs-dist";
-import Toast from "../components/Toast";
 import { API_BASE, FILE_HOST } from "../api/axios";
+import useToast from "../hooks/useToast";
 pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
 
 function getEmbedUrl(url) {
@@ -242,7 +242,7 @@ function LessonViewer() {
     const [lessonQuiz, setLessonQuiz] = useState(null);
     const [loading, setLoading] = useState(true);
     const [completing, setCompleting] = useState(false);
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
     const currentPageRef = useRef(1);
     const pendingUpdateRef = useRef(null);
 
@@ -250,8 +250,8 @@ function LessonViewer() {
         try {
             const res = await getLesson(lessonId);
             setLesson(res.data);
-        } catch {
-            setToast({ message: "Couldn't load lesson.", type: "error" });
+        } catch (err) { console.error(err);
+            showToast("Couldn't load lesson.", "error");
         }
     }, [lessonId]);
 
@@ -259,8 +259,8 @@ function LessonViewer() {
         try {
             const res = await getMaterialsByLesson(lessonId);
             setMaterials(res.data);
-        } catch {
-            setToast({ message: "Couldn't load materials.", type: "error" });
+        } catch (err) { console.error(err);
+            showToast("Couldn't load materials.", "error");
         }
     }, [lessonId]);
 
@@ -276,7 +276,7 @@ function LessonViewer() {
             } else {
                 setViewedIds(new Set(data));
             }
-        } catch { }
+        } catch (err) { console.error(err); }
     }, [lessonId]);
 
     const startTrackingLesson = useCallback(async () => {
@@ -286,7 +286,7 @@ function LessonViewer() {
             setIsCompleted(res.data.isCompleted || false);
         } catch (err) {
             console.error("[LessonViewer] startTracking failed:", err?.response?.data || err.message);
-            setToast({ message: "Could not start progress tracking.", type: "error" });
+            showToast("Could not start progress tracking.", "error");
         }
     }, [lessonId, lesson]);
 
@@ -305,7 +305,7 @@ function LessonViewer() {
             getQuizzes("", "").then(res => {
                 const quiz = res.data.find(q => q.lessonID === parseInt(lessonId));
                 setLessonQuiz(quiz || null);
-            }).catch(() => { });
+            }).catch(err => { console.error(err); });
         }
     }, [lesson, lessonId, startTrackingLesson]);
 
@@ -346,7 +346,7 @@ function LessonViewer() {
 
     const handleMarkComplete = async () => {
         if (!progressId) {
-            setToast({ message: "Progress tracking not initialized. Please refresh.", type: "error" });
+            showToast("Progress tracking not initialized. Please refresh.", "error");
             return;
         }
         setCompleting(true);
@@ -357,10 +357,10 @@ function LessonViewer() {
             }
             const res = await updateProgress(progressId, { isCompleted: true });
             setIsCompleted(true);
-            setToast({ message: "Lesson marked as complete!", type: "success" });
+            showToast("Lesson marked as complete!", "success");
         } catch (err) {
             console.error("[LessonViewer] markComplete failed:", err?.response?.data || err.message);
-            setToast({ message: "Failed to mark complete. Try again.", type: "error" });
+            showToast("Failed to mark complete. Try again.", "error");
         } finally {
             setCompleting(false);
         }
@@ -618,7 +618,7 @@ function LessonViewer() {
                 </div>
             </div>
 
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
         </div>
     );
 }

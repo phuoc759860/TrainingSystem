@@ -10,8 +10,8 @@ import {
 import useAuth from "../hooks/useAuth";
 import { getCourses } from "../services/CourseService";
 import { getProgress } from "../services/LessonProgressService";
+import useToast from "../hooks/useToast";
 import ConfirmDialog from "../components/ConfirmDialog";
-import Toast from "../components/Toast";
 import SidePanel from "../components/SidePanel";
 import Pagination from "../components/Pagination";
 
@@ -39,7 +39,7 @@ function Lesson() {
     const [saving, setSaving] = useState(false);
     const [panelOpen, setPanelOpen] = useState(false);
     const [confirmState, setConfirmState] = useState(null);
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const { role } = useAuth();
@@ -77,8 +77,8 @@ function Lesson() {
             setLessons(res.data.items);
             setTotalPages(res.data.totalPages);
         }
-        catch {
-            setToast({ message: "Couldn't load lessons. Try refreshing.", type: "error" });
+        catch (err) { console.error(err);
+            showToast("Couldn't load lessons. Try refreshing.", "error");
         }
         finally {
             setLoading(false);
@@ -109,7 +109,7 @@ function Lesson() {
         try {
             const res = await getLessons("", cId, 1, 100);
             setCourseLessons(res.data.items || []);
-        } catch {
+        } catch (err) { console.error(err);
             setCourseLessons([]);
         }
     };
@@ -150,14 +150,14 @@ function Lesson() {
         try {
             const res = await getLessonVersions(lesson.lessonID);
             setVersions(res.data || []);
-        } catch {
+        } catch (err) { console.error(err);
             setVersions([]);
         }
     };
 
     const handleSubmit = async () => {
         if (!form.title.trim() || !form.courseID) {
-            setToast({ message: "Title and course are required.", type: "error" });
+            showToast("Title and course are required.", "error");
             return;
         }
 
@@ -174,19 +174,19 @@ function Lesson() {
 
             if (editingId == null) {
                 await createLesson(payload);
-                setToast({ message: "Lesson created.", type: "success" });
+                showToast("Lesson created.", "success");
             }
             else {
                 await updateLesson(editingId, payload);
-                setToast({ message: "Lesson updated.", type: "success" });
+                showToast("Lesson updated.", "success");
             }
 
             closePanel();
             loadLessons();
         }
         catch (err) {
-            console.log(err);
-            setToast({ message: "Operation failed.", type: "error" });
+            console.error(err);
+            showToast("Operation failed.", "error");
         }
         finally {
             setSaving(false);
@@ -202,11 +202,11 @@ function Lesson() {
             onConfirm: async () => {
                 try {
                     await deleteLesson(lesson.lessonID);
-                    setToast({ message: "Lesson deleted.", type: "success" });
+                    showToast("Lesson deleted.", "success");
                     loadLessons();
                 }
-                catch {
-                    setToast({ message: "Couldn't delete that lesson.", type: "error" });
+                catch (err) { console.error(err);
+                    showToast("Couldn't delete that lesson.", "error");
                 }
             }
         });
@@ -488,7 +488,7 @@ function Lesson() {
             </SidePanel>
 
             <ConfirmDialog state={confirmState} onClose={() => setConfirmState(null)} />
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
 
         </div>
     );

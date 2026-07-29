@@ -10,7 +10,7 @@ import {
 } from "../services/MaterialService";
 import { getLessons } from "../services/LessonService";
 import ConfirmDialog from "../components/ConfirmDialog";
-import Toast from "../components/Toast";
+import useToast from "../hooks/useToast";
 import SidePanel from "../components/SidePanel";
 import Pagination from "../components/Pagination";
 
@@ -57,7 +57,7 @@ function Material() {
     const [saving, setSaving] = useState(false);
     const [panelOpen, setPanelOpen] = useState(false);
     const [confirmState, setConfirmState] = useState(null);
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
     const [previewMaterial, setPreviewMaterial] = useState(null);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -76,8 +76,9 @@ function Material() {
             setMaterials(res.data.items);
             setTotalPages(res.data.totalPages);
         }
-        catch {
-            setToast({ message: "Couldn't load materials. Try refreshing.", type: "error" });
+        catch (err) {
+            console.error(err);
+            showToast("Couldn't load materials. Try refreshing.", "error");
         }
         finally {
             setLoading(false);
@@ -114,12 +115,12 @@ function Material() {
 
     const handleSubmit = async () => {
         if (!form.title.trim() || !form.lessonID) {
-            setToast({ message: "Title and lesson are required.", type: "error" });
+            showToast("Title and lesson are required.", "error");
             return;
         }
 
         if (editingId == null && !form.file && !form.videoUrl.trim()) {
-            setToast({ message: "Please upload a file or enter a video URL.", type: "error" });
+            showToast("Please upload a file or enter a video URL.", "error");
             return;
         }
 
@@ -138,18 +139,18 @@ function Material() {
         try {
             if (editingId == null) {
                 await createMaterial(data);
-                setToast({ message: "Material created.", type: "success" });
+                showToast("Material created.", "success");
             } else {
                 await updateMaterial(editingId, data);
-                setToast({ message: "Material updated.", type: "success" });
+                showToast("Material updated.", "success");
             }
 
             closePanel();
             loadMaterials();
         }
         catch (err) {
-            console.log(err);
-            setToast({ message: "Operation failed.", type: "error" });
+            console.error(err);
+            showToast("Operation failed.", "error");
         }
         finally {
             setSaving(false);
@@ -165,11 +166,12 @@ function Material() {
             onConfirm: async () => {
                 try {
                     await deleteMaterial(material.materialID);
-                    setToast({ message: "Material deleted.", type: "success" });
+                    showToast("Material deleted.", "success");
                     loadMaterials();
                 }
-                catch {
-                    setToast({ message: "Couldn't delete that material.", type: "error" });
+                catch (err) {
+                    console.error(err);
+                    showToast("Couldn't delete that material.", "error");
                 }
             }
         });
@@ -409,7 +411,7 @@ function Material() {
             </SidePanel>
 
             <ConfirmDialog state={confirmState} onClose={() => setConfirmState(null)} />
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
 
         </div>
     );

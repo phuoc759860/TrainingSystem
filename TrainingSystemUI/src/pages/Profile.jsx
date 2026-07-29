@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import useAuth from "../hooks/useAuth";
 import { getPoints, getBadges, getLeaderboard } from "../services/GamificationService";
-import Toast from "../components/Toast";
+import useToast from "../hooks/useToast";
 
 function Profile() {
     const [points, setPoints] = useState(null);
     const [badges, setBadges] = useState([]);
     const [leaderboard, setLeaderboard] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
 
     useEffect(() => {
         loadAll();
@@ -25,8 +25,9 @@ function Profile() {
             setPoints(p.data);
             setBadges(b.data);
             setLeaderboard(l.data);
-        } catch {
-            setToast({ message: "Could not load profile data.", type: "error" });
+        } catch (err) {
+            console.error(err);
+            showToast("Could not load profile data.", "error");
         } finally {
             setLoading(false);
         }
@@ -144,7 +145,7 @@ function Profile() {
                 )}
             </div>
 
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
         </div>
     );
 }

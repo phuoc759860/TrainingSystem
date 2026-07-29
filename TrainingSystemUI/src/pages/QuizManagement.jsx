@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { getQuizzes, createQuiz, updateQuiz, deleteQuiz, addQuestion, deleteQuestion } from "../services/QuizService";
 import { getLessons } from "../services/LessonService";
 import { getCourses } from "../services/CourseService";
+import useToast from "../hooks/useToast";
 import ConfirmDialog from "../components/ConfirmDialog";
-import Toast from "../components/Toast";
 import SidePanel from "../components/SidePanel";
 
 function QuizManagement() {
@@ -19,7 +19,7 @@ function QuizManagement() {
     const [courseFilter, setCourseFilter] = useState("");
     const [lessonFilter, setLessonFilter] = useState("");
     const [loading, setLoading] = useState(true);
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
     const [confirmState, setConfirmState] = useState(null);
 
     const [panelOpen, setPanelOpen] = useState(false);
@@ -48,32 +48,32 @@ function QuizManagement() {
         try {
             const res = await getQuizzes(lessonFilter, courseFilter);
             setQuizzes(res.data);
-        } catch {
-            setToast({ message: "Couldn't load quizzes.", type: "error" });
+        } catch (err) { console.error(err);
+            showToast("Couldn't load quizzes.", "error");
         } finally {
             setLoading(false);
         }
     };
 
     const loadCourses = async () => {
-        const res = await getCourses("", 1, 100);
+        const res = await getCourses("", 1, 10000);
         setCourses(res.data.items);
     };
 
     const loadLessonsByCourse = async (courseId) => {
-        const res = await getLessons("", courseId, 1, 100);
+        const res = await getLessons("", courseId, 1, 10000);
         setLessons(res.data.items);
     };
 
     const openCreatePanel = async () => {
         setEditingId(null);
         setForm({ title: "", description: "", lessonID: lessonFilter || "", timeLimitMinutes: 10, passingScore: 70 });
-        if (lessons.length === 0) {
-            try {
-                const res = await getLessons("", "", 1, 100);
-                setLessons(res.data.items);
-            } catch { }
-        }
+            if (lessons.length === 0) {
+                try {
+                    const res = await getLessons("", "", 1, 10000);
+                    setLessons(res.data.items);
+                } catch (err) { console.error(err); }
+            }
         setPanelOpen(true);
     };
 
@@ -81,29 +81,29 @@ function QuizManagement() {
         setEditingId(quiz.quizID);
         setForm({ title: quiz.title, description: quiz.description || "", lessonID: quiz.lessonID, timeLimitMinutes: quiz.timeLimitMinutes, passingScore: quiz.passingScore });
         try {
-            const res = await getLessons("", "", 1, 100);
+            const res = await getLessons("", "", 1, 10000);
             setLessons(res.data.items);
-        } catch { }
+        } catch (err) { console.error(err); }
         setPanelOpen(true);
     };
 
     const handleSubmit = async () => {
         if (!form.title.trim() || !form.lessonID) {
-            setToast({ message: "Title and lesson are required.", type: "error" });
+            showToast("Title and lesson are required.", "error");
             return;
         }
         try {
             if (editingId == null) {
                 await createQuiz(form);
-                setToast({ message: "Quiz created.", type: "success" });
+                showToast("Quiz created.", "success");
             } else {
                 await updateQuiz(editingId, form);
-                setToast({ message: "Quiz updated.", type: "success" });
+                showToast("Quiz updated.", "success");
             }
             setPanelOpen(false);
             loadQuizzes();
-        } catch {
-            setToast({ message: "Operation failed.", type: "error" });
+        } catch (err) { console.error(err);
+            showToast("Operation failed.", "error");
         }
     };
 
@@ -116,10 +116,10 @@ function QuizManagement() {
             onConfirm: async () => {
                 try {
                     await deleteQuiz(quiz.quizID);
-                    setToast({ message: "Quiz deleted.", type: "success" });
+                    showToast("Quiz deleted.", "success");
                     loadQuizzes();
-                } catch {
-                    setToast({ message: "Couldn't delete quiz.", type: "error" });
+                } catch (err) { console.error(err);
+                    showToast("Couldn't delete quiz.", "error");
                 }
             }
         });
@@ -129,8 +129,8 @@ function QuizManagement() {
         try {
             await updateQuiz(quiz.quizID, { isActive: !quiz.isActive });
             loadQuizzes();
-        } catch {
-            setToast({ message: "Couldn't update quiz.", type: "error" });
+        } catch (err) { console.error(err);
+            showToast("Couldn't update quiz.", "error");
         }
     };
 
@@ -142,26 +142,26 @@ function QuizManagement() {
 
     const handleAddQuestion = async () => {
         if (!qForm.questionText.trim() || qForm.options.some(o => !o.trim())) {
-            setToast({ message: "Fill in all options.", type: "error" });
+            showToast("Fill in all options.", "error");
             return;
         }
         try {
             await addQuestion(activeQuizId, qForm);
-            setToast({ message: "Question added.", type: "success" });
+            showToast("Question added.", "success");
             setQuestionPanelOpen(false);
             loadQuizzes();
-        } catch {
-            setToast({ message: "Couldn't add question.", type: "error" });
+        } catch (err) { console.error(err);
+            showToast("Couldn't add question.", "error");
         }
     };
 
     const handleDeleteQuestion = async (questionId) => {
         try {
             await deleteQuestion(questionId);
-            setToast({ message: "Question removed.", type: "success" });
+            showToast("Question removed.", "success");
             loadQuizzes();
-        } catch {
-            setToast({ message: "Couldn't remove question.", type: "error" });
+        } catch (err) { console.error(err);
+            showToast("Couldn't remove question.", "error");
         }
     };
 
@@ -314,7 +314,7 @@ function QuizManagement() {
             </SidePanel>
 
             <ConfirmDialog state={confirmState} onClose={() => setConfirmState(null)} />
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
         </div>
     );
 }

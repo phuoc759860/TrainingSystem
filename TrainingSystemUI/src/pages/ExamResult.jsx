@@ -4,7 +4,7 @@ import { getExamResults, createExamResult, updateExamResult, deleteExamResult } 
 import { getUsers } from "../services/UserService";
 import { getExams } from "../services/ExamService";
 import ConfirmDialog from "../components/ConfirmDialog";
-import Toast from "../components/Toast";
+import useToast from "../hooks/useToast";
 import SidePanel from "../components/SidePanel";
 import Pagination from "../components/Pagination";
 
@@ -20,7 +20,7 @@ function ExamResult() {
     const [saving, setSaving] = useState(false);
     const [panelOpen, setPanelOpen] = useState(false);
     const [confirmState, setConfirmState] = useState(null);
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
     const [form, setForm] = useState(blankForm());
     const [search, setSearch] = useState("");
     const [gradingFilter, setGradingFilter] = useState("all");
@@ -36,8 +36,8 @@ function ExamResult() {
             setResults(res.data.items);
             setTotalPages(res.data.totalPages);
         }
-        catch {
-            setToast({ message: "Couldn't load exam results. Try refreshing.", type: "error" });
+        catch (err) { console.error(err);
+            showToast("Couldn't load exam results. Try refreshing.", "error");
         }
         finally {
             setLoading(false);
@@ -68,7 +68,7 @@ function ExamResult() {
 
     const handleSubmit = async () => {
         if (!form.userID || !form.examID || form.score === "") {
-            setToast({ message: "User, exam, and score are required.", type: "error" });
+            showToast("User, exam, and score are required.", "error");
             return;
         }
 
@@ -78,17 +78,17 @@ function ExamResult() {
             const data = { userID: Number(form.userID), examID: Number(form.examID), score: Number(form.score) };
             if (editingId == null) {
                 await createExamResult(data);
-                setToast({ message: "Result created.", type: "success" });
+                showToast("Result created.", "success");
             }
             else {
                 await updateExamResult(editingId, data);
-                setToast({ message: "Result updated.", type: "success" });
+                showToast("Result updated.", "success");
             }
             closePanel();
             loadResults();
         } catch (err) {
-            console.log(err.response?.data);
-            setToast({ message: "Operation failed.", type: "error" });
+            console.error(err.response?.data);
+            showToast("Operation failed.", "error");
         } finally {
             setSaving(false);
         }
@@ -103,11 +103,11 @@ function ExamResult() {
             onConfirm: async () => {
                 try {
                     await deleteExamResult(r.resultID);
-                    setToast({ message: "Result deleted.", type: "success" });
+                    showToast("Result deleted.", "success");
                     loadResults();
                 }
-                catch {
-                    setToast({ message: "Couldn't delete that result.", type: "error" });
+                catch (err) { console.error(err);
+                    showToast("Couldn't delete that result.", "error");
                 }
             }
         });
@@ -243,7 +243,7 @@ function ExamResult() {
             </SidePanel>
 
             <ConfirmDialog state={confirmState} onClose={() => setConfirmState(null)} />
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
         </div>
     );
 }

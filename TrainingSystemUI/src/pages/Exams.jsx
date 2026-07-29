@@ -9,9 +9,9 @@ import {
 
 import useAuth from "../hooks/useAuth";
 import { getCourses } from "../services/CourseService";
+import useToast from "../hooks/useToast";
 import ConfirmDialog from "../components/ConfirmDialog";
 import Pagination from "../components/Pagination";
-import Toast from "../components/Toast";
 import SidePanel from "../components/SidePanel";
 
 const blankForm = () => ({
@@ -34,7 +34,7 @@ function Exam() {
     const [saving, setSaving] = useState(false);
     const [search, setSearch] = useState("");
     const [confirmState, setConfirmState] = useState(null);
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
     const [panelOpen, setPanelOpen] = useState(false);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -53,8 +53,8 @@ function Exam() {
             setExams(res.data.items);
             setTotalPages(res.data.totalPages);
         }
-        catch {
-            setToast({ message: "Couldn't load exams. Try refreshing.", type: "error" });
+        catch (err) { console.error(err);
+            showToast("Couldn't load exams. Try refreshing.", "error");
         }
         finally {
             setLoading(false);
@@ -99,7 +99,7 @@ function Exam() {
 
     const handleSubmit = async () => {
         if (!form.title.trim() || !form.courseID) {
-            setToast({ message: "Title and course are required.", type: "error" });
+            showToast("Title and course are required.", "error");
             return;
         }
 
@@ -124,14 +124,14 @@ function Exam() {
             }
             else {
                 await updateExam(editingId, payload);
-                setToast({ message: "Exam updated.", type: "success" });
+                showToast("Exam updated.", "success");
             }
 
             closePanel();
             loadExams();
         }
-        catch {
-            setToast({ message: "Something went wrong saving that exam.", type: "error" });
+        catch (err) { console.error(err);
+            showToast("Something went wrong saving that exam.", "error");
         }
         finally {
             setSaving(false);
@@ -147,11 +147,11 @@ function Exam() {
             onConfirm: async () => {
                 try {
                     await deleteExam(exam.examID);
-                    setToast({ message: "Exam deleted.", type: "success" });
+                    showToast("Exam deleted.", "success");
                     loadExams();
                 }
-                catch {
-                    setToast({ message: "Couldn't delete that exam.", type: "error" });
+                catch (err) { console.error(err);
+                    showToast("Couldn't delete that exam.", "error");
                 }
             }
         });
@@ -381,7 +381,7 @@ function Exam() {
             </SidePanel>
 
             <ConfirmDialog state={confirmState} onClose={() => setConfirmState(null)} />
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
 
         </div>
     );

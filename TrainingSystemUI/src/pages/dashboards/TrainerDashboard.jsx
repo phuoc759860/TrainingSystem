@@ -55,7 +55,7 @@ export default function TrainerDashboard() {
             try {
                 const res = await getTrainerDashboard();
                 setStats(res.data);
-            } catch { /* silent */ }
+            } catch (err) { console.error(err); }
             finally { setLoading(false); }
         })();
     }, []);

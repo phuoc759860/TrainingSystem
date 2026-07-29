@@ -55,7 +55,7 @@ export default function AdminDashboard() {
             try {
                 const res = await getAdminDashboard();
                 setStats(res.data);
-            } catch { /* silent */ }
+            } catch (err) { console.error(err); }
             finally { setLoading(false); }
         })();
     }, []);

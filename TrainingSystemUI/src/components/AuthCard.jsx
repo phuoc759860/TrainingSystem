@@ -1,6 +1,6 @@
 import { Book } from "lucide-react";
 
-function AuthCard({ title, subtitle, children, altText, altAction, altLink, toast, setToast }) {
+function AuthCard({ title, subtitle, children, altText, altAction, altLink }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-brand-50 px-4">
       <div className="w-full max-w-md">

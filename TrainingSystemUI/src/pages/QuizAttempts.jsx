@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import useAuth from "../hooks/useAuth";
 import { useParams, useNavigate } from "react-router-dom";
 import { getQuizAttempts, getAttemptDetail, getQuiz } from "../services/QuizService";
-import Toast from "../components/Toast";
+import useToast from "../hooks/useToast";
 
 function QuizAttempts() {
     const { quizId } = useParams();
@@ -14,7 +14,7 @@ function QuizAttempts() {
     const [attempts, setAttempts] = useState([]);
     const [selectedAttempt, setSelectedAttempt] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
 
     useEffect(() => { loadData(); }, [quizId]);
 
@@ -27,8 +27,8 @@ function QuizAttempts() {
             ]);
             setQuiz(quizRes.data);
             setAttempts(attemptsRes.data);
-        } catch {
-            setToast({ message: "Couldn't load data.", type: "error" });
+        } catch (err) { console.error(err);
+            showToast("Couldn't load data.", "error");
         } finally {
             setLoading(false);
         }
@@ -38,8 +38,8 @@ function QuizAttempts() {
         try {
             const res = await getAttemptDetail(attemptId);
             setSelectedAttempt(res.data);
-        } catch {
-            setToast({ message: "Couldn't load attempt.", type: "error" });
+        } catch (err) { console.error(err);
+            showToast("Couldn't load attempt.", "error");
         }
     };
 
@@ -137,7 +137,7 @@ function QuizAttempts() {
             )}
 
             <button className="btn btn-outline" onClick={() => navigate(-1)} style={{ marginTop: 16 }}>← Back</button>
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
         </div>
     );
 }

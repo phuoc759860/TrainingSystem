@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getExamQuestions, submitExam } from "../services/ExamService";
-import Toast from "../components/Toast";
+import useToast from "../hooks/useToast";
+import ConfirmDialog from "../components/ConfirmDialog";
 
 function TakeExam() {
     const { examId } = useParams();
@@ -14,7 +15,7 @@ function TakeExam() {
     const [result, setResult] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
 
     // Timer
     const [timeLeft, setTimeLeft] = useState(null);
@@ -75,7 +76,7 @@ function TakeExam() {
                 setTimeLeft(totalSeconds);
             }
         } catch (err) {
-            console.log(err);
+            console.error(err);
             const msg = err.response?.data?.message
                 || "Unable to load this exam. You may not be enrolled or have no attempts left.";
             setError(msg);
@@ -106,21 +107,33 @@ function TakeExam() {
         setAnswers(prev => ({ ...prev, [questionID]: value }));
     };
 
+    const [confirmState, setConfirmState] = useState(null);
+
     const handleSubmit = async (autoSubmit = false) => {
         if (submitLockRef.current) return;
-        submitLockRef.current = true;
 
         if (!autoSubmit) {
             const unanswered = questions.filter(q => !answers[q.questionID]?.trim());
             if (unanswered.length > 0) {
-                if (!window.confirm(
-                    `You have ${unanswered.length} unanswered question(s). Submit anyway?`
-                )) {
-                    submitLockRef.current = false;
-                    return;
-                }
+                setConfirmState({
+                    title: "Unanswered questions",
+                    message: `You have ${unanswered.length} unanswered question(s). Submit anyway?`,
+                    confirmLabel: "Submit",
+                    danger: true,
+                    onConfirm: async () => {
+                        submitLockRef.current = true;
+                        await doSubmit();
+                    }
+                });
+                return;
             }
         }
+
+        submitLockRef.current = true;
+        await doSubmit();
+    };
+
+    const doSubmit = async () => {
 
         setSubmitting(true);
         if (timerRef.current) clearInterval(timerRef.current);
@@ -134,9 +147,9 @@ function TakeExam() {
             const res = await submitExam(examId, payload, startedAtRef.current);
             setResult(res.data);
         } catch (err) {
-            console.log(err);
+            console.error(err);
             const msg = err.response?.data?.message || "Failed to submit exam.";
-            setToast({ message: msg, type: "error" });
+            showToast(msg, "error");
             submitLockRef.current = false;
         } finally {
             setSubmitting(false);
@@ -373,7 +386,8 @@ function TakeExam() {
                 </button>
             )}
 
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
+            <ConfirmDialog state={confirmState} onClose={() => setConfirmState(null)} />
         </div>
     );
 }

@@ -8,8 +8,8 @@ import {
 
 import { getUsers } from "../services/UserService";
 import { getCourses } from "../services/CourseService";
+import useToast from "../hooks/useToast";
 import ConfirmDialog from "../components/ConfirmDialog";
-import Toast from "../components/Toast";
 import SidePanel from "../components/SidePanel";
 import Pagination from "../components/Pagination";
 
@@ -30,7 +30,7 @@ function Enrollment() {
     const [saving, setSaving] = useState(false);
     const [panelOpen, setPanelOpen] = useState(false);
     const [confirmState, setConfirmState] = useState(null);
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -50,8 +50,9 @@ function Enrollment() {
             setEnrollments(res.data.items);
             setTotalPages(res.data.totalPages);
         }
-        catch {
-            setToast({ message: "Couldn't load enrollments. Try refreshing.", type: "error" });
+        catch (err) {
+            console.error(err);
+            showToast("Couldn't load enrollments. Try refreshing.", "error");
         }
         finally {
             setLoading(false);
@@ -99,7 +100,7 @@ function Enrollment() {
 
     const handleSubmit = async () => {
         if (editingId == null && (!form.userID || !form.courseID)) {
-            setToast({ message: "User and course are required.", type: "error" });
+            showToast("User and course are required.", "error");
             return;
         }
 
@@ -109,11 +110,11 @@ function Enrollment() {
 
             if (editingId == null) {
                 await createEnrollment(form);
-                setToast({ message: "Enrollment created.", type: "success" });
+                showToast("Enrollment created.", "success");
             }
             else {
                 await updateEnrollment(editingId, { status: form.status });
-                setToast({ message: "Enrollment updated.", type: "success" });
+                showToast("Enrollment updated.", "success");
             }
 
             closePanel();
@@ -121,10 +122,11 @@ function Enrollment() {
 
         }
         catch (err) {
+            console.error(err);
             const message = err?.response?.status === 409
                 ? "This user is already enrolled in that course."
                 : "Operation failed.";
-            setToast({ message, type: "error" });
+            showToast(message, "error");
         }
         finally {
             setSaving(false);
@@ -141,11 +143,12 @@ function Enrollment() {
             onConfirm: async () => {
                 try {
                     await deleteEnrollment(enrollment.enrollmentID);
-                    setToast({ message: "Enrollment removed.", type: "success" });
+                    showToast("Enrollment removed.", "success");
                     loadEnrollments();
                 }
-                catch {
-                    setToast({ message: "Couldn't remove that enrollment.", type: "error" });
+                catch (err) {
+                    console.error(err);
+                    showToast("Couldn't remove that enrollment.", "error");
                 }
             }
         });
@@ -328,7 +331,7 @@ function Enrollment() {
             </SidePanel>
 
             <ConfirmDialog state={confirmState} onClose={() => setConfirmState(null)} />
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
 
         </div>
 

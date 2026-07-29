@@ -4,7 +4,7 @@ import { getInbox, getSentMessages, sendMessage, markMessageRead, deleteMessage 
 import { getRecipients } from "../services/UserService";
 import SidePanel from "../components/SidePanel";
 import ConfirmDialog from "../components/ConfirmDialog";
-import Toast from "../components/Toast";
+import useToast from "../hooks/useToast";
 
 function Inbox() {
     const navigate = useNavigate();
@@ -15,7 +15,7 @@ function Inbox() {
     const [loading, setLoading] = useState(true);
     const [panelOpen, setPanelOpen] = useState(false);
     const [saving, setSaving] = useState(false);
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
     const [confirmState, setConfirmState] = useState(null);
     const [selectedMsg, setSelectedMsg] = useState(null);
     const [form, setForm] = useState({ receiverID: "", subject: "", body: "" });
@@ -32,8 +32,8 @@ function Inbox() {
                 const res = await getSentMessages();
                 setSent(res.data);
             }
-        } catch {
-            setToast({ message: "Could not load messages.", type: "error" });
+        } catch (err) { console.error(err);
+            showToast("Could not load messages.", "error");
         } finally {
             setLoading(false);
         }
@@ -48,7 +48,7 @@ function Inbox() {
 
     const handleSend = async () => {
         if (!form.receiverID || !form.subject.trim() || !form.body.trim()) {
-            setToast({ message: "All fields required.", type: "error" });
+            showToast("All fields required.", "error");
             return;
         }
         setSaving(true);
@@ -58,11 +58,11 @@ function Inbox() {
                 subject: form.subject,
                 body: form.body
             });
-            setToast({ message: "Message sent!", type: "success" });
+            showToast("Message sent!", "success");
             setPanelOpen(false);
             loadData();
-        } catch {
-            setToast({ message: "Failed to send.", type: "error" });
+        } catch (err) { console.error(err);
+            showToast("Failed to send.", "error");
         } finally {
             setSaving(false);
         }
@@ -74,7 +74,7 @@ function Inbox() {
             try {
                 await markMessageRead(msg.messageID);
                 setInbox(prev => prev.map(m => m.messageID === msg.messageID ? { ...m, isRead: true } : m));
-            } catch { /* ok */ }
+            } catch (err) { console.error(err); }
         }
     };
 
@@ -87,11 +87,11 @@ function Inbox() {
             onConfirm: async () => {
                 try {
                     await deleteMessage(msg.messageID);
-                    setToast({ message: "Deleted.", type: "success" });
+                    showToast("Deleted.", "success");
                     loadData();
                     if (selectedMsg?.messageID === msg.messageID) setSelectedMsg(null);
-                } catch {
-                    setToast({ message: "Failed to delete.", type: "error" });
+                } catch (err) { console.error(err);
+                    showToast("Failed to delete.", "error");
                 }
             }
         });
@@ -208,7 +208,7 @@ function Inbox() {
             </SidePanel>
 
             <ConfirmDialog state={confirmState} onClose={() => setConfirmState(null)} />
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
         </div>
     );
 }

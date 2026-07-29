@@ -6,7 +6,7 @@ import {
     deleteRole
 } from "../services/RoleService";
 import ConfirmDialog from "../components/ConfirmDialog";
-import Toast from "../components/Toast";
+import useToast from "../hooks/useToast";
 import SidePanel from "../components/SidePanel";
 
 function Role() {
@@ -18,7 +18,7 @@ function Role() {
     const [saving, setSaving] = useState(false);
     const [panelOpen, setPanelOpen] = useState(false);
     const [confirmState, setConfirmState] = useState(null);
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
     const [search, setSearch] = useState("");
 
     useEffect(() => {
@@ -31,8 +31,8 @@ function Role() {
             const res = await getRoles();
             setRoles(res.data);
         }
-        catch {
-            setToast({ message: "Couldn't load roles. Try refreshing.", type: "error" });
+        catch (err) { console.error(err);
+            showToast("Couldn't load roles. Try refreshing.", "error");
         }
         finally {
             setLoading(false);
@@ -60,7 +60,7 @@ function Role() {
     const handleSubmit = async () => {
 
         if (roleName.trim() === "") {
-            setToast({ message: "Role name is required.", type: "error" });
+            showToast("Role name is required.", "error");
             return;
         }
 
@@ -70,17 +70,17 @@ function Role() {
 
             if (editingId == null) {
                 await createRole({ roleName });
-                setToast({ message: "Role created.", type: "success" });
+                showToast("Role created.", "success");
             } else {
                 await updateRole(editingId, { roleName });
-                setToast({ message: "Role updated.", type: "success" });
+                showToast("Role updated.", "success");
             }
 
             closePanel();
             loadRoles();
 
-        } catch {
-            setToast({ message: "Operation failed.", type: "error" });
+        } catch (err) { console.error(err);
+            showToast("Operation failed.", "error");
         } finally {
             setSaving(false);
         }
@@ -96,11 +96,11 @@ function Role() {
             onConfirm: async () => {
                 try {
                     await deleteRole(role.roleID);
-                    setToast({ message: "Role deleted.", type: "success" });
+                    showToast("Role deleted.", "success");
                     loadRoles();
                 }
-                catch {
-                    setToast({ message: "Couldn't delete that role.", type: "error" });
+                catch (err) { console.error(err);
+                    showToast("Couldn't delete that role.", "error");
                 }
             }
         });
@@ -221,7 +221,7 @@ function Role() {
             </SidePanel>
 
             <ConfirmDialog state={confirmState} onClose={() => setConfirmState(null)} />
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
 
         </div>
 

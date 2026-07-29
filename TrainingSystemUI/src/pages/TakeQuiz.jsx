@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getQuizForTaking, submitQuiz } from "../services/QuizService";
-import Toast from "../components/Toast";
+import useToast from "../hooks/useToast";
 
 function TakeQuiz() {
     const { quizId } = useParams();
@@ -15,7 +15,7 @@ function TakeQuiz() {
     const [result, setResult] = useState(null);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
     const timerRef = useRef(null);
 
     useEffect(() => {
@@ -44,8 +44,8 @@ function TakeQuiz() {
             setQuiz(res.data);
             setTimeLeft(res.data.timeLimitMinutes * 60);
             setLoading(false);
-        } catch {
-            setToast({ message: "Couldn't load quiz.", type: "error" });
+        } catch (err) { console.error(err);
+            showToast("Couldn't load quiz.", "error");
             setLoading(false);
         }
     };
@@ -68,8 +68,8 @@ function TakeQuiz() {
             const res = await submitQuiz(quizId, { answers: answerList });
             setResult(res.data);
             setSubmitted(true);
-        } catch {
-            setToast({ message: "Failed to submit quiz.", type: "error" });
+        } catch (err) { console.error(err);
+            showToast("Failed to submit quiz.", "error");
         } finally {
             setSubmitting(false);
         }
@@ -202,7 +202,7 @@ function TakeQuiz() {
                 </div>
             )}
 
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
         </div>
     );
 }

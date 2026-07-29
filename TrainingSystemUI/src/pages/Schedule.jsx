@@ -10,7 +10,7 @@ import {
 import { getCourses } from "../services/CourseService";
 import { getLessons } from "../services/LessonService";
 import ConfirmDialog from "../components/ConfirmDialog";
-import Toast from "../components/Toast";
+import useToast from "../hooks/useToast";
 import SidePanel from "../components/SidePanel";
 
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -59,7 +59,7 @@ function Schedule() {
     const [saving, setSaving] = useState(false);
     const [panelOpen, setPanelOpen] = useState(false);
     const [confirmState, setConfirmState] = useState(null);
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
     const [form, setForm] = useState(blankForm());
 
     const [viewMode, setViewMode] = useState("weekly");
@@ -82,8 +82,8 @@ function Schedule() {
             const res = await getScheduleEntries(courseFilter);
             setEntries(res.data);
         }
-        catch {
-            setToast({ message: "Couldn't load schedule. Try refreshing.", type: "error" });
+        catch (err) { console.error(err);
+            showToast("Couldn't load schedule. Try refreshing.", "error");
         }
         finally {
             setLoading(false);
@@ -91,12 +91,12 @@ function Schedule() {
     };
 
     const loadCourses = async () => {
-        const res = await getCourses("", 1, 100);
+        const res = await getCourses("", 1, 10000);
         setCourses(res.data.items);
     };
 
     const loadLessons = async () => {
-        const res = await getLessons("", "", 1, 100);
+        const res = await getLessons("", "", 1, 10000);
         setLessons(res.data.items);
     };
 
@@ -135,7 +135,7 @@ function Schedule() {
 
     const handleSubmit = async () => {
         if (!form.courseID || !form.lessonID) {
-            setToast({ message: "Course and lesson are required.", type: "error" });
+            showToast("Course and lesson are required.", "error");
             return;
         }
 
@@ -153,7 +153,7 @@ function Schedule() {
 
             if (editingId == null) {
                 await createScheduleEntry(data);
-                setToast({ message: "Schedule entry created.", type: "success" });
+                showToast("Schedule entry created.", "success");
             } else {
                 await updateScheduleEntry(editingId, {
                     lessonID: data.lessonID,
@@ -162,16 +162,16 @@ function Schedule() {
                     endTime: data.endTime,
                     position: data.position
                 });
-                setToast({ message: "Schedule entry updated.", type: "success" });
+                showToast("Schedule entry updated.", "success");
             }
 
             closePanel();
             loadEntries();
         }
         catch (err) {
-            console.log(err);
+            console.error(err);
             const message = err?.response?.data?.message || "Operation failed.";
-            setToast({ message, type: "error" });
+            showToast(message, "error");
         }
         finally {
             setSaving(false);
@@ -187,11 +187,11 @@ function Schedule() {
             onConfirm: async () => {
                 try {
                     await deleteScheduleEntry(entry.scheduleEntryID);
-                    setToast({ message: "Entry deleted.", type: "success" });
+                    showToast("Entry deleted.", "success");
                     loadEntries();
                 }
-                catch {
-                    setToast({ message: "Couldn't delete entry.", type: "error" });
+                catch (err) { console.error(err);
+                    showToast("Couldn't delete entry.", "error");
                 }
             }
         });
@@ -512,7 +512,7 @@ function Schedule() {
             </SidePanel>
 
             <ConfirmDialog state={confirmState} onClose={() => setConfirmState(null)} />
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
 
         </div>
     );

@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { getMyGrades } from "../services/GradeService";
-import Toast from "../components/Toast";
+import useToast from "../hooks/useToast";
 
 function scoreColor(value) {
     if (value >= 70) return "var(--success)";
@@ -44,7 +44,7 @@ function MiniBar({ value, max = 100, delay = 0 }) {
 function Grades() {
     const [grades, setGrades] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
 
     useEffect(() => {
         loadGrades();
@@ -55,8 +55,8 @@ function Grades() {
         try {
             const res = await getMyGrades();
             setGrades(res.data);
-        } catch {
-            setToast({ message: "Couldn't load grades.", type: "error" });
+        } catch (err) { console.error(err);
+            showToast("Couldn't load grades.", "error");
         } finally {
             setLoading(false);
         }
@@ -195,7 +195,7 @@ function Grades() {
                 </>
             )}
 
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
         </div>
     );
 }

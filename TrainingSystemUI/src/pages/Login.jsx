@@ -2,20 +2,20 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../services/authService";
 import AuthCard from "../components/AuthCard";
-import Toast from "../components/Toast";
+import useToast from "../hooks/useToast";
 
 function Login() {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
 
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
             const result = await login({ email, password });
             if (!result.token) {
-                setToast({ message: "Login failed: No token returned.", type: "error" });
+                showToast("Login failed: No token returned.", "error");
                 return;
             }
             localStorage.setItem("token", result.token);
@@ -26,7 +26,7 @@ function Login() {
             localStorage.setItem("role", result.role);
             navigate("/dashboard");
         } catch (error) {
-            setToast({ message: error.response?.data || error.message, type: "error" });
+            showToast(error.response?.data || error.message, "error");
         }
     };
 
@@ -37,8 +37,6 @@ function Login() {
             altText="Don't have an account?"
             altAction="Create one"
             altLink={() => navigate("/register")}
-            toast={toast}
-            setToast={setToast}
         >
             <form onSubmit={handleLogin} className="space-y-5">
                 <div>
@@ -69,7 +67,7 @@ function Login() {
                 </button>
             </form>
 
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
         </AuthCard>
     );
 }

@@ -10,7 +10,7 @@ import {
 import { getExams } from "../services/ExamService";
 import ConfirmDialog from "../components/ConfirmDialog";
 import Pagination from "../components/Pagination";
-import Toast from "../components/Toast";
+import useToast from "../hooks/useToast";
 import SidePanel from "../components/SidePanel";
 
 const blankQuestion = () => ({
@@ -46,7 +46,7 @@ function Question() {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [confirmState, setConfirmState] = useState(null);
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
 
     // Filter for the table / which exam we're managing
     const [filterExamId, setFilterExamId] = useState(preselectedExamId);
@@ -85,8 +85,9 @@ function Question() {
             setQuestions(res.data.items);
             setTotalPages(res.data.totalPages);
         }
-        catch {
-            setToast({ message: "Couldn't load questions. Try refreshing.", type: "error" });
+        catch (err) {
+            console.error(err);
+            showToast("Couldn't load questions. Try refreshing.", "error");
         }
         finally {
             setLoading(false);
@@ -149,11 +150,11 @@ function Question() {
 
     const handleSubmit = async () => {
         if (!form.content.trim()) {
-            setToast({ message: "Question text is required.", type: "error" });
+            showToast("Question text is required.", "error");
             return;
         }
         if (!form.examID) {
-            setToast({ message: "Please select an exam.", type: "error" });
+            showToast("Please select an exam.", "error");
             return;
         }
 
@@ -162,7 +163,7 @@ function Question() {
         try {
             if (editingId == null) {
                 await createQuestion(form);
-                setToast({ message: "Question created.", type: "success" });
+                showToast("Question created.", "success");
             }
             else {
                 await updateQuestion(editingId, {
@@ -175,14 +176,15 @@ function Question() {
                     correctAnswer: form.correctAnswer,
                     score: Number(form.score)
                 });
-                setToast({ message: "Question updated.", type: "success" });
+                showToast("Question updated.", "success");
             }
 
             closePanel();
             loadQuestions();
         }
-        catch {
-            setToast({ message: "Operation failed.", type: "error" });
+        catch (err) {
+            console.error(err);
+            showToast("Operation failed.", "error");
         }
         finally {
             setFormSaving(false);
@@ -198,11 +200,12 @@ function Question() {
             onConfirm: async () => {
                 try {
                     await deleteQuestion(question.questionID);
-                    setToast({ message: "Question deleted.", type: "success" });
+                    showToast("Question deleted.", "success");
                     loadQuestions();
                 }
-                catch {
-                    setToast({ message: "Couldn't delete that question.", type: "error" });
+                catch (err) {
+                    console.error(err);
+                    showToast("Couldn't delete that question.", "error");
                 }
             }
         });
@@ -250,7 +253,7 @@ function Question() {
 
     const handleBulkSubmit = async () => {
         if (!filterExamId) {
-            setToast({ message: "No exam selected.", type: "error" });
+            showToast("No exam selected.", "error");
             return;
         }
 
@@ -280,18 +283,15 @@ function Question() {
                 });
             }
 
-            setToast({ message: `${bulkForms.length} question(s) created.`, type: "success" });
+            showToast(`${bulkForms.length} question(s) created.`, "success");
             setBulkMode(false);
             setBulkForms([]);
             navigate(`/questions?examId=${filterExamId}`, { replace: true });
             loadQuestions();
         }
         catch (err) {
-            console.log(err);
-            setToast({
-                message: "Some questions failed to save. Check the list below.",
-                type: "error"
-            });
+            console.error(err);
+            showToast("Some questions failed to save. Check the list below.", "error");
             loadQuestions();
         }
         finally {
@@ -709,7 +709,7 @@ function Question() {
             </SidePanel>
 
             <ConfirmDialog state={confirmState} onClose={() => setConfirmState(null)} />
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
 
         </div>
 

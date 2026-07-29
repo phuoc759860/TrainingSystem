@@ -29,7 +29,7 @@ function NotificationsDropdown() {
         try {
             const res = await getUnreadNotificationCount();
             setUnreadCount(res.data.total ?? 0);
-        } catch { /* ok */ }
+        } catch (err) { console.error(err); }
     };
 
     const toggle = async () => {
@@ -37,7 +37,7 @@ function NotificationsDropdown() {
             try {
                 const res = await getNotifications();
                 setNotifications(res.data);
-            } catch { /* ok */ }
+            } catch (err) { console.error(err); }
         }
         setOpen(!open);
     };
@@ -47,7 +47,7 @@ function NotificationsDropdown() {
             await markNotificationRead(id);
             setNotifications(prev => prev.map(n => n.notificationID === id ? { ...n, isRead: true } : n));
             setUnreadCount(prev => Math.max(0, prev - 1));
-        } catch { /* ok */ }
+        } catch (err) { console.error(err); }
     };
 
     const handleMarkAllRead = async () => {
@@ -55,7 +55,7 @@ function NotificationsDropdown() {
             await markAllNotificationsRead();
             setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
             setUnreadCount(0);
-        } catch { /* ok */ }
+        } catch (err) { console.error(err); }
     };
 
     return (

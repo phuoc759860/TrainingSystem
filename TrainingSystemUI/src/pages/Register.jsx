@@ -3,12 +3,12 @@ import { register } from "../services/authService";
 import { getRoles } from "../services/RoleService";
 import { useNavigate } from "react-router-dom";
 import AuthCard from "../components/AuthCard";
-import Toast from "../components/Toast";
+import useToast from "../hooks/useToast";
 
 function Register() {
     const navigate = useNavigate();
     const [roles, setRoles] = useState([]);
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
     const [form, setForm] = useState({
         name: "",
         email: "",
@@ -24,9 +24,7 @@ function Register() {
         try {
             const res = await getRoles();
             setRoles(res.data);
-        } catch {
-            // ignore
-        }
+        } catch (err) { console.error(err); }
     };
 
     const handleChange = (e) => {
@@ -37,10 +35,10 @@ function Register() {
         e.preventDefault();
         try {
             await register(form);
-            setToast({ message: "Registration successful!", type: "success" });
+            showToast("Registration successful!", "success");
             setTimeout(() => navigate("/login"), 800);
-        } catch {
-            setToast({ message: "Registration failed.", type: "error" });
+        } catch (err) { console.error(err);
+            showToast("Registration failed.", "error");
         }
     };
 
@@ -51,8 +49,6 @@ function Register() {
             altText="Already have an account?"
             altAction="Sign in"
             altLink={() => navigate("/login")}
-            toast={toast}
-            setToast={setToast}
         >
             <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
@@ -112,7 +108,7 @@ function Register() {
                 </button>
             </form>
 
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
         </AuthCard>
     );
 }

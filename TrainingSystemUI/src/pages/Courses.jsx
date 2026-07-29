@@ -8,8 +8,8 @@ import {
 } from "../services/CourseService";
 import { getEnrollments, enrollSelf } from "../services/EnrollmentService";
 import useAuth from "../hooks/useAuth";
+import useToast from "../hooks/useToast";
 import ConfirmDialog from "../components/ConfirmDialog";
-import Toast from "../components/Toast";
 import SidePanel from "../components/SidePanel";
 import Pagination from "../components/Pagination";
 
@@ -31,7 +31,7 @@ function Course() {
     const [saving, setSaving] = useState(false);
     const [panelOpen, setPanelOpen] = useState(false);
     const [confirmState, setConfirmState] = useState(null);
-    const [toast, setToast] = useState(null);
+    const { showToast, toastEl } = useToast();
     const [enrolledCourseIds, setEnrolledCourseIds] = useState(new Set());
     const [enrolling, setEnrolling] = useState(null);
     const [page, setPage] = useState(1);
@@ -62,8 +62,8 @@ function Course() {
             setCourses(res.data.items);
             setTotalPages(res.data.totalPages);
         }
-        catch {
-            setToast({ message: "Couldn't load courses. Try refreshing.", type: "error" });
+        catch (err) { console.error(err);
+            showToast("Couldn't load courses. Try refreshing.", "error");
         }
         finally {
             setLoading(false);
@@ -75,18 +75,18 @@ function Course() {
             const res = await getEnrollments(1, 100);
             const ids = new Set(res.data.items.filter(e => e.status !== "Dropped").map(e => e.courseID));
             setEnrolledCourseIds(ids);
-        } catch { }
+        } catch (err) { console.error(err); }
     };
 
     const handleEnroll = async (courseId) => {
         setEnrolling(courseId);
         try {
             await enrollSelf(courseId);
-            setToast({ message: "Successfully enrolled!", type: "success" });
+            showToast("Successfully enrolled!", "success");
             setEnrolledCourseIds(prev => new Set([...prev, courseId]));
         } catch (err) {
             const msg = err.response?.data?.message || "Enrollment failed.";
-            setToast({ message: msg, type: "error" });
+            showToast(msg, "error");
         } finally {
             setEnrolling(null);
         }
@@ -123,11 +123,11 @@ function Course() {
 
     const handleSubmit = async () => {
         if (!form.title.trim()) {
-            setToast({ message: "Course title is required.", type: "error" });
+            showToast("Course title is required.", "error");
             return;
         }
         if (role === "Admin" && !form.trainerID) {
-            setToast({ message: "Please select a trainer.", type: "error" });
+            showToast("Please select a trainer.", "error");
             return;
         }
 
@@ -141,18 +141,18 @@ function Course() {
         try {
             if (editingId == null) {
                 await createCourse(data);
-                setToast({ message: "Course created.", type: "success" });
+                showToast("Course created.", "success");
             } else {
                 await updateCourse(editingId, data);
-                setToast({ message: "Course updated.", type: "success" });
+                showToast("Course updated.", "success");
             }
 
             closePanel();
             loadCourses();
         }
         catch (err) {
-            console.log(err);
-            setToast({ message: "Operation failed.", type: "error" });
+            console.error(err);
+            showToast("Operation failed.", "error");
         }
         finally {
             setSaving(false);
@@ -168,11 +168,11 @@ function Course() {
             onConfirm: async () => {
                 try {
                     await deleteCourse(course.courseID);
-                    setToast({ message: "Course deleted.", type: "success" });
+                    showToast("Course deleted.", "success");
                     loadCourses();
                 }
-                catch {
-                    setToast({ message: "Couldn't delete that course.", type: "error" });
+                catch (err) { console.error(err);
+                    showToast("Couldn't delete that course.", "error");
                 }
             }
         });
@@ -335,7 +335,7 @@ function Course() {
             </SidePanel>
 
             <ConfirmDialog state={confirmState} onClose={() => setConfirmState(null)} />
-            <Toast toast={toast} onDone={() => setToast(null)} />
+            {toastEl}
 
         </div>
     );

@@ -55,7 +55,7 @@ export default function StudentDashboard() {
             try {
                 const res = await getStudentDashboard();
                 setStats(res.data);
-            } catch { /* silent */ }
+            } catch (err) { console.error(err); }
             finally { setLoading(false); }
         })();
     }, []);
