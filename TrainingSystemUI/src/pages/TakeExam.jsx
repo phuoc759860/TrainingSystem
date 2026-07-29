@@ -184,7 +184,7 @@ function TakeExam() {
                     <p>{error}</p>
                 </div>
                 <div className="card empty-state">
-                    <div className="empty-icon">&#9888;&#65039;</div>
+                    <div className="empty-icon">⚠️</div>
                     <p style={{ color: "var(--danger)" }}>{error}</p>
                     <button className="btn btn-outline" onClick={() => navigate(-1)} style={{ marginTop: 12 }}>
                         Go Back
@@ -311,7 +311,7 @@ function TakeExam() {
                             padding: "4px 12px", borderRadius: 8,
                             transition: "all .3s"
                         }}>
-                            &#9201; {formatTime(timeLeft)}
+                            ⏱️ {formatTime(timeLeft)}
                         </div>
                     )}
                     <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ink-soft)" }}>

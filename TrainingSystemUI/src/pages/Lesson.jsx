@@ -294,7 +294,7 @@ function Lesson() {
                 </div>
             ) : filteredLessons.length === 0 ? (
                 <div className="card empty-state">
-                    <div className="empty-icon">&#128213;</div>
+                    <div className="empty-icon">📓</div>
                     <p>
                         {search || courseId || completionFilter
                             ? "No lessons match your filters."

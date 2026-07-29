@@ -201,7 +201,7 @@ function Exam() {
                 </div>
             ) : filteredExams.length === 0 ? (
                 <div className="card empty-state">
-                    <div className="empty-icon">&#128203;</div>
+                    <div className="empty-icon">📋</div>
                     <p>
                         {search
                             ? "No exams match your search."

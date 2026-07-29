@@ -144,7 +144,7 @@ function Inbox() {
                 <div className="loading-row"><span className="spinner" /> Loading...</div>
             ) : messages.length === 0 ? (
                 <div className="card empty-state">
-                    <div className="empty-icon">&#128231;</div>
+                    <div className="empty-icon">📧</div>
                     <p>{tab === "inbox" ? "No messages yet." : "No sent messages."}</p>
                 </div>
             ) : (

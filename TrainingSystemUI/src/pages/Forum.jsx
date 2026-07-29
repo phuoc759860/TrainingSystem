@@ -191,7 +191,7 @@ function Forum() {
 
                     {threads.length === 0 ? (
                         <div className="card empty-state">
-                            <div className="empty-icon">&#128172;</div>
+                            <div className="empty-icon">💬</div>
                             <p>No discussions yet. Start one!</p>
                         </div>
                     ) : (
@@ -205,7 +205,7 @@ function Forum() {
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                     <div>
                                         <div style={{ fontWeight: 600, marginBottom: 4 }}>
-                                            {thread.isPinned && <span style={{ marginRight: 8 }}>&#128204;</span>}
+                                            {thread.isPinned && <span style={{ marginRight: 8 }}>📌</span>}
                                             {thread.title}
                                         </div>
                                         <div style={{ fontSize: 12, color: "var(--ink-soft)" }}>

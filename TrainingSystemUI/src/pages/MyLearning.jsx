@@ -126,7 +126,7 @@ function MyLearning() {
 
             {enrollments.length === 0 ? (
                 <div className="card empty-state">
-                    <div className="empty-icon">&#128218;</div>
+                    <div className="empty-icon">📚</div>
                     <p>You're not enrolled in any courses yet.</p>
                 </div>
             ) : (
