@@ -336,11 +336,24 @@ namespace TrainingSystem.Controllers
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<PaginatedResult<UserDto>>> GetUsers(
+            [FromQuery] string? search,
+            [FromQuery] int? roleID,
             [FromQuery] PaginationQuery pg)
         {
             var query = _context.Users
                 .Include(u => u.Role)
                 .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var q = search.Trim().ToLower();
+                query = query.Where(u =>
+                    u.Name.ToLower().Contains(q) ||
+                    u.Email.ToLower().Contains(q));
+            }
+
+            if (roleID.HasValue && roleID > 0)
+                query = query.Where(u => u.RoleID == roleID.Value);
 
             var totalCount = await query.CountAsync();
 

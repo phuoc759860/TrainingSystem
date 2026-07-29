@@ -39,6 +39,7 @@ namespace TrainingSystem.Controllers
         };
 
         private const long MaxFileSize = 50 * 1024 * 1024; // 50 MB
+        private const long MaxVideoFileSize = 500 * 1024 * 1024; // 500 MB
 
         public MaterialController(AppDbContext context, IFileStorageService storage, FileValidationService fileValidator)
             : base(context)
@@ -150,6 +151,7 @@ namespace TrainingSystem.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin,Trainer")]
+        [DisableRequestSizeLimit]
         public async Task<IActionResult> Create(
             [FromForm] CreateMaterialDto dto)
         {
@@ -174,6 +176,13 @@ namespace TrainingSystem.Controllers
                 filePath = await _storage.SaveFileAsync(dto.File);
             }
 
+            if (!string.IsNullOrWhiteSpace(dto.VideoUrl))
+            {
+                var urlError = ValidateVideoUrl(dto.VideoUrl);
+                if (urlError != null)
+                    return BadRequest(new { message = urlError });
+            }
+
             var material = new Material
             {
                 Title = dto.Title,
@@ -185,11 +194,21 @@ namespace TrainingSystem.Controllers
             _context.Materials.Add(material);
             await _context.SaveChangesAsync();
 
-            return Ok(material);
+            return Ok(new MaterialDto
+            {
+                MaterialID = material.MaterialID,
+                Title = material.Title,
+                FilePath = material.FilePath,
+                VideoUrl = material.VideoUrl,
+                LessonID = material.LessonID,
+                LessonTitle = lesson.Title,
+                OrderIndex = material.OrderIndex
+            });
         }
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin,Trainer")]
+        [DisableRequestSizeLimit]
         public async Task<IActionResult> UpdateMaterial(
             int id,
             [FromForm] UpdateMaterialDto dto)
@@ -229,7 +248,12 @@ namespace TrainingSystem.Controllers
             material.LessonID = dto.LessonID;
 
             if (dto.VideoUrl != null)
+            {
+                var urlError = ValidateVideoUrl(dto.VideoUrl);
+                if (urlError != null)
+                    return BadRequest(new { message = urlError });
                 material.VideoUrl = dto.VideoUrl;
+            }
 
             if (dto.File != null)
             {
@@ -294,6 +318,12 @@ namespace TrainingSystem.Controllers
             return NoContent();
         }
 
+        private static readonly HashSet<string> HighCapacityExtensions = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ".mp4", ".webm", ".ogg", ".mov",
+            ".mp3", ".wav", ".m4a"
+        };
+
         private string? ValidateFile(IFormFile file)
         {
             var ext = Path.GetExtension(file.FileName);
@@ -303,14 +333,46 @@ namespace TrainingSystem.Controllers
             if (!AllowedMimeTypes.Contains(file.ContentType))
                 return $"File type '{file.ContentType}' is not allowed.";
 
-            if (file.Length > MaxFileSize)
-                return $"File size ({file.Length / 1024 / 1024}MB) exceeds the {MaxFileSize / 1024 / 1024}MB limit.";
+            var isMedia = HighCapacityExtensions.Contains(ext);
+            var limit = isMedia ? MaxVideoFileSize : MaxFileSize;
+
+            if (file.Length > limit)
+                return $"File size ({file.Length / 1024 / 1024}MB) exceeds the {(isMedia ? "500MB media" : "50MB")} limit.";
 
             using var stream = file.OpenReadStream();
             if (!_fileValidator.ValidateMagicBytes(stream, file.ContentType, out var detectedMime))
                 return $"File content does not match declared type '{file.ContentType}'. Detected: {detectedMime}.";
 
             return null;
+        }
+
+        private string? ValidateVideoUrl(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+                return null;
+
+            url = url.Trim();
+
+            if (Uri.TryCreate(url, UriKind.Absolute, out var uri))
+            {
+                var scheme = uri.Scheme.ToLower();
+                if (scheme != "http" && scheme != "https")
+                    return "Video URL must start with http:// or https://.";
+
+                var host = uri.Host.ToLower();
+                var isKnownPlatform = host.Contains("youtube.com") || host.Contains("youtu.be")
+                    || host.Contains("vimeo.com") || host.Contains("player.vimeo.com")
+                    || host.Contains("drive.google.com") || host.Contains("dai.ly")
+                    || host.Contains("wistia.com") || host.Contains("streamable.com")
+                    || host.Contains("loom.com");
+
+                if (!isKnownPlatform && !url.EndsWith(".mp4") && !url.EndsWith(".webm") && !url.EndsWith(".ogg") && !url.EndsWith(".mov"))
+                    return "Video URL must be from a supported platform (YouTube, Vimeo, Google Drive, Loom, Wistia, Streamable, Dailymotion) or a direct link to a video file (.mp4, .webm, .ogg, .mov).";
+
+                return null;
+            }
+
+            return "Video URL is not a valid URL.";
         }
     }
 }

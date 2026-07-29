@@ -1,0 +1,33 @@
+
+> trainingsystem@0.0.0 dev
+> vite --port 5173
+
+
+  [32m[1mVITE[22m v8.1.0[39m  [2mready in [0m[1m214[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+[2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+[2m14:01:36[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/tailwind.css, /src/components/CourseChat.jsx[22m
+[2m14:01:36[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/tailwind.css[22m
+[2m14:01:47[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/tailwind.css, /src/components/CourseChat.jsx[22m
+[2m14:01:47[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/tailwind.css[22m
+[2m14:09:00[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/tailwind.css, /src/pages/Enrollment.jsx, /src/pages/User.jsx, /src/pages/Courses.jsx, /src/pages/ExamResult.jsx, /src/pages/Inbox.jsx[22m
+[2m14:09:00[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/tailwind.css[22m
+[2m14:09:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/User.jsx, /src/tailwind.css[22m
+[2m14:09:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/tailwind.css[22m
+[2m14:09:12[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/User.jsx, /src/tailwind.css[22m
+[2m14:09:12[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/tailwind.css[22m
+[2m14:09:16[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/User.jsx, /src/tailwind.css[22m
+[2m14:09:16[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/tailwind.css[22m
+[2m14:09:20[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/User.jsx, /src/tailwind.css[22m
+[2m14:09:20[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/tailwind.css[22m
+[2m14:09:23[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/User.jsx, /src/tailwind.css[22m
+[2m14:09:23[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/tailwind.css[22m
+[2m14:09:28[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/User.jsx, /src/tailwind.css[22m
+[2m14:09:28[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/tailwind.css[22m
+[2m14:09:31[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/User.jsx, /src/tailwind.css[22m
+[2m14:09:31[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/tailwind.css[22m
+[2m14:09:35[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/User.jsx, /src/tailwind.css[22m
+[2m14:09:35[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/tailwind.css[22m
+[2m14:09:38[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/User.jsx, /src/tailwind.css[22m
+[2m14:09:38[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/tailwind.css[22m

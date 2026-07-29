@@ -41,6 +41,7 @@ namespace TrainingSystem.Data
 
         public DbSet<LessonVersion> LessonVersions { get; set; }
         public DbSet<MaterialVersion> MaterialVersions { get; set; }
+        public DbSet<CourseChatMessage> CourseChatMessages { get; set; }
         public DbSet<CourseThread> CourseThreads { get; set; }
         public DbSet<ThreadReply> ThreadReplies { get; set; }
         public DbSet<CourseReview> CourseReviews { get; set; }
@@ -234,6 +235,20 @@ namespace TrainingSystem.Data
                 .WithMany()
                 .HasForeignKey(r => r.AuthorID)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // CourseChatMessage
+            modelBuilder.Entity<CourseChatMessage>()
+                .HasOne(m => m.Course)
+                .WithMany()
+                .HasForeignKey(m => m.CourseID)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<CourseChatMessage>()
+                .HasOne(m => m.Sender)
+                .WithMany()
+                .HasForeignKey(m => m.SenderID)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<CourseChatMessage>()
+                .HasIndex(m => new { m.CourseID, m.SentAt });
 
             // CourseReview
             modelBuilder.Entity<CourseReview>()

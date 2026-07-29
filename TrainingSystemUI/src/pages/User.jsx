@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import {
     getUsers,
     createUser,
@@ -29,20 +29,25 @@ function User() {
     const [confirmState, setConfirmState] = useState(null);
     const { showToast, toastEl } = useToast();
     const [search, setSearch] = useState("");
+    const [roleFilter, setRoleFilter] = useState("");
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
     const [form, setForm] = useState(blankForm());
 
     useEffect(() => {
+        setPage(1);
+    }, [search, roleFilter]);
+
+    useEffect(() => {
         loadUsers();
         loadRoles();
-    }, [page]);
+    }, [page, search, roleFilter]);
 
     const loadUsers = async () => {
         setLoading(true);
         try {
-            const res = await getUsers(page);
+            const res = await getUsers(page, 20, search, roleFilter);
             setUsers(res.data.items);
             setTotalPages(res.data.totalPages);
         }
@@ -147,15 +152,7 @@ function User() {
         });
     };
 
-    const filteredUsers = useMemo(() => {
-        const q = search.trim().toLowerCase();
-        if (!q) return users;
-        return users.filter(u =>
-            u.name?.toLowerCase().includes(q) ||
-            u.email?.toLowerCase().includes(q) ||
-            u.roleName?.toLowerCase().includes(q)
-        );
-    }, [users, search]);
+
 
     return (
 
@@ -175,10 +172,25 @@ function User() {
                     <input
                         type="text"
                         className="search-input"
-                        placeholder="Search users..."
+                        placeholder="Search by name or email..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
+                    <select
+                        className="search-input"
+                        style={{ minWidth: 140 }}
+                        value={roleFilter}
+                        onChange={(e) => setRoleFilter(e.target.value)}
+                    >
+                        <option value="">All Roles</option>
+                        {
+                            roles.map(role => (
+                                <option key={role.roleID} value={role.roleID}>
+                                    {role.roleName}
+                                </option>
+                            ))
+                        }
+                    </select>
                     <button className="btn btn-primary" onClick={openCreatePanel}>
                         + New User
                     </button>
@@ -189,12 +201,12 @@ function User() {
                 <div className="loading-row">
                     <span className="spinner" /> Loading users...
                 </div>
-            ) : filteredUsers.length === 0 ? (
+            ) : users.length === 0 ? (
                 <div className="card empty-state">
                     <div className="empty-icon">👤</div>
                     <p>
-                        {search
-                            ? "No users match your search."
+                        {search || roleFilter
+                            ? "No users match your filters."
                             : "No users yet. Create one to get started."}
                     </p>
                 </div>
@@ -212,7 +224,7 @@ function User() {
 
                     <tbody>
                         {
-                            filteredUsers.map(user => (
+                            users.map(user => (
                                 <tr key={user.userID}>
                                     <td style={{ fontWeight: 500 }}>{user.name}</td>
                                     <td>{user.email}</td>

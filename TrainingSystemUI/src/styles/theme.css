@@ -2096,6 +2096,109 @@
   border-radius: 12px;
 }
 
+/* ---- Audio Embed ---- */
+.audio-embed-container {
+  background: var(--surface-sunken);
+  border-radius: 12px 12px 0 0;
+  padding: 48px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0;
+}
+.audio-embed-container audio {
+  width: 100%;
+  max-width: 360px;
+  height: 48px;
+}
+.material-preview .audio-embed-container {
+  border-radius: 12px 12px 0 0;
+}
+
+/* ---- DropZone Audio Preview ---- */
+.dropzone-audio-preview {
+  padding: 20px 16px;
+  background: var(--surface-sunken);
+  border-radius: 8px;
+  width: 100%;
+}
+.dropzone-audio-preview audio {
+  width: 100%;
+  height: 40px;
+}
+
+/* ---- Course Chat ---- */
+.course-chat {
+  display: flex;
+  flex-direction: column;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface);
+}
+.course-chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  background: var(--surface-sunken);
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  font-size: 15px;
+}
+.course-chat-status {
+  font-size: 12px;
+  font-weight: 400;
+}
+.course-chat-status.online { color: var(--success); }
+.course-chat-status.offline { color: var(--ink-soft); }
+.course-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.course-chat-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--ink-soft);
+  font-size: 14px;
+}
+.course-chat-msg-author {
+  font-weight: 600;
+  font-size: 13px;
+  margin-right: 8px;
+}
+.course-chat-msg-time {
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+.course-chat-msg-text {
+  margin-top: 4px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.course-chat-input {
+  display: flex;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-sunken);
+  align-items: flex-end;
+}
+.course-chat-input textarea {
+  flex: 1;
+  resize: none;
+  min-height: 42px;
+  max-height: 96px;
+}
+
 /* ---- Materials Grid ---- */
 .materials-grid {
   display: grid;
@@ -2683,4 +2786,261 @@
   .pagination { gap: 3px; }
   .pagination-btn { min-width: 32px; height: 32px; font-size: 12px; padding: 0 7px; }
   .pagination-info { display: none; }
+}
+
+/* ---- Input Tabs (Upload/Record/URL) ---- */
+.input-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--surface-sunken);
+  padding: 4px;
+  border-radius: 12px;
+}
+.input-tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: all .15s ease;
+  text-align: center;
+}
+.input-tab:hover {
+  color: var(--ink);
+}
+.input-tab.active {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 2px 8px rgba(16,18,42,.08);
+}
+
+/* ---- Drop Zone ---- */
+.dropzone {
+  border: 2px dashed var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .15s ease, background-color .15s ease;
+  background: var(--surface-alt);
+}
+.dropzone:hover {
+  border-color: var(--brand-light);
+  background: var(--brand-bg);
+}
+.dropzone-active {
+  border-color: var(--brand);
+  background: var(--brand-bg);
+}
+.dropzone-has-file {
+  border-style: solid;
+  border-color: var(--border);
+  cursor: default;
+}
+.dropzone-empty {
+  padding: 20px 0;
+}
+.dropzone-icon {
+  font-size: 36px;
+  margin-bottom: 8px;
+  opacity: .6;
+}
+.dropzone-empty p {
+  margin: 0 0 4px;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+.dropzone-hint {
+  font-size: 12px !important;
+  opacity: .7;
+}
+.dropzone-file {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.dropzone-video-preview {
+  width: 120px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+.dropzone-file-icon {
+  font-size: 36px;
+  flex-shrink: 0;
+}
+.dropzone-file-info {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+.dropzone-file-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dropzone-file-size {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+
+/* ---- Upload Progress ---- */
+.upload-progress-wrap {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.upload-progress-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--surface-sunken);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.upload-progress-fill {
+  height: 100%;
+  background: var(--gradient-brand);
+  border-radius: 999px;
+  transition: width .2s ease;
+}
+.upload-progress-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+/* ---- Video Recorder ---- */
+.recorder-start {
+  text-align: center;
+  padding: 24px 0;
+}
+.recorder-icon {
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+.recorder-start p {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin: 0 0 16px;
+}
+.recorder-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.recorder-preview-wrap {
+  position: relative;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.recorder-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+.recorder-preview.recording-active {
+  border: 2px solid var(--danger);
+  border-radius: 12px;
+}
+.recorder-playback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+}
+.recorder-overlay {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0,0,0,.6);
+  backdrop-filter: blur(4px);
+  padding: 6px 14px;
+  border-radius: 999px;
+}
+.recorder-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--danger);
+  display: inline-block;
+}
+.recorder-dot.blink {
+  animation: recorderBlink .8s ease-in-out infinite;
+}
+@keyframes recorderBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .3; }
+}
+.recorder-timer {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  font-family: var(--font-display);
+  letter-spacing: .05em;
+}
+.recorder-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.recorder-btn-icon {
+  font-size: 10px;
+  margin-right: 4px;
+}
+.recorder-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.recorder-size {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin-right: 8px;
+}
+.recorder-hint {
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.recorder-error {
+  text-align: center;
+  padding: 16px;
+  background: var(--danger-bg);
+  border-radius: 12px;
+  color: var(--danger);
+  font-size: 14px;
+}
+.recorder-done {
+  margin-top: 8px;
+  padding: 10px 14px;
+  background: var(--success-bg);
+  color: var(--success);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
 }

@@ -1,0 +1,1195 @@
+Using launch settings from D:\LEARNING\Internship\SPR\Education_System\TrainingSystem\Properties\launchSettings.json...
+Building...
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10622]
+      Entity 'Course' has a global query filter defined and is the required end of a relationship with the entity 'CourseChatMessage'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10622]
+      Entity 'Exam' has a global query filter defined and is the required end of a relationship with the entity 'ExamResult'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10622]
+      Entity 'Lesson' has a global query filter defined and is the required end of a relationship with the entity 'LessonVersion'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10622]
+      Entity 'Lesson' has a global query filter defined and is the required end of a relationship with the entity 'Material'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10622]
+      Entity 'Exam' has a global query filter defined and is the required end of a relationship with the entity 'QuestionBank'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10622]
+      Entity 'Lesson' has a global query filter defined and is the required end of a relationship with the entity 'Quiz'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10622]
+      Entity 'CourseThread' has a global query filter defined and is the required end of a relationship with the entity 'ThreadReply'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (30ms) [Parameters=[@__cutoff_0='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      SELECT `r`.`Id`, `r`.`ExpiresAt`, `r`.`Jti`, `r`.`RevokedAt`
+      FROM `RevokedTokens` AS `r`
+      WHERE `r`.`ExpiresAt` < @__cutoff_0
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5149
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: D:\LEARNING\Internship\SPR\Education_System\TrainingSystem
+warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]
+      Failed to determine the https port for redirect.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__dto_Email_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT `u`.`UserID`, `u`.`Email`, `u`.`Name`, `u`.`PasswordHash`, `u`.`RoleID`, `r`.`RoleID`, `r`.`RoleName`
+      FROM `Users` AS `u`
+      INNER JOIN `Roles` AS `r` ON `u`.`RoleID` = `r`.`RoleID`
+      WHERE `u`.`Email` = @__dto_Email_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = DateTime), @p2='?' (Size = 4000), @p3='?' (DbType = DateTime), @p4='?' (Size = 4000), @p5='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO `RefreshTokens` (`CreatedAt`, `ExpiresAt`, `Jti`, `RevokedAt`, `Token`, `UserID`)
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5);
+      SELECT `Id`
+      FROM `RefreshTokens`
+      WHERE ROW_COUNT() = 1 AND `Id` = LAST_INSERT_ID();
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__dto_Email_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT `u`.`UserID`, `u`.`Email`, `u`.`Name`, `u`.`PasswordHash`, `u`.`RoleID`, `r`.`RoleID`, `r`.`RoleName`
+      FROM `Users` AS `u`
+      INNER JOIN `Roles` AS `r` ON `u`.`RoleID` = `r`.`RoleID`
+      WHERE `u`.`Email` = @__dto_Email_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT `u`.`UserID`, `u`.`Email`, `u`.`Name`, `u`.`PasswordHash`, `u`.`RoleID`, `r`.`RoleID`, `r`.`RoleName`
+      FROM `Users` AS `u`
+      INNER JOIN `Roles` AS `r` ON `u`.`RoleID` = `r`.`RoleID`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Notifications` AS `n`
+      WHERE (`n`.`UserID` = @__CurrentUserId_0) AND NOT (`n`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+      WHERE (`m`.`ReceiverID` = @__CurrentUserId_0) AND NOT (`m`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Notifications` AS `n`
+      WHERE (`n`.`UserID` = @__CurrentUserId_0) AND NOT (`n`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+      WHERE (`m`.`ReceiverID` = @__CurrentUserId_0) AND NOT (`m`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT `c`.`CourseID`, `c`.`DeletedAt`, `c`.`Description`, `c`.`IsDeleted`, `c`.`Title`, `c`.`TrainerID`, `s`.`EnrollmentID`, `s`.`CourseID`, `s`.`EnrollDate`, `s`.`Status`, `s`.`UserID`, `s`.`CourseID0`
+      FROM `Courses` AS `c`
+      LEFT JOIN (
+          SELECT `e`.`EnrollmentID`, `e`.`CourseID`, `e`.`EnrollDate`, `e`.`Status`, `e`.`UserID`, `c1`.`CourseID` AS `CourseID0`
+          FROM `Enrollments` AS `e`
+          INNER JOIN (
+              SELECT `c0`.`CourseID`, `c0`.`IsDeleted`
+              FROM `Courses` AS `c0`
+              WHERE NOT (`c0`.`IsDeleted`)
+          ) AS `c1` ON `e`.`CourseID` = `c1`.`CourseID`
+          WHERE NOT (`c1`.`IsDeleted`)
+      ) AS `s` ON `c`.`CourseID` = `s`.`CourseID`
+      WHERE NOT (`c`.`IsDeleted`)
+      ORDER BY `c`.`CourseID`, `s`.`EnrollmentID`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Lessons` AS `l`
+      INNER JOIN (
+          SELECT `c`.`CourseID`, `c`.`IsDeleted`
+          FROM `Courses` AS `c`
+          WHERE NOT (`c`.`IsDeleted`)
+      ) AS `c0` ON `l`.`CourseID` = `c0`.`CourseID`
+      WHERE NOT (`c0`.`IsDeleted`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Materials` AS `m`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Exams` AS `e`
+      INNER JOIN (
+          SELECT `c`.`CourseID`, `c`.`IsDeleted`
+          FROM `Courses` AS `c`
+          WHERE NOT (`c`.`IsDeleted`)
+      ) AS `c0` ON `e`.`CourseID` = `c0`.`CourseID`
+      WHERE NOT (`c0`.`IsDeleted`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Enrollments` AS `e`
+      INNER JOIN (
+          SELECT `c`.`CourseID`, `c`.`IsDeleted`
+          FROM `Courses` AS `c`
+          WHERE NOT (`c`.`IsDeleted`)
+      ) AS `c0` ON `e`.`CourseID` = `c0`.`CourseID`
+      WHERE NOT (`c0`.`IsDeleted`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Enrollments` AS `e`
+      INNER JOIN (
+          SELECT `c`.`CourseID`, `c`.`IsDeleted`
+          FROM `Courses` AS `c`
+          WHERE NOT (`c`.`IsDeleted`)
+      ) AS `c0` ON `e`.`CourseID` = `c0`.`CourseID`
+      WHERE NOT (`c0`.`IsDeleted`) AND `e`.`Status` IN ('Enrolled', 'In Progress')
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `ExamResult` AS `e`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `ExamResult` AS `e`
+      WHERE `e`.`Passed`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Quizzes` AS `q`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `CourseThreads` AS `c`
+      INNER JOIN (
+          SELECT `c0`.`CourseID`, `c0`.`IsDeleted`
+          FROM `Courses` AS `c0`
+          WHERE NOT (`c0`.`IsDeleted`)
+      ) AS `c1` ON `c`.`CourseID` = `c1`.`CourseID`
+      WHERE NOT (`c1`.`IsDeleted`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT `u`.`UserID`, `u`.`Email`, `u`.`Name`, `u`.`PasswordHash`, `u`.`RoleID`, `r`.`RoleID`, `r`.`RoleName`
+      FROM `Users` AS `u`
+      INNER JOIN `Roles` AS `r` ON `u`.`RoleID` = `r`.`RoleID`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT `c`.`CourseID`, `c`.`DeletedAt`, `c`.`Description`, `c`.`IsDeleted`, `c`.`Title`, `c`.`TrainerID`, `s`.`EnrollmentID`, `s`.`CourseID`, `s`.`EnrollDate`, `s`.`Status`, `s`.`UserID`, `s`.`CourseID0`
+      FROM `Courses` AS `c`
+      LEFT JOIN (
+          SELECT `e`.`EnrollmentID`, `e`.`CourseID`, `e`.`EnrollDate`, `e`.`Status`, `e`.`UserID`, `c1`.`CourseID` AS `CourseID0`
+          FROM `Enrollments` AS `e`
+          INNER JOIN (
+              SELECT `c0`.`CourseID`, `c0`.`IsDeleted`
+              FROM `Courses` AS `c0`
+              WHERE NOT (`c0`.`IsDeleted`)
+          ) AS `c1` ON `e`.`CourseID` = `c1`.`CourseID`
+          WHERE NOT (`c1`.`IsDeleted`)
+      ) AS `s` ON `c`.`CourseID` = `s`.`CourseID`
+      WHERE NOT (`c`.`IsDeleted`)
+      ORDER BY `c`.`CourseID`, `s`.`EnrollmentID`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Lessons` AS `l`
+      INNER JOIN (
+          SELECT `c`.`CourseID`, `c`.`IsDeleted`
+          FROM `Courses` AS `c`
+          WHERE NOT (`c`.`IsDeleted`)
+      ) AS `c0` ON `l`.`CourseID` = `c0`.`CourseID`
+      WHERE NOT (`c0`.`IsDeleted`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Materials` AS `m`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Exams` AS `e`
+      INNER JOIN (
+          SELECT `c`.`CourseID`, `c`.`IsDeleted`
+          FROM `Courses` AS `c`
+          WHERE NOT (`c`.`IsDeleted`)
+      ) AS `c0` ON `e`.`CourseID` = `c0`.`CourseID`
+      WHERE NOT (`c0`.`IsDeleted`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Enrollments` AS `e`
+      INNER JOIN (
+          SELECT `c`.`CourseID`, `c`.`IsDeleted`
+          FROM `Courses` AS `c`
+          WHERE NOT (`c`.`IsDeleted`)
+      ) AS `c0` ON `e`.`CourseID` = `c0`.`CourseID`
+      WHERE NOT (`c0`.`IsDeleted`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = DateTime), @p2='?' (Size = 4000), @p3='?' (DbType = DateTime), @p4='?' (Size = 4000), @p5='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO `RefreshTokens` (`CreatedAt`, `ExpiresAt`, `Jti`, `RevokedAt`, `Token`, `UserID`)
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5);
+      SELECT `Id`
+      FROM `RefreshTokens`
+      WHERE ROW_COUNT() = 1 AND `Id` = LAST_INSERT_ID();
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Enrollments` AS `e`
+      INNER JOIN (
+          SELECT `c`.`CourseID`, `c`.`IsDeleted`
+          FROM `Courses` AS `c`
+          WHERE NOT (`c`.`IsDeleted`)
+      ) AS `c0` ON `e`.`CourseID` = `c0`.`CourseID`
+      WHERE NOT (`c0`.`IsDeleted`) AND `e`.`Status` IN ('Enrolled', 'In Progress')
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `ExamResult` AS `e`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `ExamResult` AS `e`
+      WHERE `e`.`Passed`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Quizzes` AS `q`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `CourseThreads` AS `c`
+      INNER JOIN (
+          SELECT `c0`.`CourseID`, `c0`.`IsDeleted`
+          FROM `Courses` AS `c0`
+          WHERE NOT (`c0`.`IsDeleted`)
+      ) AS `c1` ON `c`.`CourseID` = `c1`.`CourseID`
+      WHERE NOT (`c1`.`IsDeleted`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Users` AS `u`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Courses` AS `c`
+      WHERE NOT (`c`.`IsDeleted`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `c0`.`CourseID`, `c0`.`Title`, `c0`.`Description`, `c0`.`TrainerID`, `u`.`Name` AS `TrainerName`
+      FROM (
+          SELECT `c`.`CourseID`, `c`.`Description`, `c`.`Title`, `c`.`TrainerID`
+          FROM `Courses` AS `c`
+          WHERE NOT (`c`.`IsDeleted`)
+          ORDER BY `c`.`Title`
+          LIMIT @__p_1 OFFSET @__p_0
+      ) AS `c0`
+      INNER JOIN `Users` AS `u` ON `c0`.`TrainerID` = `u`.`UserID`
+      ORDER BY `c0`.`Title`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `u0`.`UserID`, `u0`.`Name`, `u0`.`Email`, `u0`.`RoleID`, `r`.`RoleName`
+      FROM (
+          SELECT `u`.`UserID`, `u`.`Email`, `u`.`Name`, `u`.`RoleID`
+          FROM `Users` AS `u`
+          ORDER BY `u`.`Name`
+          LIMIT @__p_1 OFFSET @__p_0
+      ) AS `u0`
+      INNER JOIN `Roles` AS `r` ON `u0`.`RoleID` = `r`.`RoleID`
+      ORDER BY `u0`.`Name`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Courses` AS `c`
+      WHERE NOT (`c`.`IsDeleted`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Users` AS `u`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `c0`.`CourseID`, `c0`.`Title`, `c0`.`Description`, `c0`.`TrainerID`, `u`.`Name` AS `TrainerName`
+      FROM (
+          SELECT `c`.`CourseID`, `c`.`Description`, `c`.`Title`, `c`.`TrainerID`
+          FROM `Courses` AS `c`
+          WHERE NOT (`c`.`IsDeleted`)
+          ORDER BY `c`.`Title`
+          LIMIT @__p_1 OFFSET @__p_0
+      ) AS `c0`
+      INNER JOIN `Users` AS `u` ON `c0`.`TrainerID` = `u`.`UserID`
+      ORDER BY `c0`.`Title`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `u0`.`UserID`, `u0`.`Name`, `u0`.`Email`, `u0`.`RoleID`, `r`.`RoleName`
+      FROM (
+          SELECT `u`.`UserID`, `u`.`Email`, `u`.`Name`, `u`.`RoleID`
+          FROM `Users` AS `u`
+          ORDER BY `u`.`Name`
+          LIMIT @__p_1 OFFSET @__p_0
+      ) AS `u0`
+      INNER JOIN `Roles` AS `r` ON `u0`.`RoleID` = `r`.`RoleID`
+      ORDER BY `u0`.`Name`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Courses` AS `c`
+      WHERE NOT (`c`.`IsDeleted`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `c0`.`CourseID`, `c0`.`Title`, `c0`.`Description`, `c0`.`TrainerID`, `u`.`Name` AS `TrainerName`
+      FROM (
+          SELECT `c`.`CourseID`, `c`.`Description`, `c`.`Title`, `c`.`TrainerID`
+          FROM `Courses` AS `c`
+          WHERE NOT (`c`.`IsDeleted`)
+          ORDER BY `c`.`Title`
+          LIMIT @__p_1 OFFSET @__p_0
+      ) AS `c0`
+      INNER JOIN `Users` AS `u` ON `c0`.`TrainerID` = `u`.`UserID`
+      ORDER BY `c0`.`Title`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Lessons` AS `l`
+      INNER JOIN (
+          SELECT `c`.`CourseID`, `c`.`IsDeleted`
+          FROM `Courses` AS `c`
+          WHERE NOT (`c`.`IsDeleted`)
+      ) AS `c0` ON `l`.`CourseID` = `c0`.`CourseID`
+      WHERE NOT (`c0`.`IsDeleted`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Courses` AS `c`
+      WHERE NOT (`c`.`IsDeleted`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `c0`.`CourseID`, `c0`.`Title`, `c0`.`Description`, `c0`.`TrainerID`, `u`.`Name` AS `TrainerName`
+      FROM (
+          SELECT `c`.`CourseID`, `c`.`Description`, `c`.`Title`, `c`.`TrainerID`
+          FROM `Courses` AS `c`
+          WHERE NOT (`c`.`IsDeleted`)
+          ORDER BY `c`.`Title`
+          LIMIT @__p_1 OFFSET @__p_0
+      ) AS `c0`
+      INNER JOIN `Users` AS `u` ON `c0`.`TrainerID` = `u`.`UserID`
+      ORDER BY `c0`.`Title`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `l`.`LessonProgressID`, `l`.`UserID`, `u`.`Name` AS `UserName`, `l`.`LessonID`, `s`.`Title` AS `LessonTitle`, `l`.`CourseID`, `c0`.`Title` AS `CourseTitle`, `l`.`IsCompleted`, `l`.`LastMaterialID`, `m`.`Title` AS `LastMaterialTitle`, `l`.`LastAccessedAt`
+      FROM `LessonProgress` AS `l`
+      INNER JOIN (
+          SELECT `c`.`CourseID`, `c`.`IsDeleted`, `c`.`Title`
+          FROM `Courses` AS `c`
+          WHERE NOT (`c`.`IsDeleted`)
+      ) AS `c0` ON `l`.`CourseID` = `c0`.`CourseID`
+      INNER JOIN `Users` AS `u` ON `l`.`UserID` = `u`.`UserID`
+      INNER JOIN (
+          SELECT `l0`.`LessonID`, `l0`.`Title`
+          FROM `Lessons` AS `l0`
+          INNER JOIN (
+              SELECT `c1`.`CourseID`, `c1`.`IsDeleted`
+              FROM `Courses` AS `c1`
+              WHERE NOT (`c1`.`IsDeleted`)
+          ) AS `c2` ON `l0`.`CourseID` = `c2`.`CourseID`
+          WHERE NOT (`c2`.`IsDeleted`)
+      ) AS `s` ON `l`.`LessonID` = `s`.`LessonID`
+      LEFT JOIN `Materials` AS `m` ON `l`.`LastMaterialID` = `m`.`MaterialID`
+      WHERE NOT (`c0`.`IsDeleted`) AND (`l`.`UserID` = @__CurrentUserId_0)
+      ORDER BY `l`.`LastAccessedAt` DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `s`.`LessonID`, `s`.`CourseID`, `s`.`Description`, `s`.`OrderIndex`, `s`.`Title`, `s`.`UnlocksAfterLessonID`, `s`.`CourseID0`, `s`.`DeletedAt`, `s`.`Description0`, `s`.`IsDeleted`, `s`.`Title0`, `s`.`TrainerID`, `s0`.`LessonID`, `s0`.`CourseID`, `s0`.`Description`, `s0`.`OrderIndex`, `s0`.`Title`, `s0`.`UnlocksAfterLessonID`
+      FROM (
+          SELECT `l`.`LessonID`, `l`.`CourseID`, `l`.`Description`, `l`.`OrderIndex`, `l`.`Title`, `l`.`UnlocksAfterLessonID`, `c0`.`CourseID` AS `CourseID0`, `c0`.`DeletedAt`, `c0`.`Description` AS `Description0`, `c0`.`IsDeleted`, `c0`.`Title` AS `Title0`, `c0`.`TrainerID`
+          FROM `Lessons` AS `l`
+          INNER JOIN (
+              SELECT `c`.`CourseID`, `c`.`DeletedAt`, `c`.`Description`, `c`.`IsDeleted`, `c`.`Title`, `c`.`TrainerID`
+              FROM `Courses` AS `c`
+              WHERE NOT (`c`.`IsDeleted`)
+          ) AS `c0` ON `l`.`CourseID` = `c0`.`CourseID`
+          WHERE NOT (`c0`.`IsDeleted`)
+          ORDER BY `l`.`OrderIndex`, `l`.`LessonID`
+          LIMIT @__p_1 OFFSET @__p_0
+      ) AS `s`
+      LEFT JOIN (
+          SELECT `l0`.`LessonID`, `l0`.`CourseID`, `l0`.`Description`, `l0`.`OrderIndex`, `l0`.`Title`, `l0`.`UnlocksAfterLessonID`
+          FROM `Lessons` AS `l0`
+          INNER JOIN (
+              SELECT `c1`.`CourseID`, `c1`.`IsDeleted`
+              FROM `Courses` AS `c1`
+              WHERE NOT (`c1`.`IsDeleted`)
+          ) AS `c2` ON `l0`.`CourseID` = `c2`.`CourseID`
+          WHERE NOT (`c2`.`IsDeleted`)
+      ) AS `s0` ON `s`.`UnlocksAfterLessonID` = `s0`.`LessonID`
+      ORDER BY `s`.`OrderIndex`, `s`.`LessonID`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `l`.`LessonProgressID`, `l`.`UserID`, `u`.`Name` AS `UserName`, `l`.`LessonID`, `s`.`Title` AS `LessonTitle`, `l`.`CourseID`, `c0`.`Title` AS `CourseTitle`, `l`.`IsCompleted`, `l`.`LastMaterialID`, `m`.`Title` AS `LastMaterialTitle`, `l`.`LastAccessedAt`
+      FROM `LessonProgress` AS `l`
+      INNER JOIN (
+          SELECT `c`.`CourseID`, `c`.`IsDeleted`, `c`.`Title`
+          FROM `Courses` AS `c`
+          WHERE NOT (`c`.`IsDeleted`)
+      ) AS `c0` ON `l`.`CourseID` = `c0`.`CourseID`
+      INNER JOIN `Users` AS `u` ON `l`.`UserID` = `u`.`UserID`
+      INNER JOIN (
+          SELECT `l0`.`LessonID`, `l0`.`Title`
+          FROM `Lessons` AS `l0`
+          INNER JOIN (
+              SELECT `c1`.`CourseID`, `c1`.`IsDeleted`
+              FROM `Courses` AS `c1`
+              WHERE NOT (`c1`.`IsDeleted`)
+          ) AS `c2` ON `l0`.`CourseID` = `c2`.`CourseID`
+          WHERE NOT (`c2`.`IsDeleted`)
+      ) AS `s` ON `l`.`LessonID` = `s`.`LessonID`
+      LEFT JOIN `Materials` AS `m` ON `l`.`LastMaterialID` = `m`.`MaterialID`
+      WHERE NOT (`c0`.`IsDeleted`) AND (`l`.`UserID` = @__CurrentUserId_0)
+      ORDER BY `l`.`LastAccessedAt` DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `l`.`LessonProgressID`, `l`.`UserID`, `u`.`Name` AS `UserName`, `l`.`LessonID`, `s`.`Title` AS `LessonTitle`, `l`.`CourseID`, `c0`.`Title` AS `CourseTitle`, `l`.`IsCompleted`, `l`.`LastMaterialID`, `m`.`Title` AS `LastMaterialTitle`, `l`.`LastAccessedAt`
+      FROM `LessonProgress` AS `l`
+      INNER JOIN (
+          SELECT `c`.`CourseID`, `c`.`IsDeleted`, `c`.`Title`
+          FROM `Courses` AS `c`
+          WHERE NOT (`c`.`IsDeleted`)
+      ) AS `c0` ON `l`.`CourseID` = `c0`.`CourseID`
+      INNER JOIN `Users` AS `u` ON `l`.`UserID` = `u`.`UserID`
+      INNER JOIN (
+          SELECT `l0`.`LessonID`, `l0`.`Title`
+          FROM `Lessons` AS `l0`
+          INNER JOIN (
+              SELECT `c1`.`CourseID`, `c1`.`IsDeleted`
+              FROM `Courses` AS `c1`
+              WHERE NOT (`c1`.`IsDeleted`)
+          ) AS `c2` ON `l0`.`CourseID` = `c2`.`CourseID`
+          WHERE NOT (`c2`.`IsDeleted`)
+      ) AS `s` ON `l`.`LessonID` = `s`.`LessonID`
+      LEFT JOIN `Materials` AS `m` ON `l`.`LastMaterialID` = `m`.`MaterialID`
+      WHERE NOT (`c0`.`IsDeleted`) AND (`l`.`UserID` = @__CurrentUserId_0)
+      ORDER BY `l`.`LastAccessedAt` DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `l`.`LessonProgressID`, `l`.`UserID`, `u`.`Name` AS `UserName`, `l`.`LessonID`, `s`.`Title` AS `LessonTitle`, `l`.`CourseID`, `c0`.`Title` AS `CourseTitle`, `l`.`IsCompleted`, `l`.`LastMaterialID`, `m`.`Title` AS `LastMaterialTitle`, `l`.`LastAccessedAt`
+      FROM `LessonProgress` AS `l`
+      INNER JOIN (
+          SELECT `c`.`CourseID`, `c`.`IsDeleted`, `c`.`Title`
+          FROM `Courses` AS `c`
+          WHERE NOT (`c`.`IsDeleted`)
+      ) AS `c0` ON `l`.`CourseID` = `c0`.`CourseID`
+      INNER JOIN `Users` AS `u` ON `l`.`UserID` = `u`.`UserID`
+      INNER JOIN (
+          SELECT `l0`.`LessonID`, `l0`.`Title`
+          FROM `Lessons` AS `l0`
+          INNER JOIN (
+              SELECT `c1`.`CourseID`, `c1`.`IsDeleted`
+              FROM `Courses` AS `c1`
+              WHERE NOT (`c1`.`IsDeleted`)
+          ) AS `c2` ON `l0`.`CourseID` = `c2`.`CourseID`
+          WHERE NOT (`c2`.`IsDeleted`)
+      ) AS `s` ON `l`.`LessonID` = `s`.`LessonID`
+      LEFT JOIN `Materials` AS `m` ON `l`.`LastMaterialID` = `m`.`MaterialID`
+      WHERE NOT (`c0`.`IsDeleted`) AND (`l`.`UserID` = @__CurrentUserId_0)
+      ORDER BY `l`.`LastAccessedAt` DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Lessons` AS `l`
+      INNER JOIN (
+          SELECT `c`.`CourseID`, `c`.`IsDeleted`
+          FROM `Courses` AS `c`
+          WHERE NOT (`c`.`IsDeleted`)
+      ) AS `c0` ON `l`.`CourseID` = `c0`.`CourseID`
+      WHERE NOT (`c0`.`IsDeleted`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `s`.`LessonID`, `s`.`CourseID`, `s`.`Description`, `s`.`OrderIndex`, `s`.`Title`, `s`.`UnlocksAfterLessonID`, `s`.`CourseID0`, `s`.`DeletedAt`, `s`.`Description0`, `s`.`IsDeleted`, `s`.`Title0`, `s`.`TrainerID`, `s0`.`LessonID`, `s0`.`CourseID`, `s0`.`Description`, `s0`.`OrderIndex`, `s0`.`Title`, `s0`.`UnlocksAfterLessonID`
+      FROM (
+          SELECT `l`.`LessonID`, `l`.`CourseID`, `l`.`Description`, `l`.`OrderIndex`, `l`.`Title`, `l`.`UnlocksAfterLessonID`, `c0`.`CourseID` AS `CourseID0`, `c0`.`DeletedAt`, `c0`.`Description` AS `Description0`, `c0`.`IsDeleted`, `c0`.`Title` AS `Title0`, `c0`.`TrainerID`
+          FROM `Lessons` AS `l`
+          INNER JOIN (
+              SELECT `c`.`CourseID`, `c`.`DeletedAt`, `c`.`Description`, `c`.`IsDeleted`, `c`.`Title`, `c`.`TrainerID`
+              FROM `Courses` AS `c`
+              WHERE NOT (`c`.`IsDeleted`)
+          ) AS `c0` ON `l`.`CourseID` = `c0`.`CourseID`
+          WHERE NOT (`c0`.`IsDeleted`)
+          ORDER BY `l`.`OrderIndex`, `l`.`LessonID`
+          LIMIT @__p_1 OFFSET @__p_0
+      ) AS `s`
+      LEFT JOIN (
+          SELECT `l0`.`LessonID`, `l0`.`CourseID`, `l0`.`Description`, `l0`.`OrderIndex`, `l0`.`Title`, `l0`.`UnlocksAfterLessonID`
+          FROM `Lessons` AS `l0`
+          INNER JOIN (
+              SELECT `c1`.`CourseID`, `c1`.`IsDeleted`
+              FROM `Courses` AS `c1`
+              WHERE NOT (`c1`.`IsDeleted`)
+          ) AS `c2` ON `l0`.`CourseID` = `c2`.`CourseID`
+          WHERE NOT (`c2`.`IsDeleted`)
+      ) AS `s0` ON `s`.`UnlocksAfterLessonID` = `s0`.`LessonID`
+      ORDER BY `s`.`OrderIndex`, `s`.`LessonID`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Courses` AS `c`
+      WHERE NOT (`c`.`IsDeleted`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `c0`.`CourseID`, `c0`.`Title`, `c0`.`Description`, `c0`.`TrainerID`, `u`.`Name` AS `TrainerName`
+      FROM (
+          SELECT `c`.`CourseID`, `c`.`Description`, `c`.`Title`, `c`.`TrainerID`
+          FROM `Courses` AS `c`
+          WHERE NOT (`c`.`IsDeleted`)
+          ORDER BY `c`.`Title`
+          LIMIT @__p_1 OFFSET @__p_0
+      ) AS `c0`
+      INNER JOIN `Users` AS `u` ON `c0`.`TrainerID` = `u`.`UserID`
+      ORDER BY `c0`.`Title`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Courses` AS `c`
+      WHERE NOT (`c`.`IsDeleted`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `c0`.`CourseID`, `c0`.`Title`, `c0`.`Description`, `c0`.`TrainerID`, `u`.`Name` AS `TrainerName`
+      FROM (
+          SELECT `c`.`CourseID`, `c`.`Description`, `c`.`Title`, `c`.`TrainerID`
+          FROM `Courses` AS `c`
+          WHERE NOT (`c`.`IsDeleted`)
+          ORDER BY `c`.`Title`
+          LIMIT @__p_1 OFFSET @__p_0
+      ) AS `c0`
+      INNER JOIN `Users` AS `u` ON `c0`.`TrainerID` = `u`.`UserID`
+      ORDER BY `c0`.`Title`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Courses` AS `c`
+      WHERE NOT (`c`.`IsDeleted`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `c0`.`CourseID`, `c0`.`Title`, `c0`.`Description`, `c0`.`TrainerID`, `u`.`Name` AS `TrainerName`
+      FROM (
+          SELECT `c`.`CourseID`, `c`.`Description`, `c`.`Title`, `c`.`TrainerID`
+          FROM `Courses` AS `c`
+          WHERE NOT (`c`.`IsDeleted`)
+          ORDER BY `c`.`Title`
+          LIMIT @__p_1 OFFSET @__p_0
+      ) AS `c0`
+      INNER JOIN `Users` AS `u` ON `c0`.`TrainerID` = `u`.`UserID`
+      ORDER BY `c0`.`Title`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__courseId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `c`.`CourseThreadID`, `c`.`CourseID`, `c`.`Title`, `c`.`Content`, `c`.`AuthorID`, `u`.`Name` AS `AuthorName`, `c`.`IsPinned`, `c`.`CreatedAt`, `c`.`LastActivityAt`, (
+          SELECT COUNT(*)
+          FROM `ThreadReplies` AS `t`
+          WHERE `c`.`CourseThreadID` = `t`.`CourseThreadID`) AS `ReplyCount`
+      FROM `CourseThreads` AS `c`
+      INNER JOIN (
+          SELECT `c0`.`CourseID`, `c0`.`IsDeleted`
+          FROM `Courses` AS `c0`
+          WHERE NOT (`c0`.`IsDeleted`)
+      ) AS `c1` ON `c`.`CourseID` = `c1`.`CourseID`
+      INNER JOIN `Users` AS `u` ON `c`.`AuthorID` = `u`.`UserID`
+      WHERE NOT (`c1`.`IsDeleted`) AND (`c`.`CourseID` = @__courseId_0)
+      ORDER BY `c`.`IsPinned` DESC, COALESCE(`c`.`LastActivityAt`, `c`.`CreatedAt`) DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__courseId_0='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `c0`.`CourseChatMessageID`, `c0`.`CourseID`, `c0`.`SenderID`, `u`.`Name` AS `SenderName`, `c0`.`Message`, `c0`.`SentAt`
+      FROM (
+          SELECT `c`.`CourseChatMessageID`, `c`.`CourseID`, `c`.`Message`, `c`.`SenderID`, `c`.`SentAt`
+          FROM `CourseChatMessages` AS `c`
+          WHERE `c`.`CourseID` = @__courseId_0
+          ORDER BY `c`.`SentAt` DESC
+          LIMIT @__p_1
+      ) AS `c0`
+      INNER JOIN `Users` AS `u` ON `c0`.`SenderID` = `u`.`UserID`
+      ORDER BY `c0`.`SentAt`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Notifications` AS `n`
+      WHERE (`n`.`UserID` = @__CurrentUserId_0) AND NOT (`n`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+      WHERE (`m`.`ReceiverID` = @__CurrentUserId_0) AND NOT (`m`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Notifications` AS `n`
+      WHERE (`n`.`UserID` = @__CurrentUserId_0) AND NOT (`n`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+      WHERE (`m`.`ReceiverID` = @__CurrentUserId_0) AND NOT (`m`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Notifications` AS `n`
+      WHERE (`n`.`UserID` = @__CurrentUserId_0) AND NOT (`n`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Courses` AS `c`
+      WHERE NOT (`c`.`IsDeleted`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__courseId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `c`.`CourseThreadID`, `c`.`CourseID`, `c`.`Title`, `c`.`Content`, `c`.`AuthorID`, `u`.`Name` AS `AuthorName`, `c`.`IsPinned`, `c`.`CreatedAt`, `c`.`LastActivityAt`, (
+          SELECT COUNT(*)
+          FROM `ThreadReplies` AS `t`
+          WHERE `c`.`CourseThreadID` = `t`.`CourseThreadID`) AS `ReplyCount`
+      FROM `CourseThreads` AS `c`
+      INNER JOIN (
+          SELECT `c0`.`CourseID`, `c0`.`IsDeleted`
+          FROM `Courses` AS `c0`
+          WHERE NOT (`c0`.`IsDeleted`)
+      ) AS `c1` ON `c`.`CourseID` = `c1`.`CourseID`
+      INNER JOIN `Users` AS `u` ON `c`.`AuthorID` = `u`.`UserID`
+      WHERE NOT (`c1`.`IsDeleted`) AND (`c`.`CourseID` = @__courseId_0)
+      ORDER BY `c`.`IsPinned` DESC, COALESCE(`c`.`LastActivityAt`, `c`.`CreatedAt`) DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+      WHERE (`m`.`ReceiverID` = @__CurrentUserId_0) AND NOT (`m`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `c0`.`CourseID`, `c0`.`Title`, `c0`.`Description`, `c0`.`TrainerID`, `u`.`Name` AS `TrainerName`
+      FROM (
+          SELECT `c`.`CourseID`, `c`.`Description`, `c`.`Title`, `c`.`TrainerID`
+          FROM `Courses` AS `c`
+          WHERE NOT (`c`.`IsDeleted`)
+          ORDER BY `c`.`Title`
+          LIMIT @__p_1 OFFSET @__p_0
+      ) AS `c0`
+      INNER JOIN `Users` AS `u` ON `c0`.`TrainerID` = `u`.`UserID`
+      ORDER BY `c0`.`Title`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Notifications` AS `n`
+      WHERE (`n`.`UserID` = @__CurrentUserId_0) AND NOT (`n`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Courses` AS `c`
+      WHERE NOT (`c`.`IsDeleted`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__courseId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `c`.`CourseThreadID`, `c`.`CourseID`, `c`.`Title`, `c`.`Content`, `c`.`AuthorID`, `u`.`Name` AS `AuthorName`, `c`.`IsPinned`, `c`.`CreatedAt`, `c`.`LastActivityAt`, (
+          SELECT COUNT(*)
+          FROM `ThreadReplies` AS `t`
+          WHERE `c`.`CourseThreadID` = `t`.`CourseThreadID`) AS `ReplyCount`
+      FROM `CourseThreads` AS `c`
+      INNER JOIN (
+          SELECT `c0`.`CourseID`, `c0`.`IsDeleted`
+          FROM `Courses` AS `c0`
+          WHERE NOT (`c0`.`IsDeleted`)
+      ) AS `c1` ON `c`.`CourseID` = `c1`.`CourseID`
+      INNER JOIN `Users` AS `u` ON `c`.`AuthorID` = `u`.`UserID`
+      WHERE NOT (`c1`.`IsDeleted`) AND (`c`.`CourseID` = @__courseId_0)
+      ORDER BY `c`.`IsPinned` DESC, COALESCE(`c`.`LastActivityAt`, `c`.`CreatedAt`) DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+      WHERE (`m`.`ReceiverID` = @__CurrentUserId_0) AND NOT (`m`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `c0`.`CourseID`, `c0`.`Title`, `c0`.`Description`, `c0`.`TrainerID`, `u`.`Name` AS `TrainerName`
+      FROM (
+          SELECT `c`.`CourseID`, `c`.`Description`, `c`.`Title`, `c`.`TrainerID`
+          FROM `Courses` AS `c`
+          WHERE NOT (`c`.`IsDeleted`)
+          ORDER BY `c`.`Title`
+          LIMIT @__p_1 OFFSET @__p_0
+      ) AS `c0`
+      INNER JOIN `Users` AS `u` ON `c0`.`TrainerID` = `u`.`UserID`
+      ORDER BY `c0`.`Title`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__courseId_0='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT `c0`.`CourseChatMessageID`, `c0`.`CourseID`, `c0`.`SenderID`, `u`.`Name` AS `SenderName`, `c0`.`Message`, `c0`.`SentAt`
+      FROM (
+          SELECT `c`.`CourseChatMessageID`, `c`.`CourseID`, `c`.`Message`, `c`.`SenderID`, `c`.`SentAt`
+          FROM `CourseChatMessages` AS `c`
+          WHERE `c`.`CourseID` = @__courseId_0
+          ORDER BY `c`.`SentAt` DESC
+          LIMIT @__p_1
+      ) AS `c0`
+      INNER JOIN `Users` AS `u` ON `c0`.`SenderID` = `u`.`UserID`
+      ORDER BY `c0`.`SentAt`
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Notifications` AS `n`
+      WHERE (`n`.`UserID` = @__CurrentUserId_0) AND NOT (`n`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+      WHERE (`m`.`ReceiverID` = @__CurrentUserId_0) AND NOT (`m`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Notifications` AS `n`
+      WHERE (`n`.`UserID` = @__CurrentUserId_0) AND NOT (`n`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+      WHERE (`m`.`ReceiverID` = @__CurrentUserId_0) AND NOT (`m`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Notifications` AS `n`
+      WHERE (`n`.`UserID` = @__CurrentUserId_0) AND NOT (`n`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+      WHERE (`m`.`ReceiverID` = @__CurrentUserId_0) AND NOT (`m`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Notifications` AS `n`
+      WHERE (`n`.`UserID` = @__CurrentUserId_0) AND NOT (`n`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+      WHERE (`m`.`ReceiverID` = @__CurrentUserId_0) AND NOT (`m`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Notifications` AS `n`
+      WHERE (`n`.`UserID` = @__CurrentUserId_0) AND NOT (`n`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+      WHERE (`m`.`ReceiverID` = @__CurrentUserId_0) AND NOT (`m`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Notifications` AS `n`
+      WHERE (`n`.`UserID` = @__CurrentUserId_0) AND NOT (`n`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+      WHERE (`m`.`ReceiverID` = @__CurrentUserId_0) AND NOT (`m`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Notifications` AS `n`
+      WHERE (`n`.`UserID` = @__CurrentUserId_0) AND NOT (`n`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+      WHERE (`m`.`ReceiverID` = @__CurrentUserId_0) AND NOT (`m`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Notifications` AS `n`
+      WHERE (`n`.`UserID` = @__CurrentUserId_0) AND NOT (`n`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+      WHERE (`m`.`ReceiverID` = @__CurrentUserId_0) AND NOT (`m`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Notifications` AS `n`
+      WHERE (`n`.`UserID` = @__CurrentUserId_0) AND NOT (`n`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+      WHERE (`m`.`ReceiverID` = @__CurrentUserId_0) AND NOT (`m`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Notifications` AS `n`
+      WHERE (`n`.`UserID` = @__CurrentUserId_0) AND NOT (`n`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+      WHERE (`m`.`ReceiverID` = @__CurrentUserId_0) AND NOT (`m`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Notifications` AS `n`
+      WHERE (`n`.`UserID` = @__CurrentUserId_0) AND NOT (`n`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+      WHERE (`m`.`ReceiverID` = @__CurrentUserId_0) AND NOT (`m`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Notifications` AS `n`
+      WHERE (`n`.`UserID` = @__CurrentUserId_0) AND NOT (`n`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+      WHERE (`m`.`ReceiverID` = @__CurrentUserId_0) AND NOT (`m`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Notifications` AS `n`
+      WHERE (`n`.`UserID` = @__CurrentUserId_0) AND NOT (`n`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+      WHERE (`m`.`ReceiverID` = @__CurrentUserId_0) AND NOT (`m`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Notifications` AS `n`
+      WHERE (`n`.`UserID` = @__CurrentUserId_0) AND NOT (`n`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+      WHERE (`m`.`ReceiverID` = @__CurrentUserId_0) AND NOT (`m`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Notifications` AS `n`
+      WHERE (`n`.`UserID` = @__CurrentUserId_0) AND NOT (`n`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+      WHERE (`m`.`ReceiverID` = @__CurrentUserId_0) AND NOT (`m`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Notifications` AS `n`
+      WHERE (`n`.`UserID` = @__CurrentUserId_0) AND NOT (`n`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+      WHERE (`m`.`ReceiverID` = @__CurrentUserId_0) AND NOT (`m`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__jti_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM `RevokedTokens` AS `r`
+          WHERE `r`.`Jti` = @__jti_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Notifications` AS `n`
+      WHERE (`n`.`UserID` = @__CurrentUserId_0) AND NOT (`n`.`IsRead`)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__CurrentUserId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM `Messages` AS `m`
+      WHERE (`m`.`ReceiverID` = @__CurrentUserId_0) AND NOT (`m`.`IsRead`)

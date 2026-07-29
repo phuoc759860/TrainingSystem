@@ -1,7 +1,12 @@
 import api from "../api/axios";
 
-export const getUsers = async (page = 1, pageSize = 20) => {
-    return await api.get(`/users?page=${page}&pageSize=${pageSize}`);
+export const getUsers = async (page = 1, pageSize = 20, search = "", roleID = "") => {
+    const params = new URLSearchParams();
+    params.append("page", page);
+    params.append("pageSize", pageSize);
+    if (search.trim()) params.append("search", search.trim());
+    if (roleID) params.append("roleID", roleID);
+    return await api.get(`/users?${params.toString()}`);
 };
 
 export const createUser = async (data) => {

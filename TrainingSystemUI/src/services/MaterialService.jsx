@@ -9,11 +9,15 @@ export const getMaterialsByLesson = async (lessonId) =>
 export const getMaterial = async (id) =>
     await api.get(`/Material/${id}`);
 
-export const createMaterial = async (data) =>
-    await api.post("/Material", data);
+export const createMaterial = async (data, onProgress) =>
+    await api.post("/Material", data, {
+        onUploadProgress: onProgress ? (e) => onProgress((e.loaded / e.total) * 100) : undefined
+    });
 
-export const updateMaterial = async (id, data) =>
-    await api.put(`/Material/${id}`, data);
+export const updateMaterial = async (id, data, onProgress) =>
+    await api.put(`/Material/${id}`, data, {
+        onUploadProgress: onProgress ? (e) => onProgress((e.loaded / e.total) * 100) : undefined
+    });
 
 export const deleteMaterial = async (id) =>
     await api.delete(`/Material/${id}`);

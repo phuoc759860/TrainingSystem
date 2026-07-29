@@ -20,7 +20,6 @@ namespace TrainingSystem.Services
                 "application/vnd.ms-powerpoint"
             }},
             { new byte[] { 0x52, 0x49, 0x46, 0x46 }, new[] { "audio/wav" }},
-            { new byte[] { 0x00, 0x00, 0x00, 0x1C, 0x66, 0x74, 0x79, 0x70 }, new[] { "video/mp4" }},
             { new byte[] { 0x1A, 0x45, 0xDF, 0xA3 }, new[] { "video/webm" }},
             { new byte[] { 0x49, 0x44, 0x33 }, new[] { "audio/mpeg" }},
             { new byte[] { 0xFF, 0xFB }, new[] { "audio/mpeg" }},
@@ -39,6 +38,19 @@ namespace TrainingSystem.Services
             stream.Position = 0;
             stream.ReadExactly(buffer, 0, buffer.Length);
             stream.Position = 0;
+
+            // MP4 ftyp box: bytes 4-7 are "ftyp"; the initial 4-byte size varies
+            // Matches both video/mp4 and audio/mp4 (.m4a)
+            if ((declaredMimeType == "video/mp4" || declaredMimeType == "audio/mp4") && buffer.Length >= 8)
+            {
+                var isMp4 = buffer[4] == 0x66 && buffer[5] == 0x74 && buffer[6] == 0x79 && buffer[7] == 0x70;
+                if (!isMp4)
+                {
+                    detectedMimeType = "unknown";
+                    return false;
+                }
+                return true;
+            }
 
             foreach (var kvp in MagicByteSignatures)
             {

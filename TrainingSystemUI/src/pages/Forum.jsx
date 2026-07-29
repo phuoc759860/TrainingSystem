@@ -3,12 +3,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import { getThreads, getThread, createThread, createReply } from "../services/ForumService";
 import { getCourses } from "../services/CourseService";
+import CourseChat from "../components/CourseChat";
 import SidePanel from "../components/SidePanel";
 import useToast from "../hooks/useToast";
 
 function Forum() {
     const { courseId } = useParams();
     const navigate = useNavigate();
+    const [tab, setTab] = useState("chat");
     const [threads, setThreads] = useState([]);
     const [selectedThread, setSelectedThread] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -25,7 +27,9 @@ function Forum() {
 
     useEffect(() => {
         if (courseId) {
-            loadData();
+            setTab("chat");
+            setSelectedThread(null);
+            loadThreads();
             loadCourse();
         } else {
             loadCourses();
@@ -44,7 +48,7 @@ function Forum() {
         }
     };
 
-    const loadData = async () => {
+    const loadThreads = async () => {
         setLoading(true);
         try {
             const res = await getThreads(courseId);
@@ -84,7 +88,7 @@ function Forum() {
             showToast("Thread created! +5 points", "success");
             setPanelOpen(false);
             setForm({ title: "", content: "" });
-            loadData();
+            loadThreads();
         } catch (err) { console.error(err);
             showToast("Failed to create thread.", "error");
         } finally {
@@ -110,20 +114,27 @@ function Forum() {
         }
     };
 
-    if (loading) {
+    if (loading && !courseId) {
         return <div className="page"><div className="loading-row"><span className="spinner" /> Loading discussions...</div></div>;
     }
 
     return (
         <div className="page">
             <div className="welcome-banner">
-                <h2>Discussions</h2>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    {courseId && (
+                        <button className="btn btn-outline btn-sm" onClick={() => navigate("/forum")}>
+                            &larr; Back
+                        </button>
+                    )}
+                    <h2 style={{ margin: 0 }}>Discussions</h2>
+                </div>
                 <p>{courseTitle || "Course discussion forum"}</p>
             </div>
 
             {!courseId ? (
                 <>
-                    <p style={{ marginBottom: 16, color: "var(--ink-soft)" }}>Select a course to view its discussion forum:</p>
+                    <p style={{ marginBottom: 16, color: "var(--ink-soft)" }}>Select a course to join its chat room:</p>
                     <div className="module-grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
                         {courses.map(c => (
                             <div
@@ -180,45 +191,68 @@ function Forum() {
                 </>
             ) : (
                 <>
-                    <div className="page-header">
-                        <div>
-                            <h2 style={{ marginTop: 0 }}>Threads</h2>
-                        </div>
-                        <button className="btn btn-primary" onClick={() => setPanelOpen(true)}>
-                            + New Thread
+                    <div className="input-tabs" style={{ marginBottom: 16 }}>
+                        <button
+                            className={`input-tab ${tab === "chat" ? "active" : ""}`}
+                            onClick={() => setTab("chat")}
+                        >
+                            💬 Chat
+                        </button>
+                        <button
+                            className={`input-tab ${tab === "threads" ? "active" : ""}`}
+                            onClick={() => setTab("threads")}
+                        >
+                            📋 Threads
                         </button>
                     </div>
 
-                    {threads.length === 0 ? (
-                        <div className="card empty-state">
-                            <div className="empty-icon">💬</div>
-                            <p>No discussions yet. Start one!</p>
-                        </div>
+                    {tab === "chat" ? (
+                        <CourseChat courseId={courseId} courseTitle={courseTitle} />
                     ) : (
-                        threads.map(thread => (
-                            <div
-                                key={thread.courseThreadID}
-                                className="card"
-                                style={{ marginBottom: 12, cursor: "pointer" }}
-                                onClick={() => openThread(thread.courseThreadID)}
-                            >
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                    <div>
-                                        <div style={{ fontWeight: 600, marginBottom: 4 }}>
-                                            {thread.isPinned && <span style={{ marginRight: 8 }}>📌</span>}
-                                            {thread.title}
-                                        </div>
-                                        <div style={{ fontSize: 12, color: "var(--ink-soft)" }}>
-                                            {thread.authorName} &middot; {new Date(thread.createdAt).toLocaleDateString()}
-                                        </div>
-                                    </div>
-                                    <div style={{ textAlign: "right", fontSize: 13, color: "var(--ink-soft)" }}>
-                                        <div>{thread.replyCount} replies</div>
-                                        <div style={{ marginTop: 4 }}>{thread.lastActivityAt ? new Date(thread.lastActivityAt).toLocaleDateString() : ""}</div>
-                                    </div>
+                        <>
+                            <div className="page-header">
+                                <div>
+                                    <h2 style={{ marginTop: 0 }}>Threads</h2>
                                 </div>
+                                <button className="btn btn-primary" onClick={() => setPanelOpen(true)}>
+                                    + New Thread
+                                </button>
                             </div>
-                        ))
+
+                            {loading ? (
+                                <div className="loading-row"><span className="spinner" /> Loading threads...</div>
+                            ) : threads.length === 0 ? (
+                                <div className="card empty-state">
+                                    <div className="empty-icon">💬</div>
+                                    <p>No discussions yet. Start one!</p>
+                                </div>
+                            ) : (
+                                threads.map(thread => (
+                                    <div
+                                        key={thread.courseThreadID}
+                                        className="card"
+                                        style={{ marginBottom: 12, cursor: "pointer" }}
+                                        onClick={() => openThread(thread.courseThreadID)}
+                                    >
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                            <div>
+                                                <div style={{ fontWeight: 600, marginBottom: 4 }}>
+                                                    {thread.isPinned && <span style={{ marginRight: 8 }}>📌</span>}
+                                                    {thread.title}
+                                                </div>
+                                                <div style={{ fontSize: 12, color: "var(--ink-soft)" }}>
+                                                    {thread.authorName} &middot; {new Date(thread.createdAt).toLocaleDateString()}
+                                                </div>
+                                            </div>
+                                            <div style={{ textAlign: "right", fontSize: 13, color: "var(--ink-soft)" }}>
+                                                <div>{thread.replyCount} replies</div>
+                                                <div style={{ marginTop: 4 }}>{thread.lastActivityAt ? new Date(thread.lastActivityAt).toLocaleDateString() : ""}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </>
                     )}
                 </>
             )}
