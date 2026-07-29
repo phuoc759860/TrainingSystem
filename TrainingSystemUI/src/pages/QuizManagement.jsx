@@ -217,7 +217,7 @@ function QuizManagement() {
                             <div className="material-info">
                                 <div className="material-header">
                                     <h4 className="material-title">{quiz.title}</h4>
-                                    <span className={`badge ${quiz.isActive ? "" : "badge-video"}`}
+                                    <span className={`badge ${quiz.isActive ? "" : "badge-neutral"}`}
                                         style={quiz.isActive ? { background: "var(--success-bg)", color: "var(--success)" } : { background: "var(--surface-sunken)", color: "var(--ink-soft)" }}>
                                         {quiz.isActive ? "Active" : "Draft"}
                                     </span>

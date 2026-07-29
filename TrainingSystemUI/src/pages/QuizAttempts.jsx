@@ -115,7 +115,7 @@ function QuizAttempts() {
                                         {!isStudent && <td>{a.userName}</td>}
                                         <td style={{ fontWeight: 600 }}>{a.score}/{a.totalPoints} ({pct}%)</td>
                                         <td>
-                                            <span className={`badge ${a.passed ? "" : "badge-video"}`}
+                                            <span className={`badge ${a.passed ? "" : "badge-neutral"}`}
                                                 style={a.passed ? { background: "var(--success-bg)", color: "var(--success)" } : { background: "var(--danger-bg)", color: "var(--danger)" }}>
                                                 {a.passed ? "Passed" : "Failed"}
                                             </span>

@@ -297,7 +297,7 @@ function Material() {
                                 <div className="material-info">
                                     <div className="material-header">
                                         <h4 className="material-title">{material.title}</h4>
-                                        {hasVideo && <span className="badge badge-video">Video</span>}
+                                        {hasVideo && <span className="badge badge-neutral">Video</span>}
                                     </div>
                                     <span className="pill pill-mc">{material.lessonTitle}</span>
                                     <div className="material-links">

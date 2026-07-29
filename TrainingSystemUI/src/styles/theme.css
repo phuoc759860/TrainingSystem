@@ -2137,7 +2137,7 @@
   font-weight: 700;
   color: var(--ink);
 }
-.badge-video {
+.badge-neutral {
   background: var(--danger-bg);
   color: var(--danger);
   font-size: 11px;
