@@ -1,3 +1,4 @@
+import useAuth from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { Users, BookOpen, CheckCircle, ClipboardList, KeyRound, ArrowRight } from "lucide-react";
@@ -45,7 +46,7 @@ function formatTime() {
 
 export default function AdminDashboard() {
     const navigate = useNavigate();
-    const name = localStorage.getItem("name");
+    const { name } = useAuth();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
 

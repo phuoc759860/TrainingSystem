@@ -7,6 +7,7 @@ import {
     deleteLesson,
     getLessonVersions
 } from "../services/LessonService";
+import useAuth from "../hooks/useAuth";
 import { getCourses } from "../services/CourseService";
 import { getProgress } from "../services/LessonProgressService";
 import ConfirmDialog from "../components/ConfirmDialog";
@@ -41,7 +42,7 @@ function Lesson() {
     const [toast, setToast] = useState(null);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const role = localStorage.getItem("role");
+    const { role } = useAuth();
     const canManage = role === "Admin" || role === "Trainer";
 
     const [form, setForm] = useState(blankForm());

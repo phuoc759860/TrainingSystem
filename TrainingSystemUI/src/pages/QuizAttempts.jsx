@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import useAuth from "../hooks/useAuth";
 import { useParams, useNavigate } from "react-router-dom";
 import { getQuizAttempts, getAttemptDetail, getQuiz } from "../services/QuizService";
 import Toast from "../components/Toast";
@@ -6,7 +7,7 @@ import Toast from "../components/Toast";
 function QuizAttempts() {
     const { quizId } = useParams();
     const navigate = useNavigate();
-    const role = localStorage.getItem("role");
+    const { role } = useAuth();
     const isStudent = role === "Student";
 
     const [quiz, setQuiz] = useState(null);

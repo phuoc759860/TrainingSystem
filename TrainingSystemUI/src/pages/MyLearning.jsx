@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import useAuth from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { getMyEnrollments } from "../services/EnrollmentService";
 import {
@@ -10,9 +11,8 @@ import {
 import Toast from "../components/Toast";
 
 function MyLearning() {
-
     const navigate = useNavigate();
-    const role = localStorage.getItem("role");
+    const { role } = useAuth();
     const [enrollments, setEnrollments] = useState([]);
     const [courseData, setCourseData] = useState({});
     const [loading, setLoading] = useState(true);

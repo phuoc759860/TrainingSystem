@@ -3,17 +3,15 @@ import { useState, useRef, useEffect } from "react";
 import { PanelLeftClose, PanelLeft, LogOut } from "lucide-react";
 import NotificationsDropdown from "./NotificationsDropdown";
 import { SIDEBAR, getSidebarIcon } from "../config/navigation";
+import useAuth from "../hooks/useAuth";
 
 function DashboardLayout({ children }) {
     const navigate = useNavigate();
     const location = useLocation();
-    const role = localStorage.getItem("role");
-    const name = localStorage.getItem("name");
+    const { role, name, email, logout: doLogout } = useAuth();
     const [collapsed, setCollapsed] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const userMenuRef = useRef(null);
-
-    const email = localStorage.getItem("email");
 
     useEffect(() => {
         const handleClickOutside = (e) => {
@@ -26,7 +24,7 @@ function DashboardLayout({ children }) {
     }, []);
 
     const logout = () => {
-        localStorage.clear();
+        doLogout();
         navigate("/");
     };
 

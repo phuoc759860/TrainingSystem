@@ -7,6 +7,7 @@ import {
     deleteExam
 } from "../services/ExamService";
 
+import useAuth from "../hooks/useAuth";
 import { getCourses } from "../services/CourseService";
 import ConfirmDialog from "../components/ConfirmDialog";
 import Pagination from "../components/Pagination";
@@ -22,9 +23,8 @@ const blankForm = () => ({
 });
 
 function Exam() {
-
     const navigate = useNavigate();
-    const role = localStorage.getItem("role");
+    const { role } = useAuth();
     const canManage = role === "Admin" || role === "Trainer";
 
     const [exams, setExams] = useState([]);

@@ -7,6 +7,7 @@ import {
     deleteCourse
 } from "../services/CourseService";
 import { getEnrollments, enrollSelf } from "../services/EnrollmentService";
+import useAuth from "../hooks/useAuth";
 import ConfirmDialog from "../components/ConfirmDialog";
 import Toast from "../components/Toast";
 import SidePanel from "../components/SidePanel";
@@ -19,8 +20,7 @@ const blankForm = () => ({
 });
 
 function Course() {
-
-    const role = localStorage.getItem("role");
+    const { role } = useAuth();
     const canManage = role === "Admin" || role === "Trainer";
 
     const [courses, setCourses] = useState([]);

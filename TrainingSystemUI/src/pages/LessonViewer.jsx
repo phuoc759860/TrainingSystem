@@ -11,9 +11,7 @@ import {
 import { getQuizzes } from "../services/QuizService";
 import * as pdfjsLib from "pdfjs-dist";
 import Toast from "../components/Toast";
-
-const FILE_HOST = (import.meta.env.VITE_API_URL || "http://localhost:5149/api").replace(/\/api\/?$/, "");
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5149/api";
+import { API_BASE, FILE_HOST } from "../api/axios";
 pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
 
 function getEmbedUrl(url) {

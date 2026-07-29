@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
+import { FILE_HOST } from "../api/axios";
 import {
     getMaterials,
     createMaterial,
@@ -11,8 +13,6 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import Toast from "../components/Toast";
 import SidePanel from "../components/SidePanel";
 import Pagination from "../components/Pagination";
-
-const FILE_HOST = (import.meta.env.VITE_API_URL || "http://localhost:5149/api").replace(/\/api\/?$/, "");
 
 const blankForm = () => ({
     title: "",
@@ -46,7 +46,7 @@ function isDirectVideo(url) {
 function Material() {
 
     const [searchParams, setSearchParams] = useSearchParams();
-    const role = localStorage.getItem("role");
+    const { role } = useAuth();
     const canManage = role === "Admin" || role === "Trainer";
 
     const [materials, setMaterials] = useState([]);

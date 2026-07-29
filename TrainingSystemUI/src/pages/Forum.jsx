@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
 import { getThreads, getThread, createThread, createReply } from "../services/ForumService";
 import { getCourses } from "../services/CourseService";
 import SidePanel from "../components/SidePanel";
@@ -20,7 +21,7 @@ function Forum() {
     const [replyText, setReplyText] = useState("");
     const [replying, setReplying] = useState(false);
 
-    const role = localStorage.getItem("role");
+    const { role } = useAuth();
 
     useEffect(() => {
         if (courseId) {

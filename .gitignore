@@ -39,6 +39,11 @@ server.err
 *.nupkg
 *.snupkg
 
+# Dev / test scripts
+*.sql
+dotnet-tools.json
+render.yaml
+
 # Misc
 *.swp
 *.tmp

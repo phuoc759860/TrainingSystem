@@ -7,6 +7,7 @@ import {
     getTrainers,
     getTrainerDetail
 } from "../services/StatisticsService";
+import useAuth from "../hooks/useAuth";
 import { getStudentGrades, getCourseGrades } from "../services/GradeService";
 import SidePanel from "../components/SidePanel";
 import Toast from "../components/Toast";
@@ -608,9 +609,8 @@ function generateTrainerAiReport(detail) {
 }
 
 function Statistics() {
-
+    const { role } = useAuth();
     const reducedMotion = usePrefersReducedMotion();
-    const role = localStorage.getItem("role");
     const isAdmin = role === "Admin";
 
     const [activeTab, setActiveTab] = useState("class");

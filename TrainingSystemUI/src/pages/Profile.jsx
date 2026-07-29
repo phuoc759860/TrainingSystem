@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import useAuth from "../hooks/useAuth";
 import { getPoints, getBadges, getLeaderboard } from "../services/GamificationService";
 import Toast from "../components/Toast";
 
@@ -35,8 +36,7 @@ function Profile() {
         return <div className="page"><div className="loading-row"><span className="spinner" /> Loading profile...</div></div>;
     }
 
-    const name = localStorage.getItem("name") || "User";
-    const role = localStorage.getItem("role") || "";
+    const { name, role } = useAuth();
     const progressPercent = points ? Math.min(100, Math.round((points.points % 100) / 100 * 100)) : 0;
 
     return (

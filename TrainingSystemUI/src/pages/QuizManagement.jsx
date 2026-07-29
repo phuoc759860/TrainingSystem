@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import useAuth from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { getQuizzes, createQuiz, updateQuiz, deleteQuiz, addQuestion, deleteQuestion } from "../services/QuizService";
 import { getLessons } from "../services/LessonService";
@@ -9,7 +10,7 @@ import SidePanel from "../components/SidePanel";
 
 function QuizManagement() {
     const navigate = useNavigate();
-    const role = localStorage.getItem("role");
+    const { role } = useAuth();
     const canManage = role === "Admin" || role === "Trainer";
 
     const [quizzes, setQuizzes] = useState([]);
