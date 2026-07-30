@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using TrainingSystem.Data;
 using TrainingSystem.Models;
 
 [Route("api/[controller]")]

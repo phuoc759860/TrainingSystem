@@ -2192,11 +2192,36 @@
   background: var(--surface-sunken);
   align-items: flex-end;
 }
-.course-chat-input textarea {
+.course-chat-input textarea,
+.course-chat-input input {
   flex: 1;
   resize: none;
   min-height: 42px;
   max-height: 96px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  background: var(--surface-alt);
+  color: var(--ink);
+  transition: border-color .15s ease;
+}
+.course-chat-input input:focus,
+.course-chat-input textarea:focus {
+  outline: none;
+  border-color: var(--brand);
+}
+.course-chat-msg {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--surface-alt);
+}
+.course-chat-msg-author {
+  display: inline;
 }
 
 /* ---- Materials Grid ---- */

@@ -1,12 +1,43 @@
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '../hooks/useAuth';
-import { useChat } from '../hooks/useChat';
+import React, { useEffect, useState, useRef } from 'react';
+import useAuth from '../hooks/useAuth';
+import useChat from '../hooks/useChat';
+import { getMyEnrollments } from '../services/EnrollmentService';
 
 export default function CourseChat({ courseId, courseTitle }) {
-    const { user } = useAuth();
+    const auth = useAuth();
     const { messages, sendMessage, connected } = useChat(courseId);
     const [input, setInput] = useState("");
     const listRef = useRef(null);
+    const [authorized, setAuthorized] = useState(null);
+
+    useEffect(() => {
+        if (!courseId || !auth.isAuthenticated) {
+            setAuthorized(false);
+            return;
+        }
+        checkAccess();
+    }, [courseId, auth.isAuthenticated]);
+
+    const checkAccess = async () => {
+        try {
+            if (auth.isAdmin) {
+                setAuthorized(true);
+                return;
+            }
+            if (!auth.isStudent) {
+                setAuthorized(false);
+                return;
+            }
+            const res = await getMyEnrollments();
+            const enrollments = res.data;
+            const enrolled = enrollments.some(
+                e => e.courseID === parseInt(courseId) && e.status === "Enrolled"
+            );
+            setAuthorized(enrolled);
+        } catch {
+            setAuthorized(false);
+        }
+    };
 
     useEffect(() => {
         if (listRef.current) {
@@ -16,44 +47,57 @@ export default function CourseChat({ courseId, courseTitle }) {
 
     const handleSend = () => {
         if (!input.trim()) return;
-        console.log("[CourseChat] sending message:", input);
         sendMessage(input);
         setInput("");
     };
 
-    // Check if the user is enrolled in the course
-    const isEnrolled = user.enrollments.some(enrollment => enrollment.courseId === courseId);
+    if (authorized === null) {
+        return (
+            <div className="course-chat">
+                <div className="loading-row" style={{ padding: 20 }}><span className="spinner" /> Checking access...</div>
+            </div>
+        );
+    }
 
-    // Check if the user is assigned to the course as a teacher
-    const isTeacher = user.roles.includes('Teacher') && user.teachingCourses.includes(courseId);
+    if (!authorized) {
+        return (
+            <div className="course-chat">
+                <div className="course-chat-empty">Sorry, you are not authorized to chat in this course.</div>
+            </div>
+        );
+    }
 
     return (
-        <div>
-            {isEnrolled || isTeacher ? (
-                <div className="chat-container">
-                    {/* Chat UI components */}
-                    <ul ref={listRef}>
-                        {messages.map((message, index) => (
-                            <li key={index} className={`message ${message.sender === user.id ? 'sent' : 'received'}`}>
-                                {message.text}
-                            </li>
-                        ))}
-                    </ul>
-                    <div className="chat-input">
-                        <input
-                            type="text"
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            placeholder="Type a message..."
-                        />
-                        <button onClick={handleSend}>Send</button>
+        <div className="course-chat">
+            <div className="course-chat-header">
+                <span>{courseTitle || `Course #${courseId}`}</span>
+                <span className={`course-chat-status ${connected ? "online" : "offline"}`}>
+                    {connected ? "Connected" : "Connecting..."}
+                </span>
+            </div>
+            <div className="course-chat-messages" ref={listRef}>
+                {messages.length === 0 && (
+                    <div className="course-chat-empty">No messages yet. Start a conversation!</div>
+                )}
+                {messages.map((msg) => (
+                    <div key={msg.courseChatMessageID} className="course-chat-msg">
+                        <span className="course-chat-msg-author">{msg.senderName || `User ${msg.senderID}`}</span>
+                        <span className="course-chat-msg-time">{msg.sentAt ? new Date(msg.sentAt).toLocaleTimeString() : ""}</span>
+                        <div className="course-chat-msg-text">{msg.message}</div>
                     </div>
-                </div>
-            ) : (
-                <div className="chat-container">
-                    <p>Sorry, you are not authorized to chat in this course.</p>
-                </div>
-            )}
+                ))}
+            </div>
+            <div className="course-chat-input">
+                <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                    placeholder="Type a message..."
+                    disabled={!connected}
+                />
+                <button className="btn btn-primary btn-sm" onClick={handleSend} disabled={!connected || !input.trim()}>Send</button>
+            </div>
         </div>
     );
 }

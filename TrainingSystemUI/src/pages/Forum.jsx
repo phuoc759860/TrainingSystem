@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import { getThreads, getThread, createThread, createReply } from "../services/ForumService";
-import { getCourses } from "../services/CourseService";
+import { getCourses, getCourse } from "../services/CourseService";
+import { getMyEnrollments } from "../services/EnrollmentService";
 import CourseChat from "../components/CourseChat";
 import SidePanel from "../components/SidePanel";
 import useToast from "../hooks/useToast";
@@ -39,8 +40,23 @@ function Forum() {
     const loadCourses = async () => {
         setLoading(true);
         try {
-            const res = await getCourses("", 1, 100);
-            setCourses(res.data.items || []);
+            if (role?.toLowerCase() === "student") {
+                try {
+                    const enrollRes = await getMyEnrollments();
+                    const items = (enrollRes.data || []).map(e => ({
+                        courseID: e.courseID,
+                        title: e.courseTitle,
+                        description: ""
+                    }));
+                    setCourses(items);
+                } catch {
+                    const res = await getCourses("", 1, 100);
+                    setCourses(res.data.items || []);
+                }
+            } else {
+                const res = await getCourses("", 1, 100);
+                setCourses(res.data.items || []);
+            }
         } catch (err) { console.error(err);
             showToast("Could not load courses.", "error");
         } finally {
@@ -62,9 +78,8 @@ function Forum() {
 
     const loadCourse = async () => {
         try {
-            const res = await getCourses("", 1, 100);
-            const c = res.data.items.find(c => c.courseID === parseInt(courseId));
-            if (c) setCourseTitle(c.title);
+            const res = await getCourse(courseId);
+            setCourseTitle(res.data.title);
         } catch (err) { console.error(err); }
     };
 
