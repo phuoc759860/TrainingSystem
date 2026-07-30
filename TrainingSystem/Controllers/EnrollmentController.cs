@@ -18,7 +18,7 @@ namespace TrainingSystem.Controllers
         [HttpGet]
         [Authorize(Roles = "Admin,Trainer")]
         public async Task<ActionResult<PaginatedResult<EnrollmentDto>>> GetEnrollments(
-            [FromQuery] PaginationQuery pg)
+            string? search, [FromQuery] PaginationQuery pg)
         {
             var query = _context.Enrollments
                 .Include(e => e.User)
@@ -28,6 +28,15 @@ namespace TrainingSystem.Controllers
             if (IsTrainer())
             {
                 query = query.Where(e => e.Course != null && e.Course.TrainerID == CurrentUserId);
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.Trim().ToLower();
+                query = query.Where(e =>
+                    e.User != null && e.User.Name.ToLower().Contains(search) ||
+                    e.Course != null && e.Course.Title.ToLower().Contains(search) ||
+                    e.Status.ToLower().Contains(search));
             }
 
             var totalCount = await query.CountAsync();
@@ -118,6 +127,9 @@ namespace TrainingSystem.Controllers
             if (course == null)
                 return NotFound(new { message = "Course does not exist." });
 
+            if (course.IsDeleted)
+                return BadRequest(new { message = "Cannot enroll in a deleted course." });
+
             bool exists = await _context.Enrollments.AnyAsync(e =>
                 e.UserID == dto.UserID &&
                 e.CourseID == dto.CourseID);
@@ -158,6 +170,9 @@ namespace TrainingSystem.Controllers
             var course = await _context.Courses.FindAsync(dto.CourseID);
             if (course == null)
                 return NotFound(new { message = "Course does not exist." });
+
+            if (course.IsDeleted)
+                return BadRequest(new { message = "Cannot enroll in a deleted course." });
 
             var alreadyEnrolled = await _context.Enrollments.AnyAsync(e =>
                 e.UserID == CurrentUserId && e.CourseID == dto.CourseID);

@@ -205,7 +205,7 @@ namespace TrainingSystem.Controllers
             return Ok(new { message = "Password changed. Other sessions have been logged out." });
         }
 
-        private bool IsPasswordComplexEnough(string password, out string error)
+        private static bool IsPasswordComplexEnough(string password, out string error)
         {
             error = "";
             if (password.Length < 8)
@@ -423,6 +423,9 @@ namespace TrainingSystem.Controllers
 
             if (!string.IsNullOrWhiteSpace(dto.Password))
             {
+                if (!IsPasswordComplexEnough(dto.Password, out var pwError))
+                    return BadRequest(new { message = pwError });
+
                 user.PasswordHash =
                     BCrypt.Net.BCrypt.HashPassword(dto.Password);
             }

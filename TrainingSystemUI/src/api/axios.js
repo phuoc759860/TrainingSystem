@@ -1,7 +1,12 @@
 import axios from "axios";
 
 export const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5149/api";
-export const FILE_HOST = API_BASE.replace(/\/api\/?$/, "");
+
+export const getFileUrl = (filePath) => {
+    const token = localStorage.getItem("token") || "";
+    const normalized = `${API_BASE}/Streaming/uploads${filePath.replace(/^\/uploads/, "")}`;
+    return token ? `${normalized}?access_token=${encodeURIComponent(token)}` : normalized;
+};
 
 const api = axios.create({ baseURL: API_BASE });
 

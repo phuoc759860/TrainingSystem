@@ -1,7 +1,7 @@
 import api from "../api/axios";
 
-export const getEnrollments = async (page = 1, pageSize = 20) =>
-    await api.get(`/Enrollment?page=${page}&pageSize=${pageSize}`);
+export const getEnrollments = async (page = 1, pageSize = 20, search = "") =>
+    await api.get(`/Enrollment?page=${page}&pageSize=${pageSize}&search=${search}`);
 
 export const getMyEnrollments = async () =>
     await api.get("/Enrollment/my");

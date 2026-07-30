@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     getExams,
@@ -42,14 +42,18 @@ function Exam() {
     const [form, setForm] = useState(blankForm());
 
     useEffect(() => {
+        setPage(1);
+    }, [search]);
+
+    useEffect(() => {
         loadExams();
         loadCourses();
-    }, [page]);
+    }, [search, page]);
 
     const loadExams = async () => {
         setLoading(true);
         try {
-            const res = await getExams(page);
+            const res = await getExams(page, 20, search);
             setExams(res.data.items);
             setTotalPages(res.data.totalPages);
         }
@@ -157,15 +161,6 @@ function Exam() {
         });
     };
 
-    const filteredExams = useMemo(() => {
-        const q = search.trim().toLowerCase();
-        if (!q) return exams;
-        return exams.filter(e =>
-            e.title.toLowerCase().includes(q) ||
-            e.courseTitle.toLowerCase().includes(q)
-        );
-    }, [exams, search]);
-
     return (
         <div className="page">
 
@@ -199,7 +194,7 @@ function Exam() {
                 <div className="loading-row">
                     <span className="spinner" /> Loading exams...
                 </div>
-            ) : filteredExams.length === 0 ? (
+            ) : exams.length === 0 ? (
                 <div className="card empty-state">
                     <div className="empty-icon">📋</div>
                     <p>
@@ -222,7 +217,7 @@ function Exam() {
 
                     <tbody>
                         {
-                            filteredExams.map(exam => (
+                            exams.map(exam => (
                                 <tr key={exam.examID}>
                                     <td style={{ fontWeight: 500 }}>{exam.title}</td>
                                     <td>

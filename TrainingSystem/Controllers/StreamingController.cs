@@ -17,7 +17,6 @@ namespace TrainingSystem.Controllers
         }
 
         [HttpGet("{**path}")]
-        [AllowAnonymous]
         public async Task<IActionResult> Stream(string path)
         {
             // Normalize: path comes in as "uploads/filename.ext"

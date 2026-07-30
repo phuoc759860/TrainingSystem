@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
-import { FILE_HOST, API_BASE } from "../api/axios";
+import { getFileUrl } from "../api/axios";
 import {
     getMaterials,
     getMaterialsByLesson,
@@ -441,8 +441,7 @@ function Material() {
         });
     };
 
-    const getStreamingUrl = (filePath) =>
-        `${API_BASE}/Streaming/uploads${filePath.replace(/^\/uploads/, "")}`;
+    const getStreamingUrl = (filePath) => getFileUrl(filePath);
 
     const renderPreview = (material) => {
         if (material.videoUrl) {
@@ -584,7 +583,7 @@ function Material() {
                                         {material.filePath && (
                                             <a
                                                 className="btn btn-outline btn-sm"
-                                                href={`${FILE_HOST}${material.filePath}`}
+                                                href={getFileUrl(material.filePath)}
                                                 target="_blank"
                                                 rel="noreferrer"
                                             >

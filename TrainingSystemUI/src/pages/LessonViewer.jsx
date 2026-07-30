@@ -10,7 +10,7 @@ import {
 } from "../services/LessonProgressService";
 import { getQuizzes } from "../services/QuizService";
 import * as pdfjsLib from "pdfjs-dist";
-import { API_BASE, FILE_HOST } from "../api/axios";
+import { getFileUrl } from "../api/axios";
 import useToast from "../hooks/useToast";
 pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
 
@@ -382,7 +382,7 @@ function LessonViewer() {
         if (!material) return <div className="viewer-empty">No material selected</div>;
 
         const ext = getExt(material.filePath);
-        const fullUrl = material.filePath ? `${FILE_HOST}${material.filePath}` : null;
+        const fullUrl = material.filePath ? getFileUrl(material.filePath) : null;
 
         // Video URL (YouTube/Vimeo)
         if (material.videoUrl) {
@@ -439,9 +439,7 @@ function LessonViewer() {
         // Video files
         if (fullUrl && isVideoFile(ext)) {
             // Use streaming endpoint for range request support (better seeking)
-            const streamingUrl = material.filePath
-                ? `${API_BASE}/Streaming/uploads${material.filePath.replace(/^\/uploads/, "")}`
-                : fullUrl;
+            const streamingUrl = material.filePath ? getFileUrl(material.filePath) : fullUrl;
             return (
                 <div className="viewer-video">
                     <video controls autoPlay preload="metadata">

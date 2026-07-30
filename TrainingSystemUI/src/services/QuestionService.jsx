@@ -1,7 +1,7 @@
 import api from "../api/axios";
 
-export const getQuestions = async (examId = "", page = 1, pageSize = 20) =>
-    await api.get(`/QuestionBank${examId ? `?examId=${examId}&` : "?"}page=${page}&pageSize=${pageSize}`);
+export const getQuestions = async (examId = "", page = 1, pageSize = 20, search = "") =>
+    await api.get(`/QuestionBank?examId=${examId}&page=${page}&pageSize=${pageSize}&search=${search}`);
 
 export const getQuestion = async (id) =>
     await api.get(`/QuestionBank/${id}`);

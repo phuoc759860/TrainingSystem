@@ -44,7 +44,7 @@ builder.Services.AddSingleton<LoginRateLimiter>();
 builder.Services.AddSingleton<RateLimiterService>(_ =>
 {
     var rl = new RateLimiterService();
-    rl.Configure("register", 3, 300);
+    rl.Configure("register", 10, 60);
     rl.Configure("message", 20, 60);
     rl.Configure("forum", 10, 60);
     return rl;
@@ -135,12 +135,6 @@ app.UseCors("ReactPolicy");
 app.UseAuthentication();
 
 app.UseStaticFiles();
-
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(uploadsPath),
-    RequestPath = "/uploads"
-});
 
 app.UseAuthorization();
 

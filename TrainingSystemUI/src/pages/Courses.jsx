@@ -6,7 +6,7 @@ import {
     updateCourse,
     deleteCourse
 } from "../services/CourseService";
-import { getEnrollments, enrollSelf } from "../services/EnrollmentService";
+import { getMyEnrollments, enrollSelf } from "../services/EnrollmentService";
 import useAuth from "../hooks/useAuth";
 import useToast from "../hooks/useToast";
 import ConfirmDialog from "../components/ConfirmDialog";
@@ -72,8 +72,8 @@ function Course() {
 
     const loadEnrollments = async () => {
         try {
-            const res = await getEnrollments(1, 100);
-            const ids = new Set(res.data.items.filter(e => e.status !== "Dropped").map(e => e.courseID));
+            const res = await getMyEnrollments();
+            const ids = new Set(res.data.filter(e => e.status !== "Dropped").map(e => e.courseID));
             setEnrolledCourseIds(ids);
         } catch (err) { console.error(err); }
     };

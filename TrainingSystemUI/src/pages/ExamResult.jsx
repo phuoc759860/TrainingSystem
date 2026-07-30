@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getExamResults, createExamResult, updateExamResult, deleteExamResult } from "../services/ExamResultService";
 import { getUsers } from "../services/UserService";
@@ -27,12 +27,15 @@ function ExamResult() {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
-    useEffect(() => { loadResults(); loadUsers(); loadExams(); }, [page]);
+    useEffect(() => { setPage(1); }, [search, gradingFilter]);
+
+    useEffect(() => { loadResults(); }, [search, gradingFilter, page]);
+    useEffect(() => { loadUsers(); loadExams(); }, []);
 
     const loadResults = async () => {
         setLoading(true);
         try {
-            const res = await getExamResults(page);
+            const res = await getExamResults(page, 20, search, gradingFilter === "all" ? "" : gradingFilter);
             setResults(res.data.items);
             setTotalPages(res.data.totalPages);
         }
@@ -113,18 +116,6 @@ function ExamResult() {
         });
     };
 
-    const filteredResults = useMemo(() => {
-        let list = results;
-        if (gradingFilter === "needsGrading") list = list.filter(r => r.needsGrading);
-        else if (gradingFilter === "graded") list = list.filter(r => !r.needsGrading);
-        const q = search.trim().toLowerCase();
-        if (!q) return list;
-        return list.filter(r =>
-            r.userName?.toLowerCase().includes(q) ||
-            r.examTitle?.toLowerCase().includes(q)
-        );
-    }, [results, search, gradingFilter]);
-
     return (
         <div className="page">
 
@@ -165,7 +156,7 @@ function ExamResult() {
                 <div className="loading-row">
                     <span className="spinner" /> Loading results...
                 </div>
-            ) : filteredResults.length === 0 ? (
+            ) : results.length === 0 ? (
                 <div className="card empty-state">
                     <div className="empty-icon">📊</div>
                     <p>
@@ -178,7 +169,7 @@ function ExamResult() {
                 <table className="table-modern fade-in">
                     <thead><tr><th>User</th><th>Exam</th><th>Score</th><th>Status</th><th>Grading</th><th>Submitted</th><th></th></tr></thead>
                     <tbody>
-                        {filteredResults.map(r => (
+                        {results.map(r => (
                             <tr key={r.resultID}>
                                 <td style={{ fontWeight: 500 }}>{r.userName}</td><td>{r.examTitle}</td><td>{r.score}</td>
                                 <td><span className={`badge ${r.passed ? "badge-success" : "badge-danger"}`}>{r.passed ? "Passed" : "Failed"}</span></td>

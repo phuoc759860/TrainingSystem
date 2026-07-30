@@ -22,7 +22,7 @@ namespace TrainingSystem.Controllers
         [HttpGet]
         [Authorize(Roles = "Admin,Trainer,Student")]
         public async Task<ActionResult<PaginatedResult<ExamDto>>> GetExams(
-            [FromQuery] PaginationQuery pg)
+            string? search, [FromQuery] PaginationQuery pg)
         {
             var query = _context.Exams
                 .Include(e => e.Course)
@@ -31,6 +31,11 @@ namespace TrainingSystem.Controllers
             if (IsStudent())
             {
                 query = query.Where(e => MyCourseIds().Contains(e.CourseID));
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(e => e.Title.Contains(search) || e.Course!.Title.Contains(search));
             }
 
             var totalCount = await query.CountAsync();

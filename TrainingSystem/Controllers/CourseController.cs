@@ -32,11 +32,6 @@ namespace TrainingSystem.Controllers
                 query = query.Where(c => c.TrainerID == CurrentUserId);
             }
 
-            if (IsStudent())
-            {
-                query = query.Where(c => MyCourseIds().Contains(c.CourseID));
-            }
-
             if (!string.IsNullOrWhiteSpace(search))
             {
                 query = query.Where(c =>
@@ -87,6 +82,9 @@ namespace TrainingSystem.Controllers
 
             if (course == null)
                 return NotFound();
+
+            if (!await IsEnrolled(course.CourseID))
+                return Forbid();
 
             return Ok(course);
         }

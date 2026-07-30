@@ -1,7 +1,7 @@
 import api from "../api/axios";
 
-export const getExams = async (page = 1, pageSize = 20) =>
-    await api.get(`/Exam?page=${page}&pageSize=${pageSize}`);
+export const getExams = async (page = 1, pageSize = 20, search = "") =>
+    await api.get(`/Exam?page=${page}&pageSize=${pageSize}&search=${search}`);
 
 export const getExam = async (id) =>
     await api.get(`/Exam/${id}`);

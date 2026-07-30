@@ -74,14 +74,18 @@ function Question() {
     }, []);
 
     useEffect(() => {
+        setPage(1);
+    }, [search, filterExamId]);
+
+    useEffect(() => {
         loadQuestions();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filterExamId, page]);
+    }, [search, filterExamId, page]);
 
     const loadQuestions = async () => {
         setLoading(true);
         try {
-            const res = await getQuestions(filterExamId, page);
+            const res = await getQuestions(filterExamId, page, 20, search);
             setQuestions(res.data.items);
             setTotalPages(res.data.totalPages);
         }
@@ -315,16 +319,6 @@ function Question() {
 
     const selectedExamTitle = exams.find(e => String(e.examID) === String(filterExamId))?.title;
 
-    const filteredQuestions = useMemo(() => {
-        const q = search.trim().toLowerCase();
-        if (!q) return questions;
-        return questions.filter(question =>
-            question.content?.toLowerCase().includes(q) ||
-            question.examTitle?.toLowerCase().includes(q) ||
-            question.questionType?.toLowerCase().includes(q)
-        );
-    }, [questions, search]);
-
     return (
 
         <div className="page">
@@ -539,7 +533,7 @@ function Question() {
                 <div className="loading-row">
                     <span className="spinner" /> Loading questions...
                 </div>
-            ) : filteredQuestions.length === 0 ? (
+            ) : questions.length === 0 ? (
                 <div className="card empty-state">
                     <div className="empty-icon">❓</div>
                     <p>
@@ -566,7 +560,7 @@ function Question() {
 
                     <tbody>
                         {
-                            filteredQuestions.map(question => (
+                            questions.map(question => (
                                 <tr key={question.questionID}>
                                     <td>{question.examTitle}</td>
                                     <td>{question.content}</td>

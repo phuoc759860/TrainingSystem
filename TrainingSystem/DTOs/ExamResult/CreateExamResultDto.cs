@@ -6,7 +6,12 @@ namespace TrainingSystem.DTOs.ExamResult
 
         public int ExamID { get; set; }
 
-        public decimal Score { get; set; }
+        private decimal _score;
+        public decimal Score
+        {
+            get => _score;
+            set => _score = Math.Clamp(value, 0, 100);
+        }
 
     }
 }

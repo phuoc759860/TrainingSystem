@@ -34,11 +34,13 @@ function Register() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await register(form);
+            await register({ ...form, roleID: Number(form.roleID) });
             showToast("Registration successful!", "success");
             setTimeout(() => navigate("/login"), 800);
-        } catch (err) { console.error(err);
-            showToast("Registration failed.", "error");
+        } catch (err) {
+            console.error(err);
+            const msg = err.response?.data?.message || "Registration failed.";
+            showToast(msg, "error");
         }
     };
 

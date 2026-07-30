@@ -10,8 +10,13 @@ namespace TrainingSystem.DTOs.ExamResult
         [Required]
         public int ExamID { get; set; }
 
+        private decimal _score;
         [Required]
-        public decimal Score { get; set; }
+        public decimal Score
+        {
+            get => _score;
+            set => _score = Math.Clamp(value, 0, 100);
+        }
 
     }
 }

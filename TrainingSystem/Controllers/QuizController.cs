@@ -66,6 +66,12 @@ namespace TrainingSystem.Controllers
 
             if (quiz == null) return NotFound();
 
+            if (!await IsEnrolled(quiz.Lesson!.CourseID))
+                return Forbid();
+
+            if (IsTrainer() && !await OwnsCourse(quiz.Lesson.CourseID))
+                return Forbid();
+
             if (IsStudent())
             {
                 var attempts = await _context.QuizAttempts
@@ -284,8 +290,16 @@ namespace TrainingSystem.Controllers
         [Authorize(Roles = "Admin,Trainer")]
         public async Task<IActionResult> DeleteQuestion(int questionId)
         {
-            var question = await _context.QuizQuestions.FindAsync(questionId);
-            if (question == null) return NotFound();
+            var question = await _context.QuizQuestions
+                .Include(q => q.Quiz)
+                    .ThenInclude(q => q!.Lesson)
+                .FirstOrDefaultAsync(q => q.QuizQuestionID == questionId);
+
+            if (question?.Quiz?.Lesson == null)
+                return NotFound();
+
+            if (IsTrainer() && !await OwnsCourse(question.Quiz.Lesson.CourseID))
+                return Forbid();
 
             _context.QuizQuestions.Remove(question);
             await _context.SaveChangesAsync();
@@ -372,6 +386,16 @@ namespace TrainingSystem.Controllers
         [Authorize(Roles = "Admin,Trainer,Student")]
         public async Task<ActionResult<IEnumerable<QuizAttemptDto>>> GetMyAttempts(int quizId)
         {
+            var quiz = await _context.Quizzes
+                .Include(q => q.Lesson)
+                .FirstOrDefaultAsync(q => q.QuizID == quizId);
+
+            if (quiz?.Lesson == null)
+                return NotFound();
+
+            if (IsTrainer() && !await OwnsCourse(quiz.Lesson.CourseID))
+                return Forbid();
+
             var query = _context.QuizAttempts
                 .Include(a => a.Quiz)
                 .Include(a => a.User)
@@ -408,13 +432,18 @@ namespace TrainingSystem.Controllers
         {
             var attempt = await _context.QuizAttempts
                 .Include(a => a.Quiz).ThenInclude(q => q!.Questions)
+                .Include(a => a.Quiz).ThenInclude(q => q!.Lesson)
                 .Include(a => a.User)
                 .Include(a => a.Answers).ThenInclude(a => a.QuizQuestion)
                 .FirstOrDefaultAsync(a => a.QuizAttemptID == attemptId);
 
-            if (attempt == null) return NotFound();
+            if (attempt?.Quiz?.Lesson == null)
+                return NotFound();
 
             if (IsStudent() && attempt.UserID != CurrentUserId)
+                return Forbid();
+
+            if (IsTrainer() && !await OwnsCourse(attempt.Quiz.Lesson.CourseID))
                 return Forbid();
 
             return Ok(new QuizAttemptDto

@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import {
     getEnrollments,
     createEnrollment,
@@ -38,15 +38,19 @@ function Enrollment() {
     const [form, setForm] = useState(blankForm());
 
     useEffect(() => {
+        setPage(1);
+    }, [search]);
+
+    useEffect(() => {
         loadEnrollments();
         loadUsers();
         loadCourses();
-    }, [page]);
+    }, [search, page]);
 
     const loadEnrollments = async () => {
         setLoading(true);
         try {
-            const res = await getEnrollments(page);
+            const res = await getEnrollments(page, 20, search);
             setEnrollments(res.data.items);
             setTotalPages(res.data.totalPages);
         }
@@ -159,16 +163,6 @@ function Enrollment() {
         status === "Dropped" ? "badge badge-danger" :
         "badge";
 
-    const filteredEnrollments = useMemo(() => {
-        const q = search.trim().toLowerCase();
-        if (!q) return enrollments;
-        return enrollments.filter(e =>
-            e.userName?.toLowerCase().includes(q) ||
-            e.courseTitle?.toLowerCase().includes(q) ||
-            e.status?.toLowerCase().includes(q)
-        );
-    }, [enrollments, search]);
-
     return (
 
         <div className="page">
@@ -201,7 +195,7 @@ function Enrollment() {
                 <div className="loading-row">
                     <span className="spinner" /> Loading enrollments...
                 </div>
-            ) : filteredEnrollments.length === 0 ? (
+            ) : enrollments.length === 0 ? (
                 <div className="card empty-state">
                     <div className="empty-icon">🎓</div>
                     <p>
@@ -225,7 +219,7 @@ function Enrollment() {
 
                     <tbody>
                         {
-                            filteredEnrollments.map(enrollment => (
+                            enrollments.map(enrollment => (
                                 <tr key={enrollment.enrollmentID}>
                                     <td style={{ fontWeight: 500 }}>{enrollment.userName}</td>
                                     <td>{enrollment.courseTitle}</td>
