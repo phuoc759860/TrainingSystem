@@ -15,8 +15,15 @@ namespace TrainingSystem.Controllers
     {
         private const int TimeGraceMinutes = 2;
 
-        public ExamController(AppDbContext context) : base(context)
-        {    }
+        private readonly int _defaultMaxAttempts;
+
+        public ExamController(AppDbContext context, IConfiguration configuration) : base(context)
+        {
+            _defaultMaxAttempts = configuration.GetValue("Exam:DefaultMaxAttempts", 3);
+        }
+
+        private int EffectiveMaxAttempts(Exam exam)
+            => exam.MaxAttempts is > 0 ? exam.MaxAttempts.Value : _defaultMaxAttempts;
 
         // GET ALL
         [HttpGet]
@@ -50,7 +57,7 @@ namespace TrainingSystem.Controllers
                     Title = e.Title,
                     CourseID = e.CourseID,
                     CourseTitle = e.Course!.Title,
-                    MaxAttempts = e.MaxAttempts ?? 0,
+                    MaxAttempts = e.MaxAttempts ?? _defaultMaxAttempts,
                     TimeLimitMinutes = e.TimeLimitMinutes ?? 0,
                     AttemptCount = e.ExamResults.Count(r => r.UserID == CurrentUserId)
                 })
@@ -79,7 +86,7 @@ namespace TrainingSystem.Controllers
                     Title = e.Title,
                     CourseID = e.CourseID,
                     CourseTitle = e.Course!.Title,
-                    MaxAttempts = e.MaxAttempts ?? 0,
+                    MaxAttempts = e.MaxAttempts ?? _defaultMaxAttempts,
                     TimeLimitMinutes = e.TimeLimitMinutes ?? 0,
                     AttemptCount = e.ExamResults.Count(r => r.UserID == CurrentUserId)
                 })
@@ -110,7 +117,7 @@ namespace TrainingSystem.Controllers
                 return Forbid();
 
             var userId = CurrentUserId;
-            var maxAttempts = exam.MaxAttempts ?? 0;
+            var maxAttempts = exam.MaxAttempts ?? _defaultMaxAttempts;
 
             if (IsStudent() && maxAttempts > 0)
             {
@@ -183,7 +190,7 @@ namespace TrainingSystem.Controllers
             var userId = CurrentUserId;
 
             // Attempt limit check
-            var maxAttempts = exam.MaxAttempts ?? 0;
+            var maxAttempts = exam.MaxAttempts ?? _defaultMaxAttempts;
             if (IsStudent() && maxAttempts > 0)
             {
                 var attemptCount = await _context.ExamResult
@@ -323,11 +330,14 @@ namespace TrainingSystem.Controllers
                     message = "Course does not exist."
                 });
 
+            if (IsTrainer() && !await OwnsCourse(dto.CourseID))
+                return Forbid();
+
             var exam = new Exam
             {
                 Title = dto.Title,
                 CourseID = dto.CourseID,
-                MaxAttempts = dto.MaxAttempts > 0 ? dto.MaxAttempts : null,
+                MaxAttempts = dto.MaxAttempts > 0 ? dto.MaxAttempts : _defaultMaxAttempts,
                 TimeLimitMinutes = dto.TimeLimitMinutes > 0 ? dto.TimeLimitMinutes : null
             };
 
@@ -360,6 +370,9 @@ namespace TrainingSystem.Controllers
             if (exam == null)
                 return NotFound();
 
+            if (IsTrainer() && !await OwnsCourse(exam.CourseID))
+                return Forbid();
+
             var courseExists = await _context.Courses
                 .AnyAsync(c => c.CourseID == dto.CourseID);
 
@@ -369,9 +382,12 @@ namespace TrainingSystem.Controllers
                     message = "Course does not exist."
                 });
 
+            if (IsTrainer() && !await OwnsCourse(dto.CourseID))
+                return Forbid();
+
             exam.Title = dto.Title;
             exam.CourseID = dto.CourseID;
-            exam.MaxAttempts = dto.MaxAttempts > 0 ? dto.MaxAttempts : null;
+            exam.MaxAttempts = dto.MaxAttempts > 0 ? dto.MaxAttempts : _defaultMaxAttempts;
             exam.TimeLimitMinutes = dto.TimeLimitMinutes > 0 ? dto.TimeLimitMinutes : null;
 
             await _context.SaveChangesAsync();
@@ -388,6 +404,9 @@ namespace TrainingSystem.Controllers
 
             if (exam == null)
                 return NotFound();
+
+            if (IsTrainer() && !await OwnsCourse(exam.CourseID))
+                return Forbid();
 
             _context.Exams.Remove(exam);
 

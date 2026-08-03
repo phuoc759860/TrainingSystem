@@ -8,12 +8,23 @@ using System.Text.Json;
 
 namespace TrainingSystem.Controllers
 {
-    [Authorize]
-    [ApiController]
-    [Route("api/[controller]")]
-    public class QuizController : BaseApiController
-    {
-        public QuizController(AppDbContext context) : base(context) { }
+        [Authorize]
+        [ApiController]
+        [Route("api/[controller]")]
+        public class QuizController : BaseApiController
+        {
+            public QuizController(AppDbContext context) : base(context) { }
+
+            private static void Shuffle<T>(IList<T> list)
+            {
+                var rng = new Random();
+                for (int i = list.Count - 1; i > 0; i--)
+                {
+                    int j = rng.Next(i + 1);
+                    (list[i], list[j]) = (list[j], list[i]);
+                }
+            }
+
 
         // GET ALL QUIZZES
         [HttpGet]
@@ -81,6 +92,9 @@ namespace TrainingSystem.Controllers
 
                 var bestScore = attempts.Where(a => a.CompletedAt != null).MaxBy(a => (double)a.Score / a.TotalPoints * 100);
 
+                var studentQuestions = quiz.Questions.ToList();
+                Shuffle(studentQuestions);
+
                 return Ok(new
                 {
                     quiz.QuizID,
@@ -92,7 +106,7 @@ namespace TrainingSystem.Controllers
                     quiz.TimeLimitMinutes,
                     quiz.PassingScore,
                     quiz.IsActive,
-                    Questions = quiz.Questions.Select(q => new QuizQuestionDto
+                    Questions = studentQuestions.Select(q => new QuizQuestionDto
                     {
                         QuizQuestionID = q.QuizQuestionID,
                         QuizID = q.QuizID,
@@ -105,6 +119,11 @@ namespace TrainingSystem.Controllers
                     BestPassed = bestScore?.Passed
                 });
             }
+
+            // The CorrectIndex-bearing view must only ever be served to admins or
+            // trainers who own the quiz's course. Never reachable by students.
+            if (!IsAdmin() && !(IsTrainer() && await OwnsCourse(quiz.Lesson.CourseID)))
+                return Forbid();
 
             return Ok(new
             {
@@ -144,8 +163,15 @@ namespace TrainingSystem.Controllers
             if (!await IsEnrolled(quiz.Lesson!.CourseID))
                 return Forbid();
 
+            if (IsTrainer() && !await OwnsCourse(quiz.Lesson.CourseID))
+                return Forbid();
+
             var existingAttempt = await _context.QuizAttempts
                 .FirstOrDefaultAsync(a => a.QuizID == id && a.UserID == CurrentUserId && a.CompletedAt == null);
+
+            var takeQuestions = quiz.Questions.ToList();
+            if (IsStudent())
+                Shuffle(takeQuestions);
 
             return Ok(new
             {
@@ -154,7 +180,7 @@ namespace TrainingSystem.Controllers
                 quiz.Description,
                 quiz.TimeLimitMinutes,
                 LessonTitle = quiz.Lesson.Title,
-                Questions = quiz.Questions.Select(q => new QuizQuestionDto
+                Questions = takeQuestions.Select(q => new QuizQuestionDto
                 {
                     QuizQuestionID = q.QuizQuestionID,
                     QuizID = q.QuizID,

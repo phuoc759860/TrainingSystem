@@ -23,18 +23,20 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+var connStr = builder.Configuration.GetConnectionString("DefaultConnection");
+var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+if (!string.IsNullOrEmpty(databaseUrl))
+{
+    var uri = new Uri(databaseUrl);
+    var userInfo = uri.UserInfo.Split(':');
+    connStr = $"Server={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};User={userInfo[0]};Password={userInfo[1]};";
+}
+
+var jwtKey = builder.Configuration["Jwt:Key"];
+ValidateStartupSecrets(connStr, jwtKey);
+
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    var connStr = builder.Configuration.GetConnectionString("DefaultConnection");
-
-    var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-    if (!string.IsNullOrEmpty(databaseUrl))
-    {
-        var uri = new Uri(databaseUrl);
-        var userInfo = uri.UserInfo.Split(':');
-        connStr = $"Server={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};User={userInfo[0]};Password={userInfo[1]};";
-    }
-
     options.UseMySql(
         connStr,
         new MySqlServerVersion(new Version(8, 0, 36)));
@@ -47,9 +49,11 @@ builder.Services.AddSingleton<RateLimiterService>(_ =>
     rl.Configure("register", 10, 60);
     rl.Configure("message", 20, 60);
     rl.Configure("forum", 10, 60);
+    rl.Configure("resetpw", 5, 60);
     return rl;
 });
 builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddSignalR();
 builder.Services.AddScoped<FileValidationService>();
 
@@ -154,6 +158,35 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
+static void ValidateStartupSecrets(string? connectionString, string? jwtKey)
+{
+    var knownWeakKeys = new HashSet<string>(StringComparer.Ordinal)
+    {
+        "CHANGE_ME",
+        "REDACTED",
+        "REPLACE_WITH_SECRET_KEY_IN_RENDER_ENV_VARS",
+        ""
+    };
+
+    if (string.IsNullOrWhiteSpace(jwtKey) || knownWeakKeys.Contains(jwtKey))
+    {
+        throw new InvalidOperationException(
+            "Jwt:Key is not securely configured. Set the Jwt__Key environment variable " +
+            "(or a local user-secret: `dotnet user-secrets set \"Jwt:Key\" \"<long-random-value>\"`) " +
+            "to a unique, long random value before starting the app.");
+    }
+
+    if (string.IsNullOrWhiteSpace(connectionString) ||
+        connectionString.Contains("CHANGE_ME", StringComparison.Ordinal))
+    {
+        throw new InvalidOperationException(
+            "The database connection string is not configured. Set the " +
+            "ConnectionStrings__DefaultConnection environment variable " +
+            "(or DATABASE_URL when deploying to Render), or a local user-secret " +
+            "(`dotnet user-secrets set \"ConnectionStrings:DefaultConnection\" \"<connection-string>\"`).");
+    }
+}
 
 public class LowerFirstNamingPolicy : JsonNamingPolicy
 {

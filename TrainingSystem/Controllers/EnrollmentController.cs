@@ -112,6 +112,9 @@ namespace TrainingSystem.Controllers
             if (enrollment == null)
                 return NotFound();
 
+            if (IsTrainer() && !await OwnsCourse(enrollment.CourseID))
+                return Forbid();
+
             return Ok(enrollment);
         }
 
@@ -129,6 +132,9 @@ namespace TrainingSystem.Controllers
 
             if (course.IsDeleted)
                 return BadRequest(new { message = "Cannot enroll in a deleted course." });
+
+            if (IsTrainer() && !await OwnsCourse(dto.CourseID))
+                return Forbid();
 
             bool exists = await _context.Enrollments.AnyAsync(e =>
                 e.UserID == dto.UserID &&
@@ -209,6 +215,9 @@ namespace TrainingSystem.Controllers
             if (enrollment == null)
                 return NotFound();
 
+            if (IsTrainer() && !await OwnsCourse(enrollment.CourseID))
+                return Forbid();
+
             enrollment.Status = dto.Status;
 
             await _context.SaveChangesAsync();
@@ -224,6 +233,9 @@ namespace TrainingSystem.Controllers
 
             if (enrollment == null)
                 return NotFound();
+
+            if (IsTrainer() && !await OwnsCourse(enrollment.CourseID))
+                return Forbid();
 
             _context.Enrollments.Remove(enrollment);
             await _context.SaveChangesAsync();

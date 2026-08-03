@@ -14,6 +14,12 @@ public class User
 
     public Role? Role { get; set; }
 
+    public bool IsEmailVerified { get; set; }
+
+    public string? EmailVerificationTokenHash { get; set; }
+
+    public DateTime? EmailVerificationTokenExpiresAt { get; set; }
+
     public ICollection<Enrollment>? Enrollments { get; set; }
 
     public ICollection<ExamResult> ExamResults { get; set; }

@@ -65,6 +65,15 @@ function Login() {
                 >
                     Sign in
                 </button>
+                <div className="text-center mt-2">
+                    <button
+                        type="button"
+                        onClick={() => navigate("/forgot-password")}
+                        className="text-sm font-medium text-brand-600 hover:text-brand-700 transition-colors"
+                    >
+                        Forgot password?
+                    </button>
+                </div>
             </form>
 
             {toastEl}

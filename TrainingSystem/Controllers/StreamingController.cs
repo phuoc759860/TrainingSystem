@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using TrainingSystem.Data;
+using TrainingSystem.Models;
 using TrainingSystem.Services;
 
 namespace TrainingSystem.Controllers
@@ -7,11 +10,12 @@ namespace TrainingSystem.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class StreamingController : ControllerBase
+    public class StreamingController : BaseApiController
     {
         private readonly IFileStorageService _storage;
 
-        public StreamingController(IFileStorageService storage)
+        public StreamingController(AppDbContext context, IFileStorageService storage)
+            : base(context)
         {
             _storage = storage;
         }
@@ -21,6 +25,22 @@ namespace TrainingSystem.Controllers
         {
             // Normalize: path comes in as "uploads/filename.ext"
             var relativePath = "/" + path.Replace('\\', '/');
+            var requestedKey = NormalizePath(relativePath);
+
+            // Only stream files that belong to a course material the user is entitled to.
+            // Match either "/uploads/<key>" (paths produced by the file storage service)
+            // or "/<key>" (paths stored directly, e.g. seeded content).
+            var material = await _context.Materials
+                .Include(m => m.Lesson)
+                .FirstOrDefaultAsync(m =>
+                    m.FilePath == "/uploads/" + requestedKey ||
+                    m.FilePath == "/" + requestedKey);
+
+            if (material?.Lesson == null)
+                return NotFound();
+
+            if (!await CanAccessCourse(material.Lesson.CourseID))
+                return Forbid();
 
             var result = await _storage.OpenFileStreamAsync(relativePath);
             if (result == null)
@@ -75,6 +95,25 @@ namespace TrainingSystem.Controllers
             return File(stream, contentType, enableRangeProcessing: true);
         }
 
+        private static string NormalizePath(string path)
+        {
+            path = path.Replace('\\', '/').TrimStart('/');
+            if (path.StartsWith("uploads/", StringComparison.OrdinalIgnoreCase))
+                path = path["uploads/".Length..];
+            return path;
+        }
+
+        private async Task<bool> CanAccessCourse(int courseId)
+        {
+            if (IsAdmin())
+                return true;
+
+            if (IsTrainer())
+                return await OwnsCourse(courseId);
+
+            return await IsEnrolled(courseId);
+        }
+
         private static bool TryParseRange(string rangeHeader, long totalLength, out long start, out long end)
         {
             start = 0;
@@ -113,8 +152,15 @@ namespace TrainingSystem.Controllers
         /// </summary>
         [HttpGet("hls/lesson/{lessonId}/manifest")]
         [Authorize(Roles = "Admin,Trainer,Student")]
-        public IActionResult GetHlsManifest(int lessonId)
+        public async Task<IActionResult> GetHlsManifest(int lessonId)
         {
+            var lesson = await _context.Lessons.FindAsync(lessonId);
+            if (lesson == null)
+                return NotFound();
+
+            if (!await CanAccessCourse(lesson.CourseID))
+                return Forbid();
+
             // In a production system, this would query pre-transcoded HLS segments.
             // For now, return a JSON manifest that the frontend can use for custom playback.
             return Ok(new

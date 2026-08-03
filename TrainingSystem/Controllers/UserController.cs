@@ -3,6 +3,7 @@ using TrainingSystem.Models;
 using TrainingSystem.DTOs.Common;
 using TrainingSystem.DTOs.User;
 using TrainingSystem.Middlewares;
+using TrainingSystem.Services;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -25,17 +26,35 @@ namespace TrainingSystem.Controllers
         private readonly IConfiguration _configuration;
         private readonly LoginRateLimiter _rateLimiter;
         private readonly RateLimiterService _rateLimiterService;
+        private readonly IEmailService _emailService;
+        private readonly IWebHostEnvironment _env;
 
         public UserController(
             AppDbContext context,
             IConfiguration configuration,
             LoginRateLimiter rateLimiter,
-            RateLimiterService rateLimiterService)
+            RateLimiterService rateLimiterService,
+            IEmailService emailService,
+            IWebHostEnvironment env)
             : base(context)
         {
             _configuration = configuration;
             _rateLimiter = rateLimiter;
             _rateLimiterService = rateLimiterService;
+            _emailService = emailService;
+            _env = env;
+        }
+
+        private static string GenerateSecurityToken()
+        {
+            var bytes = RandomNumberGenerator.GetBytes(32);
+            return Convert.ToBase64String(bytes).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        }
+
+        private static string HashToken(string token)
+        {
+            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(token));
+            return Convert.ToHexString(bytes);
         }
 
         [AllowAnonymous]
@@ -71,8 +90,17 @@ namespace TrainingSystem.Controllers
                 Name = dto.Name,
                 Email = dto.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-                RoleID = dto.RoleID
+                RoleID = dto.RoleID,
+                IsEmailVerified = isAdminCaller
             };
+
+            string? verificationToken = null;
+            if (!isAdminCaller)
+            {
+                verificationToken = GenerateSecurityToken();
+                user.EmailVerificationTokenHash = HashToken(verificationToken);
+                user.EmailVerificationTokenExpiresAt = DateTime.UtcNow.AddDays(7);
+            }
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
@@ -86,6 +114,23 @@ namespace TrainingSystem.Controllers
                 Email = user.Email,
                 RoleName = role!.RoleName
             };
+
+            if (verificationToken != null)
+            {
+                var frontendUrl = _configuration["FrontendUrl"] ?? "http://localhost:5173";
+                var verifyLink = $"{frontendUrl}/verify-email?token={Uri.EscapeDataString(verificationToken)}";
+                await _emailService.SendAsync(
+                    user.Email,
+                    "Verify your TrainingHub account",
+                    $"<p>Hi {user.Name},</p><p>Please verify your email by clicking the link below:</p>" +
+                    $"<p><a href=\"{verifyLink}\">Verify email</a></p><p>This link expires in 7 days.</p>");
+
+                if (_env.IsDevelopment() && !_emailService.IsConfigured)
+                    return CreatedAtAction(nameof(GetUser), new { id = user.UserID },
+                        new { user = result, devVerificationLink = verifyLink });
+
+                return CreatedAtAction(nameof(GetUser), new { id = user.UserID }, result);
+            }
 
             return CreatedAtAction(nameof(GetUser), new { id = user.UserID }, result);
         }
@@ -112,6 +157,9 @@ namespace TrainingSystem.Controllers
                 _rateLimiter.RecordFailure(dto.Email);
                 return Unauthorized("Invalid password.");
             }
+
+            if (_configuration.GetValue("Auth:RequireEmailVerification", false) && !user.IsEmailVerified)
+                return StatusCode(403, new { message = "Please verify your email address before signing in." });
 
             _rateLimiter.Reset(dto.Email);
 
@@ -203,6 +251,110 @@ namespace TrainingSystem.Controllers
 
             await _context.SaveChangesAsync();
             return Ok(new { message = "Password changed. Other sessions have been logged out." });
+        }
+
+        // FORGOT PASSWORD
+        [HttpPost("forgot-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordDto dto)
+        {
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            if (!_rateLimiterService.IsAllowed($"forgotpw:{dto.Email}:{ip}", "resetpw"))
+                return StatusCode(429, new { message = "Too many password reset requests. Try again later." });
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+            if (user == null)
+                return Ok(new { message = "If an account exists for that email, a password reset link has been sent." });
+
+            // Invalidate any outstanding reset tokens for this user (single-use tokens)
+            var outstanding = await _context.PasswordResetTokens
+                .Where(t => t.UserID == user.UserID && t.UsedAt == null && t.ExpiresAt > DateTime.UtcNow)
+                .ToListAsync();
+            foreach (var t in outstanding)
+                t.UsedAt = DateTime.UtcNow;
+
+            var token = GenerateSecurityToken();
+            _context.PasswordResetTokens.Add(new PasswordResetToken
+            {
+                UserID = user.UserID,
+                TokenHash = HashToken(token),
+                ExpiresAt = DateTime.UtcNow.AddHours(1)
+            });
+            await _context.SaveChangesAsync();
+
+            var frontendUrl = _configuration["FrontendUrl"] ?? "http://localhost:5173";
+            var resetLink = $"{frontendUrl}/reset-password?token={Uri.EscapeDataString(token)}";
+            await _emailService.SendAsync(
+                user.Email,
+                "Reset your TrainingHub password",
+                $"<p>Hi {user.Name},</p><p>Click the link below to reset your password:</p>" +
+                $"<p><a href=\"{resetLink}\">Reset password</a></p><p>This link expires in 1 hour.</p>");
+
+            if (_env.IsDevelopment() && !_emailService.IsConfigured)
+                return Ok(new
+                {
+                    message = "If an account exists for that email, a password reset link has been sent.",
+                    devResetLink = resetLink
+                });
+
+            return Ok(new { message = "If an account exists for that email, a password reset link has been sent." });
+        }
+
+        // RESET PASSWORD
+        [HttpPost("reset-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPassword(ResetPasswordDto dto)
+        {
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            if (!_rateLimiterService.IsAllowed($"resetpw:{ip}", "resetpw"))
+                return StatusCode(429, new { message = "Too many attempts. Try again later." });
+
+            if (!IsPasswordComplexEnough(dto.NewPassword, out var pwError))
+                return BadRequest(new { message = pwError });
+
+            var tokenHash = HashToken(dto.Token);
+            var reset = await _context.PasswordResetTokens
+                .Include(t => t.User)
+                .FirstOrDefaultAsync(t => t.TokenHash == tokenHash);
+
+            if (reset == null || reset.UsedAt != null || reset.ExpiresAt < DateTime.UtcNow || reset.User == null)
+                return BadRequest(new { message = "Invalid or expired reset token." });
+
+            reset.User.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+            reset.UsedAt = DateTime.UtcNow;
+
+            // Log out all existing sessions
+            var activeTokens = await _context.RefreshTokens
+                .Where(rt => rt.UserID == reset.UserID && rt.RevokedAt == null && rt.ExpiresAt > DateTime.UtcNow)
+                .ToListAsync();
+            foreach (var t in activeTokens)
+                t.RevokedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Password reset successfully. You can now sign in." });
+        }
+
+        // VERIFY EMAIL
+        [HttpPost("verify-email")]
+        [AllowAnonymous]
+        public async Task<IActionResult> VerifyEmail(VerifyEmailDto dto)
+        {
+            var tokenHash = HashToken(dto.Token);
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u =>
+                    u.EmailVerificationTokenHash == tokenHash &&
+                    u.EmailVerificationTokenExpiresAt != null &&
+                    u.EmailVerificationTokenExpiresAt > DateTime.UtcNow);
+
+            if (user == null)
+                return BadRequest(new { message = "Invalid or expired verification token." });
+
+            user.IsEmailVerified = true;
+            user.EmailVerificationTokenHash = null;
+            user.EmailVerificationTokenExpiresAt = null;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Email verified successfully. You can now sign in." });
         }
 
         private static bool IsPasswordComplexEnough(string password, out string error)
