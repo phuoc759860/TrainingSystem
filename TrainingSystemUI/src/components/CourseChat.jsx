@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import useAuth from '../hooks/useAuth';
 import useChat from '../hooks/useChat';
 import { getMyEnrollments } from '../services/EnrollmentService';
+import { getCourse } from '../services/CourseService';
 
 export default function CourseChat({ courseId, courseTitle }) {
     const auth = useAuth();
@@ -24,16 +25,21 @@ export default function CourseChat({ courseId, courseTitle }) {
                 setAuthorized(true);
                 return;
             }
-            if (!auth.isStudent) {
-                setAuthorized(false);
+            if (auth.isStudent) {
+                const res = await getMyEnrollments();
+                const enrollments = res.data;
+                const enrolled = enrollments.some(
+                    e => e.courseID === parseInt(courseId) && e.status === "Enrolled"
+                );
+                setAuthorized(enrolled);
                 return;
             }
-            const res = await getMyEnrollments();
-            const enrollments = res.data;
-            const enrolled = enrollments.some(
-                e => e.courseID === parseInt(courseId) && e.status === "Enrolled"
-            );
-            setAuthorized(enrolled);
+            if (auth.isTrainer) {
+                const res = await getCourse(courseId);
+                setAuthorized(res.data.trainerID === parseInt(auth.userID));
+                return;
+            }
+            setAuthorized(false);
         } catch {
             setAuthorized(false);
         }
