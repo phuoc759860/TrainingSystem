@@ -15,5 +15,9 @@ namespace TrainingSystem.DTOs.Material
         public string LessonTitle { get; set; } = "";
 
         public int OrderIndex { get; set; }
+
+        public string? MimeType { get; set; }
+
+        public long? SizeBytes { get; set; }
     }
 }

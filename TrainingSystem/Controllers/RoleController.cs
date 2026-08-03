@@ -21,6 +21,7 @@ namespace TrainingSystem.Controllers
 
         // GET: api/Role
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<RoleDto>>> GetRoles()
         {
             var roles = await _context.Roles

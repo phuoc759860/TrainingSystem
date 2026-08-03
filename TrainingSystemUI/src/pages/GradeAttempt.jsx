@@ -19,6 +19,7 @@ function GradeAttempt() {
 
     const [attempt, setAttempt] = useState(null);
     const [points, setPoints] = useState({});
+    const [criterionScores, setCriterionScores] = useState({});
     const [notes, setNotes] = useState({});
     const [saving, setSaving] = useState(false);
     const { showToast, toastEl } = useToast();
@@ -33,17 +34,33 @@ function GradeAttempt() {
 
         const initial = {};
         const initialNotes = {};
+        const initialCriteria = {};
         res.data.answers.forEach(a => {
             initial[a.examAnswerID] = a.pointsEarned;
             initialNotes[a.examAnswerID] = "";
+            if (a.rubric?.length) {
+                initialCriteria[a.examAnswerID] = {};
+                a.rubric.forEach(r => {
+                    initialCriteria[a.examAnswerID][r.name] = 0;
+                });
+            }
         });
         setPoints(initial);
         setNotes(initialNotes);
+        setCriterionScores(initialCriteria);
     };
 
     const handlePointsChange = (answerId, value, max) => {
         const clamped = Math.max(0, Math.min(Number(value) || 0, max));
         setPoints(prev => ({ ...prev, [answerId]: clamped }));
+    };
+
+    const handleCriterionChange = (answerId, name, value, max) => {
+        const clamped = Math.max(0, Math.min(Number(value) || 0, max));
+        setCriterionScores(prev => ({
+            ...prev,
+            [answerId]: { ...prev[answerId], [name]: clamped }
+        }));
     };
 
     const handleSave = async () => {
@@ -52,10 +69,20 @@ function GradeAttempt() {
             const payload = {
                 answers: attempt.answers
                     .filter(a => a.needsGrading)
-                    .map(a => ({
-                        examAnswerID: a.examAnswerID,
-                        pointsEarned: points[a.examAnswerID] ?? 0
-                    }))
+                    .map(a => {
+                        const criteria = criterionScores[a.examAnswerID];
+                        const hasCriteria = criteria && Object.keys(criteria).length > 0;
+                        return {
+                            examAnswerID: a.examAnswerID,
+                            pointsEarned: points[a.examAnswerID] ?? 0,
+                            criterionScores: hasCriteria
+                                ? Object.keys(criteria).map(name => ({
+                                    name,
+                                    points: criteria[name] ?? 0
+                                }))
+                                : null
+                        };
+                    })
             };
 
             await gradeExamAttempt(id, payload);
@@ -238,6 +265,36 @@ function GradeAttempt() {
                                         );
                                     })}
                                 </div>
+
+                                {/* Essay rubric criteria */}
+                                {a.rubric?.length > 0 && (
+                                    <div className="rubric-criteria">
+                                        <div className="rubric-criteria-title">
+                                            Rubric criteria
+                                        </div>
+                                        {a.rubric.map(r => {
+                                            const critPoints = criterionScores[a.examAnswerID]?.[r.name] ?? 0;
+                                            return (
+                                                <div key={r.name} className="rubric-criterion-row">
+                                                    <span className="rubric-criterion-name">{r.name}</span>
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        max={r.maxPoints}
+                                                        step={r.maxPoints <= 10 ? 1 : 0.5}
+                                                        value={critPoints}
+                                                        onChange={(e) => handleCriterionChange(a.examAnswerID, r.name, e.target.value, r.maxPoints)}
+                                                        className="grade-num-input"
+                                                    />
+                                                    <span className="rubric-criterion-max">/ {r.maxPoints}</span>
+                                                </div>
+                                            );
+                                        })}
+                                        <p style={{ fontSize: 12, color: "var(--ink-soft)", marginTop: 8 }}>
+                                            The sum of criterion scores (capped at {a.maxScore}) overrides the slider value.
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>

@@ -4,6 +4,7 @@ using TrainingSystem.Middlewares;
 using TrainingSystem.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.FileProviders;
 using System.IdentityModel.Tokens.Jwt;
@@ -19,6 +20,22 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.PropertyNamingPolicy = new LowerFirstNamingPolicy();
     options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
     options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+});
+
+// Raise the request/form body limit to the max per-file upload size so the
+// application-level Storage:MaxFileBytes check is the one that runs.
+// Raise the request/form body limit slightly above the max per-file upload size
+// so the application-level Storage:MaxFileBytes check is the one that runs.
+var maxFileBytes = builder.Configuration.GetValue("Storage:MaxFileBytes", 100L * 1024 * 1024);
+var maxFormBytes = (int)Math.Min(maxFileBytes + 1024 * 1024, int.MaxValue);
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.ValueLengthLimit = maxFormBytes;
+    options.MultipartBodyLengthLimit = maxFormBytes;
+});
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = maxFormBytes;
 });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -55,8 +72,10 @@ builder.Services.AddSingleton<RateLimiterService>(_ =>
 });
 builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IEmailNotificationService, EmailNotificationService>();
 builder.Services.AddSignalR();
 builder.Services.AddScoped<FileValidationService>();
+builder.Services.AddHostedService<EmailReminderBackgroundService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 .AddJwtBearer(options =>

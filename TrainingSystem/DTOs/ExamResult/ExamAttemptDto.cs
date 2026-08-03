@@ -1,5 +1,17 @@
 namespace TrainingSystem.DTOs.ExamResult
 {
+    public class RubricCriterionDto
+    {
+        public string Name { get; set; } = "";
+        public decimal MaxPoints { get; set; }
+    }
+
+    public class CriterionScoreDto
+    {
+        public string Name { get; set; } = "";
+        public decimal Points { get; set; }
+    }
+
     public class ExamAnswerDetailDto
     {
         public int ExamAnswerID { get; set; }
@@ -12,6 +24,8 @@ namespace TrainingSystem.DTOs.ExamResult
         public decimal MaxScore { get; set; }
         public decimal PointsEarned { get; set; }
         public bool NeedsGrading { get; set; }
+        public List<RubricCriterionDto> Rubric { get; set; } = new();
+        public List<CriterionScoreDto> CriterionScores { get; set; } = new();
     }
 
     public class ExamAttemptDto
@@ -32,6 +46,8 @@ namespace TrainingSystem.DTOs.ExamResult
     {
         public int ExamAnswerID { get; set; }
         public decimal PointsEarned { get; set; }
+        /// <summary>Per-criterion rubric scores for essay questions. Sum is used when present.</summary>
+        public List<CriterionScoreDto>? CriterionScores { get; set; }
     }
 
     public class GradeExamDto

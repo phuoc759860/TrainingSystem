@@ -144,7 +144,11 @@ function TakeExam() {
                 answer: answers[q.questionID] || ""
             }));
 
-            const res = await submitExam(examId, payload, startedAtRef.current);
+            // Send the served question IDs so the server grades only the
+            // random pool that was drawn for this attempt.
+            const servedIDs = questions.map(q => q.questionID);
+
+            const res = await submitExam(examId, payload, startedAtRef.current, servedIDs);
             setResult(res.data);
         } catch (err) {
             console.error(err);

@@ -11,5 +11,10 @@ namespace TrainingSystem.DTOs.Course
 
         [Required]
         public int TrainerID { get; set; }
+
+        /// <summary>Price in USD. 0 or less = free course.</summary>
+        public decimal Price { get; set; }
+
+        public DateTime? StartDate { get; set; }
     }
 }

@@ -21,7 +21,8 @@ const blankQuestion = () => ({
     optionC: "",
     optionD: "",
     correctAnswer: "",
-    score: 1
+    score: 1,
+    rubric: []
 });
 
 const isQuestionComplete = (q) => {
@@ -120,7 +121,8 @@ function Question() {
             optionB: "",
             optionC: "",
             optionD: "",
-            correctAnswer: ""
+            correctAnswer: "",
+            rubric: []
         });
     };
 
@@ -147,9 +149,33 @@ function Question() {
             optionC: question.optionC,
             optionD: question.optionD,
             correctAnswer: question.correctAnswer,
-            score: question.score
+            score: question.score,
+            rubric: question.rubric || []
         });
         setPanelOpen(true);
+    };
+
+    // -------- Rubric helpers (single panel) --------
+    const addRubricCriterion = () => {
+        setForm(prev => ({
+            ...prev,
+            rubric: [...(prev.rubric || []), { name: "", maxPoints: prev.score || 5 }]
+        }));
+    };
+
+    const updateRubricCriterion = (index, field, value) => {
+        setForm(prev => {
+            const rubric = [...(prev.rubric || [])];
+            rubric[index] = { ...rubric[index], [field]: value };
+            return { ...prev, rubric };
+        });
+    };
+
+    const removeRubricCriterion = (index) => {
+        setForm(prev => ({
+            ...prev,
+            rubric: (prev.rubric || []).filter((_, i) => i !== index)
+        }));
     };
 
     const handleSubmit = async () => {
@@ -165,21 +191,29 @@ function Question() {
         setFormSaving(true);
 
         try {
+            const rubric = (form.rubric || [])
+                .filter(r => r.name.trim())
+                .map(r => ({ name: r.name.trim(), maxPoints: Number(r.maxPoints) || 0 }));
+
+            const payload = {
+                examID: form.examID,
+                content: form.content,
+                questionType: form.questionType,
+                optionA: form.optionA,
+                optionB: form.optionB,
+                optionC: form.optionC,
+                optionD: form.optionD,
+                correctAnswer: form.correctAnswer,
+                score: Number(form.score),
+                rubric
+            };
+
             if (editingId == null) {
-                await createQuestion(form);
+                await createQuestion(payload);
                 showToast("Question created.", "success");
             }
             else {
-                await updateQuestion(editingId, {
-                    content: form.content,
-                    questionType: form.questionType,
-                    optionA: form.optionA,
-                    optionB: form.optionB,
-                    optionC: form.optionC,
-                    optionD: form.optionD,
-                    correctAnswer: form.correctAnswer,
-                    score: Number(form.score)
-                });
+                await updateQuestion(editingId, payload);
                 showToast("Question updated.", "success");
             }
 
@@ -235,7 +269,47 @@ function Question() {
                 optionB: "",
                 optionC: "",
                 optionD: "",
-                correctAnswer: ""
+                correctAnswer: "",
+                rubric: []
+            };
+            return updated;
+        });
+    };
+
+    const handleBulkRubricChange = (index, field, value) => {
+        setBulkForms(prev => {
+            const updated = [...prev];
+            updated[index] = { ...updated[index], [field]: value };
+            return updated;
+        });
+    };
+
+    const addBulkRubricCriterion = (index) => {
+        setBulkForms(prev => {
+            const updated = [...prev];
+            const rubric = [...(updated[index].rubric || [])];
+            rubric.push({ name: "", maxPoints: Number(updated[index].score) || 5 });
+            updated[index] = { ...updated[index], rubric };
+            return updated;
+        });
+    };
+
+    const updateBulkRubricCriterion = (index, criterionIndex, field, value) => {
+        setBulkForms(prev => {
+            const updated = [...prev];
+            const rubric = [...(updated[index].rubric || [])];
+            rubric[criterionIndex] = { ...rubric[criterionIndex], [field]: value };
+            updated[index] = { ...updated[index], rubric };
+            return updated;
+        });
+    };
+
+    const removeBulkRubricCriterion = (index, criterionIndex) => {
+        setBulkForms(prev => {
+            const updated = [...prev];
+            updated[index] = {
+                ...updated[index],
+                rubric: (updated[index].rubric || []).filter((_, i) => i !== criterionIndex)
             };
             return updated;
         });
@@ -495,15 +569,55 @@ function Question() {
                                         )}
 
                                         {q.questionType === "Essay" && (
-                                            <div className="field" style={{ gridColumn: "1 / -1" }}>
-                                                <label>Model Answer / Grading Notes (optional)</label>
-                                                <textarea
-                                                    rows="2"
-                                                    placeholder="Optional notes for the grader — not shown to students"
-                                                    value={q.correctAnswer}
-                                                    onChange={(e) => handleBulkFieldChange(i, "correctAnswer", e.target.value)}
-                                                />
-                                            </div>
+                                            <>
+                                                <div className="field" style={{ gridColumn: "1 / -1" }}>
+                                                    <label>Model Answer / Grading Notes (optional)</label>
+                                                    <textarea
+                                                        rows="2"
+                                                        placeholder="Optional notes for the grader — not shown to students"
+                                                        value={q.correctAnswer}
+                                                        onChange={(e) => handleBulkFieldChange(i, "correctAnswer", e.target.value)}
+                                                    />
+                                                </div>
+                                                <div className="field" style={{ gridColumn: "1 / -1" }}>
+                                                    <label>Grading Rubric (optional)</label>
+                                                    {(q.rubric || []).map((criterion, ci) => (
+                                                        <div key={ci} style={{
+                                                            display: "flex", gap: 8, alignItems: "center",
+                                                            marginBottom: 8
+                                                        }}>
+                                                            <input
+                                                                placeholder="Criterion name"
+                                                                value={criterion.name}
+                                                                onChange={(e) => updateBulkRubricCriterion(i, ci, "name", e.target.value)}
+                                                                style={{ flex: 1 }}
+                                                            />
+                                                            <input
+                                                                type="number"
+                                                                min="0"
+                                                                placeholder="Max"
+                                                                value={criterion.maxPoints}
+                                                                onChange={(e) => updateBulkRubricCriterion(i, ci, "maxPoints", e.target.value)}
+                                                                style={{ width: 70 }}
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-danger btn-sm"
+                                                                onClick={() => removeBulkRubricCriterion(i, ci)}
+                                                            >
+                                                                ×
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-outline btn-sm"
+                                                        onClick={() => addBulkRubricCriterion(i)}
+                                                    >
+                                                        + Add Criterion
+                                                    </button>
+                                                </div>
+                                            </>
                                         )}
 
                                     </div>
@@ -689,16 +803,60 @@ function Question() {
                 )}
 
                 {form.questionType === "Essay" && (
-                    <div className="field">
-                        <label>Model Answer / Grading Notes (optional)</label>
-                        <textarea
-                            name="correctAnswer"
-                            rows="3"
-                            placeholder="Optional notes for the grader — not shown to students"
-                            value={form.correctAnswer}
-                            onChange={handleChange}
-                        />
-                    </div>
+                    <>
+                        <div className="field" style={{ marginBottom: 16 }}>
+                            <label>Model Answer / Grading Notes (optional)</label>
+                            <textarea
+                                name="correctAnswer"
+                                rows="3"
+                                placeholder="Optional notes for the grader — not shown to students"
+                                value={form.correctAnswer}
+                                onChange={handleChange}
+                            />
+                        </div>
+
+                        <div className="field">
+                            <label>Grading Rubric (optional)</label>
+                            {(form.rubric || []).map((criterion, index) => (
+                                <div key={index} style={{
+                                    display: "flex", gap: 8, alignItems: "center",
+                                    marginBottom: 8
+                                }}>
+                                    <input
+                                        placeholder="Criterion name"
+                                        value={criterion.name}
+                                        onChange={(e) => updateRubricCriterion(index, "name", e.target.value)}
+                                        style={{ flex: 1 }}
+                                    />
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        placeholder="Max"
+                                        value={criterion.maxPoints}
+                                        onChange={(e) => updateRubricCriterion(index, "maxPoints", e.target.value)}
+                                        style={{ width: 70 }}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="btn btn-danger btn-sm"
+                                        onClick={() => removeRubricCriterion(index)}
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                className="btn btn-outline btn-sm"
+                                onClick={addRubricCriterion}
+                            >
+                                + Add Criterion
+                            </button>
+                            <p style={{ fontSize: 12, color: "var(--ink-soft)", marginTop: 6 }}>
+                                Trainers score each criterion when grading essay answers; the sum is the essay's grade.
+                            </p>
+                        </div>
+                    </>
                 )}
             </SidePanel>
 

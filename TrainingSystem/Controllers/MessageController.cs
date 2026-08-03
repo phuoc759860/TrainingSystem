@@ -4,6 +4,7 @@ using TrainingSystem.Data;
 using TrainingSystem.Models;
 using TrainingSystem.DTOs.Message;
 using TrainingSystem.Middlewares;
+using TrainingSystem.Services;
 using Microsoft.AspNetCore.Authorization;
 
 namespace TrainingSystem.Controllers
@@ -14,10 +15,12 @@ namespace TrainingSystem.Controllers
     public class MessageController : BaseApiController
     {
         private readonly RateLimiterService _rateLimiter;
+        private readonly IEmailNotificationService _emailNotifications;
 
-        public MessageController(AppDbContext context, RateLimiterService rateLimiter) : base(context)
+        public MessageController(AppDbContext context, RateLimiterService rateLimiter, IEmailNotificationService emailNotifications) : base(context)
         {
             _rateLimiter = rateLimiter;
+            _emailNotifications = emailNotifications;
         }
 
         [HttpGet("inbox")]
@@ -123,6 +126,8 @@ namespace TrainingSystem.Controllers
             });
 
             await _context.SaveChangesAsync();
+
+            await _emailNotifications.NotifyNewMessageAsync(sender, receiver, msg);
 
             return Ok(new MessageDto
             {

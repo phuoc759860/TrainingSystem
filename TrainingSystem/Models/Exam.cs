@@ -23,6 +23,21 @@ namespace TrainingSystem.Models
         /// </summary>
         public int? TimeLimitMinutes { get; set; }
 
+        /// <summary>
+        /// Draft/publish workflow. Only published exams are available to students.
+        /// </summary>
+        public bool IsPublished { get; set; } = true;
+
+        /// <summary>
+        /// Bumped every time the exam is (re)published so mid-term changes are not silent.
+        /// </summary>
+        public int ContentVersion { get; set; } = 1;
+
+        /// <summary>
+        /// How many questions are randomly drawn per attempt. 0/null = use all questions (current behavior).
+        /// </summary>
+        public int? QuestionsPerAttempt { get; set; }
+
         public ICollection<QuestionBank> Questions { get; set; }
             = new List<QuestionBank>();
 

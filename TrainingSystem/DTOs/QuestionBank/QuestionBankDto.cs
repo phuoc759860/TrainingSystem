@@ -1,5 +1,11 @@
 namespace TrainingSystem.DTOs.QuestionBank
 {
+public class RubricCriterionDto
+{
+    public string Name { get; set; } = "";
+    public decimal MaxPoints { get; set; }
+}
+
 public class QuestionBankDto
 {
     public int QuestionID { get; set; }
@@ -23,5 +29,7 @@ public class QuestionBankDto
     public string CorrectAnswer { get; set; } = "";
 
     public decimal Score { get; set; }
+
+    public List<RubricCriterionDto>? Rubric { get; set; }
 }
 }

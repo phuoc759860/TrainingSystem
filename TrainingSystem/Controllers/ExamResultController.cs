@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using TrainingSystem.Data;
 using TrainingSystem.DTOs.Common;
 using TrainingSystem.DTOs.ExamResult;
 using TrainingSystem.Models;
+using TrainingSystem.Services;
 using Microsoft.AspNetCore.Authorization;
 
 namespace TrainingSystem.Controllers
@@ -13,7 +15,12 @@ namespace TrainingSystem.Controllers
     [Authorize]
     public class ExamResultController : BaseApiController
     {
-        public ExamResultController(AppDbContext context) : base(context) { }
+        private readonly IEmailNotificationService _emailNotifications;
+
+        public ExamResultController(AppDbContext context, IEmailNotificationService emailNotifications) : base(context)
+        {
+            _emailNotifications = emailNotifications;
+        }
 
         [HttpGet]
         [Authorize(Roles = "Admin,Trainer")]
@@ -118,7 +125,8 @@ namespace TrainingSystem.Controllers
                     IsCorrect = a.IsCorrect,
                     MaxScore = a.Question.Score,
                     PointsEarned = a.PointsEarned,
-                    NeedsGrading = a.NeedsGrading
+                    NeedsGrading = a.NeedsGrading,
+                    Rubric = DeserializeRubric(a.Question.RubricJson) ?? new()
                 }).ToList()
             };
 
@@ -130,6 +138,7 @@ namespace TrainingSystem.Controllers
         public async Task<IActionResult> GradeAttempt(int id, GradeExamDto dto)
         {
             var result = await _context.ExamResult
+                .Include(r => r.User)
                 .Include(r => r.Exam)
                 .Include(r => r.Answers)
                     .ThenInclude(a => a.Question)
@@ -141,14 +150,23 @@ namespace TrainingSystem.Controllers
             if (IsTrainer() && !await OwnsCourse(result.Exam!.CourseID))
                 return Forbid();
 
-            var updates = dto.Answers.ToDictionary(a => a.ExamAnswerID, a => a.PointsEarned);
+            var updateMap = dto.Answers
+                .GroupBy(a => a.ExamAnswerID)
+                .ToDictionary(g => g.Key, g => g.Last());
 
             foreach (var answer in result.Answers.Where(a => a.NeedsGrading))
             {
-                if (!updates.TryGetValue(answer.ExamAnswerID, out var points))
+                if (!updateMap.TryGetValue(answer.ExamAnswerID, out var update))
                     continue;
 
                 var maxScore = answer.Question!.Score;
+
+                // Essay rubric: when the trainer submits per-criterion scores,
+                // their sum is used. Falls back to PointsEarned otherwise.
+                var points = update.PointsEarned;
+                if (update.CriterionScores is { Count: > 0 })
+                    points = update.CriterionScores.Sum(c => c.Points);
+
                 points = Math.Clamp(points, 0, maxScore);
 
                 answer.PointsEarned = points;
@@ -163,9 +181,13 @@ namespace TrainingSystem.Controllers
                 ? Math.Round(earned / totalPossible * 100, 2)
                 : 0;
             result.Passed = result.Score >= 50;
-            result.NeedsGrading = result.Answers.Any(a => a.NeedsGrading);
+            var fullyGraded = !result.Answers.Any(a => a.NeedsGrading);
+            result.NeedsGrading = !fullyGraded;
 
             await _context.SaveChangesAsync();
+
+            if (fullyGraded && result.User != null)
+                await _emailNotifications.NotifyExamGradedAsync(result.User, result.Exam, result);
 
             return NoContent();
         }
@@ -264,6 +286,15 @@ namespace TrainingSystem.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        private static List<RubricCriterionDto>? DeserializeRubric(string? json)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+                return null;
+
+            try { return JsonSerializer.Deserialize<List<RubricCriterionDto>>(json); }
+            catch { return null; }
         }
     }
 }

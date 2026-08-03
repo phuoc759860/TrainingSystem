@@ -15,10 +15,45 @@ namespace TrainingSystem.Controllers
     public class MaterialController : BaseApiController
     {
         private readonly IFileStorageService _fileStorage;
+        private readonly long _maxFileBytes;
+        private readonly long _maxUserBytes;
 
-        public MaterialController(AppDbContext context, IFileStorageService fileStorage) : base(context)
+        public MaterialController(AppDbContext context, IFileStorageService fileStorage, IConfiguration configuration) : base(context)
         {
             _fileStorage = fileStorage;
+            _maxFileBytes = configuration.GetValue("Storage:MaxFileBytes", 100L * 1024 * 1024);
+            _maxUserBytes = configuration.GetValue("Storage:MaxUserBytes", 500L * 1024 * 1024);
+        }
+
+        private async Task<ActionResult<MaterialDto>?> CheckUploadAllowedAsync(long fileBytes)
+        {
+            if (fileBytes <= 0)
+                return BadRequest(new { message = "The uploaded file is empty." });
+
+            if (fileBytes > _maxFileBytes)
+            {
+                var mb = _maxFileBytes / (1024.0 * 1024.0);
+                return BadRequest(new
+                {
+                    message = $"File is too large. Maximum size is {mb:0.#} MB."
+                });
+            }
+
+            var used = await _context.Materials
+                .Where(m => m.UploadedByUserID == CurrentUserId && m.SizeBytes != null)
+                .SumAsync(m => m.SizeBytes!.Value);
+
+            if (used + fileBytes > _maxUserBytes)
+            {
+                var totalMb = _maxUserBytes / (1024.0 * 1024.0);
+                var usedMb = used / (1024.0 * 1024.0);
+                return StatusCode(413, new
+                {
+                    message = $"Storage quota exceeded. Your quota is {totalMb:0.#} MB and you have used {usedMb:0.#} MB."
+                });
+            }
+
+            return null;
         }
 
         [HttpGet]
@@ -67,7 +102,9 @@ namespace TrainingSystem.Controllers
                     VideoUrl = m.VideoUrl,
                     LessonID = m.LessonID,
                     LessonTitle = m.Lesson!.Title,
-                    OrderIndex = m.OrderIndex
+                    OrderIndex = m.OrderIndex,
+                    MimeType = m.MimeType,
+                    SizeBytes = m.SizeBytes
                 })
                 .ToListAsync();
 
@@ -104,7 +141,9 @@ namespace TrainingSystem.Controllers
                     VideoUrl = m.VideoUrl,
                     LessonID = m.LessonID,
                     LessonTitle = m.Lesson!.Title,
-                    OrderIndex = m.OrderIndex
+                    OrderIndex = m.OrderIndex,
+                    MimeType = m.MimeType,
+                    SizeBytes = m.SizeBytes
                 })
                 .ToListAsync();
 
@@ -135,7 +174,9 @@ namespace TrainingSystem.Controllers
                 VideoUrl = material.VideoUrl,
                 LessonID = material.LessonID,
                 LessonTitle = material.Lesson.Title,
-                OrderIndex = material.OrderIndex
+                OrderIndex = material.OrderIndex,
+                MimeType = material.MimeType,
+                SizeBytes = material.SizeBytes
             });
         }
 
@@ -152,11 +193,17 @@ namespace TrainingSystem.Controllers
 
             string? filePath = null;
             string? mimeType = null;
+            long? sizeBytes = null;
 
             if (dto.File != null)
             {
+                var quotaError = await CheckUploadAllowedAsync(dto.File.Length);
+                if (quotaError != null)
+                    return quotaError;
+
                 filePath = await _fileStorage.SaveFileAsync(dto.File);
                 mimeType = dto.File.ContentType;
+                sizeBytes = dto.File.Length;
             }
 
             var material = new Models.Material
@@ -165,6 +212,8 @@ namespace TrainingSystem.Controllers
                 FilePath = filePath ?? "",
                 VideoUrl = dto.VideoUrl,
                 MimeType = mimeType,
+                SizeBytes = sizeBytes,
+                UploadedByUserID = CurrentUserId,
                 LessonID = dto.LessonID,
                 OrderIndex = await _context.Materials
                     .Where(m => m.LessonID == dto.LessonID)
@@ -223,11 +272,17 @@ namespace TrainingSystem.Controllers
 
             if (dto.File != null)
             {
+                var quotaError = await CheckUploadAllowedAsync(dto.File.Length);
+                if (quotaError != null)
+                    return quotaError;
+
                 if (!string.IsNullOrEmpty(material.FilePath))
                     await _fileStorage.DeleteFileAsync(material.FilePath);
 
                 material.FilePath = await _fileStorage.SaveFileAsync(dto.File);
                 material.MimeType = dto.File.ContentType;
+                material.SizeBytes = dto.File.Length;
+                material.UploadedByUserID = CurrentUserId;
                 material.VideoUrl = null;
             }
 

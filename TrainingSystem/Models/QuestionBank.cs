@@ -24,6 +24,11 @@ namespace TrainingSystem.Models
 
         public decimal Score { get; set; }
 
+        /// <summary>
+        /// Essay rubric stored as JSON: [{ "name": "Argument", "maxPoints": 20 }].
+        /// </summary>
+        public string? RubricJson { get; set; }
+
         public Exam? Exam { get; set; }
     }
 }

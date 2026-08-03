@@ -15,5 +15,12 @@ namespace TrainingSystem.DTOs.Exam
         public int TimeLimitMinutes { get; set; }
 
         public int AttemptCount { get; set; }
+
+        public bool IsPublished { get; set; } = true;
+
+        public int ContentVersion { get; set; } = 1;
+
+        /// <summary>0/null = use all questions per attempt.</summary>
+        public int? QuestionsPerAttempt { get; set; }
     }
 }

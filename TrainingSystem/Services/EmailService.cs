@@ -18,7 +18,7 @@ namespace TrainingSystem.Services
             !string.IsNullOrWhiteSpace(_configuration["Email:Host"]) &&
             !string.IsNullOrWhiteSpace(_configuration["Email:Username"]);
 
-        public Task SendAsync(string to, string subject, string body)
+        public async Task SendAsync(string to, string subject, string body)
         {
             var host = _configuration["Email:Host"];
             var username = _configuration["Email:Username"];
@@ -28,7 +28,7 @@ namespace TrainingSystem.Services
                     "Email not sent because SMTP is not fully configured (set Email:Host and Email:Username). " +
                     "To: {To}, Subject: {Subject}, Body: {Body}",
                     to, subject, body);
-                return Task.CompletedTask;
+                return;
             }
             var port = _configuration.GetValue("Email:Port", 587);
             var password = _configuration["Email:Password"];
@@ -43,7 +43,7 @@ namespace TrainingSystem.Services
 
             using var message = new MailMessage(from, to, subject, body) { IsBodyHtml = true };
 
-            return client.SendMailAsync(message);
+            await client.SendMailAsync(message);
         }
     }
 }

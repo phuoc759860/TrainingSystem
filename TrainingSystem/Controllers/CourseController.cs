@@ -31,6 +31,11 @@ namespace TrainingSystem.Controllers
             {
                 query = query.Where(c => c.TrainerID == CurrentUserId);
             }
+            else if (IsStudent())
+            {
+                // Students only see published courses.
+                query = query.Where(c => c.IsPublished);
+            }
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -50,7 +55,12 @@ namespace TrainingSystem.Controllers
                     Title = c.Title,
                     Description = c.Description,
                     TrainerID = c.TrainerID,
-                    TrainerName = c.Trainer!.Name
+                    TrainerName = c.Trainer!.Name,
+                    Price = c.Price,
+                    Currency = c.Currency,
+                    IsPublished = c.IsPublished,
+                    ContentVersion = c.ContentVersion,
+                    StartDate = c.StartDate
                 })
                 .ToListAsync();
 
@@ -76,11 +86,20 @@ namespace TrainingSystem.Controllers
                     Title = c.Title,
                     Description = c.Description,
                     TrainerID = c.TrainerID,
-                    TrainerName = c.Trainer!.Name
+                    TrainerName = c.Trainer!.Name,
+                    Price = c.Price,
+                    Currency = c.Currency,
+                    IsPublished = c.IsPublished,
+                    ContentVersion = c.ContentVersion,
+                    StartDate = c.StartDate
                 })
                 .FirstOrDefaultAsync();
 
             if (course == null)
+                return NotFound();
+
+            // Drafts are invisible to students (even enrolled ones) until published.
+            if (IsStudent() && !course.IsPublished)
                 return NotFound();
 
             if (!await IsEnrolled(course.CourseID))
@@ -107,7 +126,10 @@ namespace TrainingSystem.Controllers
             {
                 Title = dto.Title,
                 Description = dto.Description,
-                TrainerID = dto.TrainerID
+                TrainerID = dto.TrainerID,
+                Price = dto.Price > 0 ? dto.Price : 0,
+                StartDate = dto.StartDate,
+                IsPublished = false
             };
 
             _context.Courses.Add(course);
@@ -121,7 +143,12 @@ namespace TrainingSystem.Controllers
                     Title = course.Title,
                     Description = course.Description,
                     TrainerID = trainer.UserID,
-                    TrainerName = trainer.Name
+                    TrainerName = trainer.Name,
+                    Price = course.Price,
+                    Currency = course.Currency,
+                    IsPublished = course.IsPublished,
+                    ContentVersion = course.ContentVersion,
+                    StartDate = course.StartDate
                 });
         }
 
@@ -147,10 +174,61 @@ namespace TrainingSystem.Controllers
             course.Title = dto.Title;
             course.Description = dto.Description;
             course.TrainerID = dto.TrainerID;
+            course.Price = dto.Price > 0 ? dto.Price : 0;
+            course.StartDate = dto.StartDate;
+
+            // Editing a live course silently changes it for enrolled students.
+            // Send it back to draft; the trainer republishes when ready.
+            if (course.IsPublished)
+                course.IsPublished = false;
 
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpPost("{id}/publish")]
+        [Authorize(Roles = "Admin,Trainer")]
+        public async Task<IActionResult> PublishCourse(int id)
+        {
+            var course = await _context.Courses.FindAsync(id);
+
+            if (course == null || course.IsDeleted)
+                return NotFound();
+
+            var result = await CheckCourseOwner(course.CourseID);
+            if (result != null)
+                return result;
+
+            if (!course.IsPublished)
+            {
+                course.IsPublished = true;
+                course.ContentVersion++;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Course published.", contentVersion = course.ContentVersion });
+        }
+
+        [HttpPost("{id}/unpublish")]
+        [Authorize(Roles = "Admin,Trainer")]
+        public async Task<IActionResult> UnpublishCourse(int id)
+        {
+            var course = await _context.Courses.FindAsync(id);
+
+            if (course == null || course.IsDeleted)
+                return NotFound();
+
+            var result = await CheckCourseOwner(course.CourseID);
+            if (result != null)
+                return result;
+
+            course.IsPublished = false;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Course unpublished." });
         }
 
         [HttpDelete("{id}")]

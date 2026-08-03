@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using TrainingSystem.Data;
 using TrainingSystem.DTOs.Common;
 using TrainingSystem.DTOs.QuestionBank;
@@ -43,25 +44,13 @@ namespace TrainingSystem.Controllers
 
             var totalCount = await query.CountAsync();
 
-            var items = await query
+            var entities = await query
                 .OrderBy(q => q.QuestionID)
                 .Skip((pg.Page - 1) * pg.PageSize)
                 .Take(pg.PageSize)
-                .Select(q => new QuestionBankDto
-                {
-                    QuestionID = q.QuestionID,
-                    ExamID = q.ExamID,
-                    ExamTitle = q.Exam!.Title,
-                    Content = q.Content,
-                    QuestionType = q.QuestionType,
-                    OptionA = q.OptionA ?? "",
-                    OptionB = q.OptionB ?? "",
-                    OptionC = q.OptionC ?? "",
-                    OptionD = q.OptionD ?? "",
-                    CorrectAnswer = q.CorrectAnswer ?? "",
-                    Score = q.Score
-                })
                 .ToListAsync();
+
+            var items = entities.Select(ToDto).ToList();
 
             return Ok(new PaginatedResult<QuestionBankDto>
             {
@@ -108,7 +97,10 @@ namespace TrainingSystem.Controllers
                 OptionC = dto.OptionC,
                 OptionD = dto.OptionD,
                 CorrectAnswer = dto.CorrectAnswer,
-                Score = dto.Score
+                Score = dto.Score,
+                RubricJson = dto.Rubric != null && dto.Rubric.Count > 0
+                    ? JsonSerializer.Serialize(dto.Rubric)
+                    : null
             };
 
             _context.QuestionBanks.Add(question);
@@ -127,7 +119,8 @@ namespace TrainingSystem.Controllers
                     OptionC = question.OptionC ?? "",
                     OptionD = question.OptionD ?? "",
                     CorrectAnswer = question.CorrectAnswer ?? "",
-                    Score = question.Score
+                    Score = question.Score,
+                    Rubric = DeserializeRubric(question.RubricJson)
                 });
         }
 
@@ -152,6 +145,9 @@ namespace TrainingSystem.Controllers
             question.OptionD = dto.OptionD;
             question.CorrectAnswer = dto.CorrectAnswer;
             question.Score = dto.Score;
+            question.RubricJson = dto.Rubric != null && dto.Rubric.Count > 0
+                ? JsonSerializer.Serialize(dto.Rubric)
+                : null;
 
             await _context.SaveChangesAsync();
 
@@ -191,8 +187,24 @@ namespace TrainingSystem.Controllers
                 OptionC = q.OptionC ?? "",
                 OptionD = q.OptionD ?? "",
                 CorrectAnswer = q.CorrectAnswer ?? "",
-                Score = q.Score
+                Score = q.Score,
+                Rubric = DeserializeRubric(q.RubricJson)
             };
+        }
+
+        private static List<RubricCriterionDto>? DeserializeRubric(string? json)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+                return null;
+
+            try
+            {
+                return JsonSerializer.Deserialize<List<RubricCriterionDto>>(json);
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

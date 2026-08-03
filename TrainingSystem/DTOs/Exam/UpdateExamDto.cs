@@ -15,5 +15,8 @@ namespace TrainingSystem.DTOs.Exam
 
         /// <summary>Time limit in minutes. 0 = no limit.</summary>
         public int TimeLimitMinutes { get; set; } = 0;
+
+        /// <summary>Random question pool size per attempt. 0 = use all questions.</summary>
+        public int QuestionsPerAttempt { get; set; } = 0;
     }
 }

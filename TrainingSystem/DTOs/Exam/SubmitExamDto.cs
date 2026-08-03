@@ -19,5 +19,13 @@ namespace TrainingSystem.DTOs.Exam
         /// Used for server-side time limit validation.
         /// </summary>
         public DateTime? StartedAt { get; set; }
+
+        /// <summary>
+        /// The question IDs that were served for this attempt.
+        /// When the exam uses a randomized pool, only these questions are graded
+        /// (and the pool size is used as the denominator), so a short exam drawn
+        /// from a large bank is scored fairly.
+        /// </summary>
+        public List<int>? QuestionIDs { get; set; }
     }
 }

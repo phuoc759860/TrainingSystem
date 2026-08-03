@@ -15,5 +15,10 @@ namespace TrainingSystem.Models
         public DateTime EnrollDate { get; set; } = DateTime.Now;
 
         public string Status { get; set; } = "Enrolled";
+
+        /// <summary>
+        /// Set once a "course starting soon" email has been sent for this enrollment.
+        /// </summary>
+        public DateTime? StartNotifiedAt { get; set; }
     }
 }

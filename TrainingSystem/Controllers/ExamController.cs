@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using TrainingSystem.Data;
 using TrainingSystem.DTOs.Common;
 using TrainingSystem.DTOs.Exam;
+using TrainingSystem.DTOs.ExamResult;
 using TrainingSystem.Models;
 using Microsoft.AspNetCore.Authorization;
 
@@ -37,7 +39,7 @@ namespace TrainingSystem.Controllers
 
             if (IsStudent())
             {
-                query = query.Where(e => MyCourseIds().Contains(e.CourseID));
+                query = query.Where(e => MyCourseIds().Contains(e.CourseID) && e.IsPublished);
             }
 
             if (!string.IsNullOrWhiteSpace(search))
@@ -59,7 +61,10 @@ namespace TrainingSystem.Controllers
                     CourseTitle = e.Course!.Title,
                     MaxAttempts = e.MaxAttempts ?? _defaultMaxAttempts,
                     TimeLimitMinutes = e.TimeLimitMinutes ?? 0,
-                    AttemptCount = e.ExamResults.Count(r => r.UserID == CurrentUserId)
+                    AttemptCount = e.ExamResults.Count(r => r.UserID == CurrentUserId),
+                    IsPublished = e.IsPublished,
+                    ContentVersion = e.ContentVersion,
+                    QuestionsPerAttempt = e.QuestionsPerAttempt
                 })
                 .ToListAsync();
 
@@ -88,7 +93,10 @@ namespace TrainingSystem.Controllers
                     CourseTitle = e.Course!.Title,
                     MaxAttempts = e.MaxAttempts ?? _defaultMaxAttempts,
                     TimeLimitMinutes = e.TimeLimitMinutes ?? 0,
-                    AttemptCount = e.ExamResults.Count(r => r.UserID == CurrentUserId)
+                    AttemptCount = e.ExamResults.Count(r => r.UserID == CurrentUserId),
+                    IsPublished = e.IsPublished,
+                    ContentVersion = e.ContentVersion,
+                    QuestionsPerAttempt = e.QuestionsPerAttempt
                 })
                 .FirstOrDefaultAsync();
 
@@ -97,6 +105,9 @@ namespace TrainingSystem.Controllers
 
             if (!await IsEnrolled(exam.CourseID))
                 return Forbid();
+
+            if (IsStudent() && !exam.IsPublished)
+                return NotFound();
 
             return Ok(exam);
         }
@@ -142,17 +153,36 @@ namespace TrainingSystem.Controllers
                     q.OptionB,
                     q.OptionC,
                     q.OptionD,
-                    q.Score
+                    q.Score,
+                    q.RubricJson
                 })
                 .ToListAsync();
 
+            var questionDtos = questions.Select(q => new
+            {
+                q.QuestionID,
+                q.Content,
+                q.QuestionType,
+                q.OptionA,
+                q.OptionB,
+                q.OptionC,
+                q.OptionD,
+                q.Score,
+                Rubric = DeserializeRubric(q.RubricJson)
+            }).ToList();
+
             // Fisher-Yates shuffle
             var rng = new Random();
-            for (int i = questions.Count - 1; i > 0; i--)
+            for (int i = questionDtos.Count - 1; i > 0; i--)
             {
                 int j = rng.Next(i + 1);
-                (questions[i], questions[j]) = (questions[j], questions[i]);
+                (questionDtos[i], questionDtos[j]) = (questionDtos[j], questionDtos[i]);
             }
+
+            // Question pool randomization: pick QuestionsPerAttempt random questions.
+            var poolSize = exam.QuestionsPerAttempt ?? 0;
+            if (poolSize > 0 && poolSize < questionDtos.Count)
+                questionDtos = questionDtos.Take(poolSize).ToList();
 
             return Ok(new
             {
@@ -163,10 +193,19 @@ namespace TrainingSystem.Controllers
                 timeLimitMinutes = exam.TimeLimitMinutes ?? 0,
                 attemptCount = await _context.ExamResult
                     .CountAsync(r => r.ExamID == id && r.UserID == userId),
-                totalQuestions = questions.Count,
-                totalPoints = questions.Sum(q => q.Score),
-                questions
+                totalQuestions = questionDtos.Count,
+                totalPoints = questionDtos.Sum(q => q.Score),
+                questions = questionDtos
             });
+        }
+
+        private static List<RubricCriterionDto>? DeserializeRubric(string? json)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+                return null;
+
+            try { return JsonSerializer.Deserialize<List<RubricCriterionDto>>(json); }
+            catch { return null; }
         }
 
         // EXAM SUBMIT
@@ -224,14 +263,24 @@ namespace TrainingSystem.Controllers
                 .GroupBy(a => a.QuestionID)
                 .ToDictionary(g => g.Key, g => g.Last().Answer);
 
-            decimal totalPossible = exam.Questions.Sum(q => q.Score);
+            // Question pool randomization: when the exam draws N random questions per
+            // attempt, grade only the questions that were actually served to this student.
+            var servedIds = dto.QuestionIDs?.Where(id => id > 0).ToHashSet();
+            var gradedQuestions = exam.Questions;
+            if (servedIds is { Count: > 0 })
+                gradedQuestions = exam.Questions.Where(q => servedIds.Contains(q.QuestionID)).ToList();
+
+            if (gradedQuestions.Count == 0)
+                return BadRequest(new { message = "No questions were served for this attempt." });
+
+            decimal totalPossible = gradedQuestions.Sum(q => q.Score);
             decimal earned = 0;
 
             var feedback = new List<QuestionFeedbackDto>();
             var answerEntities = new List<ExamAnswer>();
             bool anyNeedsGrading = false;
 
-            foreach (var q in exam.Questions)
+            foreach (var q in gradedQuestions)
             {
                 answerMap.TryGetValue(q.QuestionID, out var selected);
 
@@ -311,7 +360,7 @@ namespace TrainingSystem.Controllers
                 ExamID = exam.ExamID,
                 Score = percentage,
                 Passed = result.Passed,
-                TotalQuestions = exam.Questions.Count,
+                TotalQuestions = gradedQuestions.Count,
                 CorrectCount = feedback.Count(f => f.IsCorrect == true),
                 Questions = feedback
             });
@@ -338,7 +387,9 @@ namespace TrainingSystem.Controllers
                 Title = dto.Title,
                 CourseID = dto.CourseID,
                 MaxAttempts = dto.MaxAttempts > 0 ? dto.MaxAttempts : _defaultMaxAttempts,
-                TimeLimitMinutes = dto.TimeLimitMinutes > 0 ? dto.TimeLimitMinutes : null
+                TimeLimitMinutes = dto.TimeLimitMinutes > 0 ? dto.TimeLimitMinutes : null,
+                QuestionsPerAttempt = dto.QuestionsPerAttempt > 0 ? dto.QuestionsPerAttempt : null,
+                IsPublished = false
             };
 
             _context.Exams.Add(exam);
@@ -352,7 +403,10 @@ namespace TrainingSystem.Controllers
                 CourseID = course.CourseID,
                 CourseTitle = course.Title,
                 MaxAttempts = exam.MaxAttempts ?? 0,
-                TimeLimitMinutes = exam.TimeLimitMinutes ?? 0
+                TimeLimitMinutes = exam.TimeLimitMinutes ?? 0,
+                IsPublished = exam.IsPublished,
+                ContentVersion = exam.ContentVersion,
+                QuestionsPerAttempt = exam.QuestionsPerAttempt
             };
 
             return CreatedAtAction(nameof(GetExam),
@@ -389,10 +443,58 @@ namespace TrainingSystem.Controllers
             exam.CourseID = dto.CourseID;
             exam.MaxAttempts = dto.MaxAttempts > 0 ? dto.MaxAttempts : _defaultMaxAttempts;
             exam.TimeLimitMinutes = dto.TimeLimitMinutes > 0 ? dto.TimeLimitMinutes : null;
+            exam.QuestionsPerAttempt = dto.QuestionsPerAttempt > 0 ? dto.QuestionsPerAttempt : null;
+
+            // Editing a live exam mid-term silently changes it for everyone.
+            // Send it back to draft; the trainer republishes when ready.
+            if (exam.IsPublished)
+                exam.IsPublished = false;
 
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpPost("{id}/publish")]
+        [Authorize(Roles = "Admin,Trainer")]
+        public async Task<IActionResult> PublishExam(int id)
+        {
+            var exam = await _context.Exams.FindAsync(id);
+
+            if (exam == null)
+                return NotFound();
+
+            if (IsTrainer() && !await OwnsCourse(exam.CourseID))
+                return Forbid();
+
+            if (!exam.IsPublished)
+            {
+                exam.IsPublished = true;
+                exam.ContentVersion++;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Exam published.", contentVersion = exam.ContentVersion });
+        }
+
+        [HttpPost("{id}/unpublish")]
+        [Authorize(Roles = "Admin,Trainer")]
+        public async Task<IActionResult> UnpublishExam(int id)
+        {
+            var exam = await _context.Exams.FindAsync(id);
+
+            if (exam == null)
+                return NotFound();
+
+            if (IsTrainer() && !await OwnsCourse(exam.CourseID))
+                return Forbid();
+
+            exam.IsPublished = false;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Exam unpublished." });
         }
 
         // DELETE

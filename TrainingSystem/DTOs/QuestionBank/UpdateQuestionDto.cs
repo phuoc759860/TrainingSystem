@@ -21,5 +21,8 @@ namespace TrainingSystem.DTOs.QuestionBank
         public string? CorrectAnswer { get; set; }
 
         public int Score { get; set; }
+
+        /// <summary>Essay rubric criteria: [{ "name": "Argument", "maxPoints": 20 }].</summary>
+        public List<RubricCriterionDto>? Rubric { get; set; }
     }
 }

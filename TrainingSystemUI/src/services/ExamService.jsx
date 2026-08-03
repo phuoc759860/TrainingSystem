@@ -18,8 +18,15 @@ export const updateExam = async (id, data) =>
 export const deleteExam = async (id) =>
     await api.delete(`/Exam/${id}`);
 
-export const submitExam = async (examId, answers, startedAt) =>
+export const publishExam = async (id) =>
+    await api.post(`/Exam/${id}/publish`);
+
+export const unpublishExam = async (id) =>
+    await api.post(`/Exam/${id}/unpublish`);
+
+export const submitExam = async (examId, answers, startedAt, questionIDs) =>
     await api.post(`/Exam/${examId}/submit`, {
         answers,
-        startedAt: startedAt || null
+        startedAt: startedAt || null,
+        questionIDs: questionIDs || null
     });

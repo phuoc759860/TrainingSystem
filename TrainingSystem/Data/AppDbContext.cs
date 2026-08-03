@@ -52,6 +52,8 @@ namespace TrainingSystem.Data
         public DbSet<UserPoints> UserPoints { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
+        public DbSet<Certificate> Certificates { get; set; }
+        public DbSet<Payment> Payments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -303,6 +305,46 @@ namespace TrainingSystem.Data
                 .WithMany()
                 .HasForeignKey(up => up.UserID)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Certificate
+            modelBuilder.Entity<Certificate>()
+                .HasOne(c => c.User)
+                .WithMany()
+                .HasForeignKey(c => c.UserID)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Certificate>()
+                .HasOne(c => c.Course)
+                .WithMany()
+                .HasForeignKey(c => c.CourseID)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Certificate>()
+                .HasIndex(c => c.CertificateNumber)
+                .IsUnique();
+            modelBuilder.Entity<Certificate>()
+                .HasIndex(c => new { c.UserID, c.CourseID })
+                .IsUnique();
+            modelBuilder.Entity<Certificate>()
+                .HasQueryFilter(c => c.Course == null || !c.Course.IsDeleted);
+
+            // Payment
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.User)
+                .WithMany()
+                .HasForeignKey(p => p.UserID)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.Course)
+                .WithMany()
+                .HasForeignKey(p => p.CourseID)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Payment>()
+                .HasIndex(p => p.OrderNumber)
+                .IsUnique();
+            modelBuilder.Entity<Payment>()
+                .HasIndex(p => p.InvoiceNumber)
+                .IsUnique();
+            modelBuilder.Entity<Payment>()
+                .HasQueryFilter(p => p.Course == null || !p.Course.IsDeleted);
         }
     }
 }

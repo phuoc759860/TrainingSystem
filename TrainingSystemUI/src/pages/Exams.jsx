@@ -4,7 +4,9 @@ import {
     getExams,
     createExam,
     updateExam,
-    deleteExam
+    deleteExam,
+    publishExam,
+    unpublishExam
 } from "../services/ExamService";
 
 import useAuth from "../hooks/useAuth";
@@ -19,6 +21,7 @@ const blankForm = () => ({
     courseID: "",
     maxAttempts: "",
     timeLimitMinutes: "",
+    questionsPerAttempt: "",
     questionCount: 5
 });
 
@@ -96,6 +99,7 @@ function Exam() {
             courseID: exam.courseID,
             maxAttempts: exam.maxAttempts || "",
             timeLimitMinutes: exam.timeLimitMinutes || "",
+            questionsPerAttempt: exam.questionsPerAttempt || "",
             questionCount: 5
         });
         setPanelOpen(true);
@@ -114,7 +118,8 @@ function Exam() {
                 title: form.title,
                 courseID: Number(form.courseID),
                 maxAttempts: Number(form.maxAttempts) || 0,
-                timeLimitMinutes: Number(form.timeLimitMinutes) || 0
+                timeLimitMinutes: Number(form.timeLimitMinutes) || 0,
+                questionsPerAttempt: Number(form.questionsPerAttempt) || 0
             };
 
             if (editingId == null) {
@@ -139,6 +144,22 @@ function Exam() {
         }
         finally {
             setSaving(false);
+        }
+    };
+
+    const handleTogglePublish = async (exam) => {
+        try {
+            if (exam.isPublished) {
+                await unpublishExam(exam.examID);
+                showToast(`"${exam.title}" unpublished.`, "success");
+            } else {
+                await publishExam(exam.examID);
+                showToast(`"${exam.title}" published.`, "success");
+            }
+            loadExams();
+        }
+        catch (err) { console.error(err);
+            showToast("Couldn't change publish state.", "error");
         }
     };
 
@@ -211,6 +232,7 @@ function Exam() {
                             <th>Course</th>
                             <th>Attempts</th>
                             <th>Time Limit</th>
+                            <th>Status</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -235,6 +257,17 @@ function Exam() {
                                             : <span className="badge" style={{ background: "var(--surface-sunken)", color: "var(--ink-soft)" }}>No limit</span>
                                         }
                                     </td>
+                                    <td>
+                                        {exam.isPublished
+                                            ? <span className="badge badge-success">Published</span>
+                                            : <span className="badge badge-warning">Draft</span>
+                                        }
+                                        {exam.questionsPerAttempt > 0 && (
+                                            <span className="badge" style={{ background: "var(--surface-sunken)", color: "var(--ink-soft)", marginLeft: 6 }}>
+                                                {exam.questionsPerAttempt} per attempt
+                                            </span>
+                                        )}
+                                    </td>
                                     <td style={{ textAlign: "right", whiteSpace: "nowrap" }}>
                                         <button
                                             className="btn btn-primary btn-sm"
@@ -250,6 +283,12 @@ function Exam() {
                                                     onClick={() => navigate(`/questions?examId=${exam.examID}`)}
                                                 >
                                                     Manage Questions
+                                                </button>{" "}
+                                                <button
+                                                    className="btn btn-outline btn-sm"
+                                                    onClick={() => handleTogglePublish(exam)}
+                                                >
+                                                    {exam.isPublished ? "Unpublish" : "Publish"}
                                                 </button>{" "}
                                                 <button
                                                     className="btn btn-outline btn-sm"
@@ -354,6 +393,22 @@ function Exam() {
                     />
                     <p style={{ fontSize: 12, color: "var(--ink-soft)", marginTop: 6 }}>
                         Set to 0 for no time limit. Students get a countdown timer and auto-submit on expiry.
+                    </p>
+                </div>
+
+                <div className="field" style={{ marginBottom: 16 }}>
+                    <label>Questions Per Attempt</label>
+                    <input
+                        type="number"
+                        name="questionsPerAttempt"
+                        min="0"
+                        max="200"
+                        placeholder="0 = all questions"
+                        value={form.questionsPerAttempt}
+                        onChange={handleChange}
+                    />
+                    <p style={{ fontSize: 12, color: "var(--ink-soft)", marginTop: 6 }}>
+                        Set how many random questions each student gets per attempt. Leave 0 to use the whole question bank.
                     </p>
                 </div>
 
