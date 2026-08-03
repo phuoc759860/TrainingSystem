@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../services/authService";
+import { login, resendVerification } from "../services/authService";
 import AuthCard from "../components/AuthCard";
 import useToast from "../hooks/useToast";
 
@@ -9,6 +9,9 @@ function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const { showToast, toastEl } = useToast();
+    const [verifyPanelOpen, setVerifyPanelOpen] = useState(false);
+    const [resendMsg, setResendMsg] = useState("");
+    const [resending, setResending] = useState(false);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -26,11 +29,31 @@ function Login() {
             localStorage.setItem("role", result.role);
             navigate("/dashboard");
         } catch (error) {
-            showToast(error.response?.data || error.message, "error");
+            const status = error.response?.status;
+            const msg = error.response?.data?.message || "";
+            if (status === 403 && msg.toLowerCase().includes("verify")) {
+                setResendMsg("");
+                setVerifyPanelOpen(true);
+            } else {
+                showToast(msg || error.message, "error");
+            }
+        }
+    };
+
+    const handleResend = async () => {
+        setResending(true);
+        try {
+            await resendVerification({ email });
+            setResendMsg("Check your inbox — a new verification link has been sent.");
+        } catch (err) {
+            showToast(err.response?.data?.message || "Failed to resend verification email.", "error");
+        } finally {
+            setResending(false);
         }
     };
 
     return (
+        <>
         <AuthCard
             title="Welcome back"
             subtitle="Sign in to your TrainingHub account"
@@ -78,6 +101,40 @@ function Login() {
 
             {toastEl}
         </AuthCard>
+
+        {verifyPanelOpen && (
+            <div className="modal-backdrop" onMouseDown={() => setVerifyPanelOpen(false)}>
+                <div
+                    className="modal-card"
+                    role="alertdialog"
+                    aria-modal="true"
+                    aria-labelledby="verify-title"
+                    onMouseDown={(e) => e.stopPropagation()}
+                >
+                    <h3 id="verify-title" className="modal-title">Email not verified</h3>
+                    <p className="modal-message">
+                        You can't sign in until you verify your email address. Check your inbox
+                        (and spam folder) for the verification link we sent to <strong>{email}</strong>.
+                    </p>
+                    {resendMsg ? (
+                        <p className="text-sm text-green-600 font-medium mt-2">{resendMsg}</p>
+                    ) : null}
+                    <div className="modal-actions">
+                        <button className="btn btn-outline" onClick={() => setVerifyPanelOpen(false)}>
+                            Close
+                        </button>
+                        <button
+                            className="btn btn-primary"
+                            onClick={handleResend}
+                            disabled={resending}
+                        >
+                            {resending ? "Sending…" : "Resend verification email"}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
+        </>
     );
 }
 

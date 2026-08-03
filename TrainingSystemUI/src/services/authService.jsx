@@ -25,3 +25,8 @@ export const verifyEmail = async (data) => {
     return response.data;
 };
 
+export const resendVerification = async (data) => {
+    const response = await api.post("/users/resend-verification", data);
+    return response.data;
+};
+

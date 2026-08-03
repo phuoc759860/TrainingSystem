@@ -357,6 +357,44 @@ namespace TrainingSystem.Controllers
             return Ok(new { message = "Email verified successfully. You can now sign in." });
         }
 
+        // RESEND VERIFICATION EMAIL
+        [HttpPost("resend-verification")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResendVerification(ResendVerificationDto dto)
+        {
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            if (!_rateLimiterService.IsAllowed($"resendverify:{ip}", "resendverify"))
+                return StatusCode(429, new { message = "Too many verification email requests. Try again later." });
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+
+            // Do not reveal whether the account exists or is already verified.
+            if (user != null && !user.IsEmailVerified)
+            {
+                var token = GenerateSecurityToken();
+                user.EmailVerificationTokenHash = HashToken(token);
+                user.EmailVerificationTokenExpiresAt = DateTime.UtcNow.AddDays(7);
+                await _context.SaveChangesAsync();
+
+                var frontendUrl = _configuration["FrontendUrl"] ?? "http://localhost:5173";
+                var verifyLink = $"{frontendUrl}/verify-email?token={Uri.EscapeDataString(token)}";
+                await _emailService.SendAsync(
+                    user.Email,
+                    "Verify your TrainingHub account",
+                    $"<p>Hi {user.Name},</p><p>Please verify your email by clicking the link below:</p>" +
+                    $"<p><a href=\"{verifyLink}\">Verify email</a></p><p>This link expires in 7 days.</p>");
+
+                if (_env.IsDevelopment() && !_emailService.IsConfigured)
+                    return Ok(new
+                    {
+                        message = "If this email is registered and unverified, a new verification link has been sent.",
+                        devVerificationLink = verifyLink
+                    });
+            }
+
+            return Ok(new { message = "If this email is registered and unverified, a new verification link has been sent." });
+        }
+
         private static bool IsPasswordComplexEnough(string password, out string error)
         {
             error = "";

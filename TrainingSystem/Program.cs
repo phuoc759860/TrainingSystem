@@ -50,6 +50,7 @@ builder.Services.AddSingleton<RateLimiterService>(_ =>
     rl.Configure("message", 20, 60);
     rl.Configure("forum", 10, 60);
     rl.Configure("resetpw", 5, 60);
+    rl.Configure("resendverify", 5, 60);
     return rl;
 });
 builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
