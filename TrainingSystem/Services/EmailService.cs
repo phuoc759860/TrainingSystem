@@ -14,32 +14,31 @@ namespace TrainingSystem.Services
             _logger = logger;
         }
 
-        public bool IsConfigured => !string.IsNullOrWhiteSpace(_configuration["Email:Host"]);
+        public bool IsConfigured =>
+            !string.IsNullOrWhiteSpace(_configuration["Email:Host"]) &&
+            !string.IsNullOrWhiteSpace(_configuration["Email:Username"]);
 
         public Task SendAsync(string to, string subject, string body)
         {
             var host = _configuration["Email:Host"];
-            if (string.IsNullOrWhiteSpace(host))
+            var username = _configuration["Email:Username"];
+            if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(username))
             {
                 _logger.LogWarning(
-                    "Email not sent because SMTP is not configured (set Email:Host). To: {To}, Subject: {Subject}, Body: {Body}",
+                    "Email not sent because SMTP is not fully configured (set Email:Host and Email:Username). " +
+                    "To: {To}, Subject: {Subject}, Body: {Body}",
                     to, subject, body);
                 return Task.CompletedTask;
             }
-
             var port = _configuration.GetValue("Email:Port", 587);
-            var username = _configuration["Email:Username"];
             var password = _configuration["Email:Password"];
-            var from = _configuration["Email:From"] ?? username ?? "no-reply@traininghub.local";
+            var from = _configuration["Email:From"] ?? username;
             var enableSsl = _configuration.GetValue("Email:EnableSsl", true);
 
             using var client = new SmtpClient(host, port)
             {
-                Credentials = string.IsNullOrEmpty(username)
-                    ? null
-                    : new NetworkCredential(username, password),
-                EnableSsl = enableSsl,
-                UseDefaultCredentials = string.IsNullOrEmpty(username)
+                Credentials = new NetworkCredential(username, password),
+                EnableSsl = enableSsl
             };
 
             using var message = new MailMessage(from, to, subject, body) { IsBodyHtml = true };
