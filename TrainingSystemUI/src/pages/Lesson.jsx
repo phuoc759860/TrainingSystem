@@ -332,7 +332,7 @@ function Lesson() {
                                         }
                                     </td>
                                     <td>
-                                        <span className={`badge ${completed ? "badge-neutral" : ""}`} style={completed ? { background: "var(--success-bg)", color: "var(--success)" } : { background: "var(--surface-sunken)", color: "var(--ink-soft)" }}>
+                                        <span className={`badge ${completed ? "badge-neutral" : ""}`} style={completed ? { background: "var(--success-bg)", color: "#0b7a4e" } : { background: "var(--surface-sunken)", color: "var(--ink-soft)" }}>
                                             {completed ? "Done" : "Pending"}
                                         </span>
                                     </td>

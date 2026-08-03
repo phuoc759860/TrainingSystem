@@ -473,7 +473,20 @@ function Question() {
                                 className={`card bulk-question-card ${isCollapsed ? "collapsed" : ""}`}
                                 style={{ marginBottom: 16, background: "var(--surface-alt)" }}
                             >
-                                <div className="bulk-question-header" onClick={() => toggleCollapsed(i)}>
+                                <div
+                                    className="bulk-question-header"
+                                    onClick={() => toggleCollapsed(i)}
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-expanded={!isCollapsed}
+                                    aria-label={`Question ${i + 1} ${isCollapsed ? "expand" : "collapse"}`}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter" || e.key === " ") {
+                                            e.preventDefault();
+                                            toggleCollapsed(i);
+                                        }
+                                    }}
+                                >
                                     <p style={{ fontWeight: 600, margin: 0 }}>
                                         <span className={`chip ${done ? "done" : ""}`}>
                                             {done ? "✓" : i + 1}

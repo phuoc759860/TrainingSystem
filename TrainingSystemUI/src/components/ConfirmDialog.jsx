@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import useFocusTrap from "../hooks/useFocusTrap";
 
 // A small, dependency-free confirm modal used in place of window.confirm().
 // Usage:
@@ -13,12 +14,7 @@ import { useEffect, useRef } from "react";
 //   <ConfirmDialog state={confirmState} onClose={() => setConfirmState(null)} />
 function ConfirmDialog({ state, onClose }) {
     const confirmBtnRef = useRef(null);
-
-    useEffect(() => {
-        if (state) {
-            confirmBtnRef.current?.focus();
-        }
-    }, [state]);
+    const modalRef = useFocusTrap(!!state, confirmBtnRef);
 
     useEffect(() => {
         if (!state) return;
@@ -39,10 +35,12 @@ function ConfirmDialog({ state, onClose }) {
     return (
         <div className="modal-backdrop" onMouseDown={onClose}>
             <div
+                ref={modalRef}
                 className="modal-card"
                 role="alertdialog"
                 aria-modal="true"
                 aria-labelledby="confirm-title"
+                tabIndex={-1}
                 onMouseDown={(e) => e.stopPropagation()}
             >
                 <h3 id="confirm-title" className="modal-title">{state.title}</h3>

@@ -302,7 +302,7 @@ function QuizManagement() {
                         </label>
                         <div style={{ display: "flex", gap: 8 }}>
                             <input value={opt} onChange={e => { const newOpts = [...qForm.options]; newOpts[idx] = e.target.value; setQForm({ ...qForm, options: newOpts }); }} placeholder={`Option ${idx + 1}`} />
-                            {qForm.options.length > 2 && <button className="btn btn-danger btn-sm" onClick={() => removeOption(idx)}>✕</button>}
+                            {qForm.options.length > 2 && <button className="btn btn-danger btn-sm" onClick={() => removeOption(idx)} aria-label={`Remove option ${idx + 1}`}>✕</button>}
                         </div>
                     </div>
                 ))}

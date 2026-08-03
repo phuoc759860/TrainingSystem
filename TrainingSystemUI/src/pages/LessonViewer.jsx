@@ -209,7 +209,19 @@ function OfficeViewer({ url, title }) {
 function ImageViewer({ url, title }) {
     const [zoom, setZoom] = useState(false);
     return (
-        <div className={`viewer-image-wrap ${zoom ? "zoomed" : ""}`} onClick={() => setZoom(!zoom)}>
+        <div
+            className={`viewer-image-wrap ${zoom ? "zoomed" : ""}`}
+            onClick={() => setZoom(!zoom)}
+            role="button"
+            tabIndex={0}
+            aria-label={`${zoom ? "Fit" : "Zoom"} image`}
+            onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setZoom(!zoom);
+                }
+            }}
+        >
             <img src={url} alt={title} className="viewer-image" />
             <div className="viewer-image-hint">{zoom ? "Click to fit" : "Click to zoom"}</div>
         </div>

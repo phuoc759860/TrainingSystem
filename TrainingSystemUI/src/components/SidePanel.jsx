@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import useFocusTrap from "../hooks/useFocusTrap";
 
 // A reusable slide-in panel for add/edit forms.
 // Usage:
@@ -16,6 +17,7 @@ import { useEffect } from "react";
 //
 //   wide={true} — makes the panel wider (720px) for detailed content like reports
 function SidePanel({ open, title, subtitle, onClose, children, footer, wide }) {
+    const containerRef = useFocusTrap(open);
 
     useEffect(() => {
         if (!open) return;
@@ -35,10 +37,12 @@ function SidePanel({ open, title, subtitle, onClose, children, footer, wide }) {
     return (
         <div className="panel-backdrop" onMouseDown={onClose}>
             <div
+                ref={containerRef}
                 className={`panel ${wide ? "panel--wide" : ""}`}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="panel-title"
+                tabIndex={-1}
                 onMouseDown={(e) => e.stopPropagation()}
             >
                 <div className="panel-header">

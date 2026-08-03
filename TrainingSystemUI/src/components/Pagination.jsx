@@ -28,26 +28,29 @@ function Pagination({ page, totalPages, onPageChange }) {
                 disabled={page <= 1}
                 onClick={() => onPageChange(1)}
                 title="First page"
+                aria-label="First page"
             >
-                <span className="pagination-btn-icon">«</span>
+                <span className="pagination-btn-icon" aria-hidden="true">«</span>
             </button>
             <button
                 className="pagination-btn"
                 disabled={page <= 1}
                 onClick={() => onPageChange(page - 1)}
                 title="Previous page"
+                aria-label="Previous page"
             >
-                <span className="pagination-btn-icon">‹</span>
+                <span className="pagination-btn-icon" aria-hidden="true">‹</span>
             </button>
 
             {pages.map((p, i) =>
                 p === "..." ? (
-                    <span key={`ellipsis-${i}`} className="pagination-ellipsis">•••</span>
+                    <span key={`ellipsis-${i}`} className="pagination-ellipsis" aria-hidden="true">•••</span>
                 ) : (
                     <button
                         key={p}
                         className={`pagination-btn ${p === page ? "active" : ""}`}
                         onClick={() => onPageChange(p)}
+                        aria-current={p === page ? "page" : undefined}
                     >
                         {p}
                     </button>
@@ -59,16 +62,18 @@ function Pagination({ page, totalPages, onPageChange }) {
                 disabled={page >= totalPages}
                 onClick={() => onPageChange(page + 1)}
                 title="Next page"
+                aria-label="Next page"
             >
-                <span className="pagination-btn-icon">›</span>
+                <span className="pagination-btn-icon" aria-hidden="true">›</span>
             </button>
             <button
                 className="pagination-btn"
                 disabled={page >= totalPages}
                 onClick={() => onPageChange(totalPages)}
                 title="Last page"
+                aria-label="Last page"
             >
-                <span className="pagination-btn-icon">»</span>
+                <span className="pagination-btn-icon" aria-hidden="true">»</span>
             </button>
         </div>
     );
