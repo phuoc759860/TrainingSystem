@@ -4,7 +4,9 @@ import {
     getCourses,
     createCourse,
     updateCourse,
-    deleteCourse
+    deleteCourse,
+    publishCourse,
+    unpublishCourse
 } from "../services/CourseService";
 import { getMyEnrollments, enrollSelf } from "../services/EnrollmentService";
 import useAuth from "../hooks/useAuth";
@@ -159,6 +161,22 @@ function Course() {
         }
     };
 
+    const handleTogglePublish = async (course) => {
+        try {
+            if (course.isPublished) {
+                await unpublishCourse(course.courseID);
+                showToast(`"${course.title}" unpublished.`, "success");
+            } else {
+                await publishCourse(course.courseID);
+                showToast(`"${course.title}" published.`, "success");
+            }
+            loadCourses();
+        }
+        catch (err) { console.error(err);
+            showToast("Couldn't change publish state.", "error");
+        }
+    };
+
     const handleDelete = (course) => {
         setConfirmState({
             title: `Delete "${course.title}"?`,
@@ -228,6 +246,7 @@ function Course() {
                             <th>Title</th>
                             <th>Description</th>
                             <th>Trainer</th>
+                            <th>Status</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -239,9 +258,21 @@ function Course() {
                                     <td style={{ fontWeight: 500 }}>{course.title}</td>
                                     <td>{course.description}</td>
                                     <td><span className="pill pill-mc">{course.trainerName}</span></td>
+                                    <td>
+                                        {course.isPublished
+                                            ? <span className="badge badge-success">Published</span>
+                                            : <span className="badge badge-warning">Draft</span>
+                                        }
+                                    </td>
                                     <td style={{ textAlign: "right", whiteSpace: "nowrap" }}>
                                         {canManage && (
                                             <>
+                                                <button
+                                                    className="btn btn-outline btn-sm"
+                                                    onClick={() => handleTogglePublish(course)}
+                                                >
+                                                    {course.isPublished ? "Unpublish" : "Publish"}
+                                                </button>{" "}
                                                 <button className="btn btn-outline btn-sm" onClick={() => openEditPanel(course)}>
                                                     Edit
                                                 </button>{" "}
@@ -314,6 +345,12 @@ function Course() {
                         onChange={handleChange}
                     />
                 </div>
+
+                {editingId != null && (
+                    <p style={{ fontSize: "13px", color: "var(--ink-soft)", marginTop: -8 }}>
+                        Saving changes returns this course to draft. Republish it when ready.
+                    </p>
+                )}
 
                 {role === "Admin" && (
                     <div className="field">

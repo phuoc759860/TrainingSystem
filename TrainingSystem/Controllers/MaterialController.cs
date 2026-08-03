@@ -150,6 +150,21 @@ namespace TrainingSystem.Controllers
             return Ok(materials);
         }
 
+        [HttpGet("storage-usage")]
+        public async Task<ActionResult<object>> GetStorageUsage()
+        {
+            var used = await _context.Materials
+                .Where(m => m.UploadedByUserID == CurrentUserId && m.SizeBytes != null)
+                .SumAsync(m => m.SizeBytes!.Value);
+
+            return Ok(new
+            {
+                usedBytes = used,
+                maxFileBytes = _maxFileBytes,
+                maxUserBytes = _maxUserBytes
+            });
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<MaterialDto>> GetMaterial(int id)
         {

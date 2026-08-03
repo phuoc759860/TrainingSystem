@@ -14,3 +14,9 @@ export const updateCourse = async (id, data) =>
 
 export const deleteCourse = async (id) =>
     await api.delete(`/Course/${id}`);
+
+export const publishCourse = async (id) =>
+    await api.post(`/Course/${id}/publish`);
+
+export const unpublishCourse = async (id) =>
+    await api.post(`/Course/${id}/unpublish`);

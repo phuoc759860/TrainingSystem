@@ -7,7 +7,8 @@ import {
     getMaterialsByLesson,
     createMaterial,
     updateMaterial,
-    deleteMaterial
+    deleteMaterial,
+    getStorageUsage
 } from "../services/MaterialService";
 import { getLessons } from "../services/LessonService";
 import ConfirmDialog from "../components/ConfirmDialog";
@@ -312,13 +313,22 @@ function Material() {
     const [totalPages, setTotalPages] = useState(1);
     const [uploadProgress, setUploadProgress] = useState(null);
     const [inputTab, setInputTab] = useState("upload");
+    const [storage, setStorage] = useState(null);
 
     const [form, setForm] = useState(blankForm());
 
     useEffect(() => {
         loadMaterials();
         loadLessons();
+        if (canManage) loadStorage();
     }, [page, lessonFilter]);
+
+    const loadStorage = async () => {
+        try {
+            const res = await getStorageUsage();
+            setStorage(res.data);
+        } catch (err) { console.error(err); }
+    };
 
     const loadMaterials = async () => {
         setLoading(true);
@@ -413,6 +423,7 @@ function Material() {
             }
             closePanel();
             if (page !== 1) { setPage(1); } else { loadMaterials(); }
+            if (canManage) loadStorage();
         } catch (err) {
             console.error(err);
             showToast("Operation failed.", "error");
@@ -433,6 +444,7 @@ function Material() {
                     await deleteMaterial(material.materialID);
                     showToast("Material deleted.", "success");
                     if (page !== 1) { setPage(1); } else { loadMaterials(); }
+                    if (canManage) loadStorage();
                 } catch (err) {
                     console.error(err);
                     showToast("Couldn't delete that material.", "error");
@@ -543,6 +555,29 @@ function Material() {
                     </div>
                 </div>
             </div>
+
+            {storage && canManage && (
+                <div className="card fade-in" style={{ marginBottom: 24 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+                        <label style={{ margin: 0 }}>Storage Usage</label>
+                        <span style={{ fontSize: "13px", color: "var(--ink-soft)" }}>
+                            {formatFileSize(storage.usedBytes)} of {formatFileSize(storage.maxUserBytes)} used
+                            <span style={{ marginLeft: 12 }}>· {formatFileSize(storage.maxFileBytes)} max per file</span>
+                        </span>
+                    </div>
+                    <div className="upload-progress-bar">
+                        <div
+                            className="upload-progress-fill"
+                            style={{
+                                width: `${Math.min(100, (storage.usedBytes / storage.maxUserBytes) * 100)}%`,
+                                background: storage.usedBytes / storage.maxUserBytes >= 0.9
+                                    ? "var(--danger)"
+                                    : undefined
+                            }}
+                        />
+                    </div>
+                </div>
+            )}
 
             {loading ? (
                 <div className="loading-row">

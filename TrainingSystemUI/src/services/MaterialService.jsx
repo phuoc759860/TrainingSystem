@@ -24,3 +24,6 @@ export const deleteMaterial = async (id) =>
 
 export const getMaterialVersions = async (id) =>
     await api.get(`/Material/${id}/versions`);
+
+export const getStorageUsage = async () =>
+    await api.get(`/Material/storage-usage`);
