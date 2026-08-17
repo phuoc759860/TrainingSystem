@@ -207,6 +207,11 @@ namespace TrainingSystem.Controllers
             if (IsTrainer() && !await OwnsCourse(exam.CourseID))
                 return Forbid();
 
+            var enrolled = await _context.Enrollments.AnyAsync(e =>
+                e.UserID == dto.UserID && e.CourseID == exam.CourseID);
+            if (!enrolled)
+                return BadRequest(new { message = "User is not enrolled in this course." });
+
             var result = new ExamResult
             {
                 UserID = dto.UserID,
@@ -247,16 +252,21 @@ namespace TrainingSystem.Controllers
             if (result == null)
                 return NotFound();
 
-            if (IsTrainer() && !await OwnsCourse(result.Exam!.CourseID))
+            var newExam = await _context.Exams.FindAsync(dto.ExamID);
+            if (newExam == null)
+                return NotFound(new { message = "Exam does not exist." });
+
+            if (IsTrainer() && !await OwnsCourse(newExam.CourseID))
                 return Forbid();
 
-            bool userExists = await _context.Users.AnyAsync(u => u.UserID == dto.UserID);
+            var userExists = await _context.Users.AnyAsync(u => u.UserID == dto.UserID);
             if (!userExists)
                 return NotFound(new { message = "User does not exist." });
 
-            bool examExists = await _context.Exams.AnyAsync(e => e.ExamID == dto.ExamID);
-            if (!examExists)
-                return NotFound(new { message = "Exam does not exist." });
+            var enrolled = await _context.Enrollments.AnyAsync(e =>
+                e.UserID == dto.UserID && e.CourseID == newExam.CourseID);
+            if (!enrolled)
+                return BadRequest(new { message = "User is not enrolled in the target course." });
 
             result.UserID = dto.UserID;
             result.ExamID = dto.ExamID;

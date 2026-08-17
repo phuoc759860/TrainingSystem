@@ -1,3 +1,5 @@
+using System.IO;
+
 namespace TrainingSystem.Services
 {
     public class LocalFileStorageService : IFileStorageService
@@ -6,7 +8,7 @@ namespace TrainingSystem.Services
 
         public LocalFileStorageService(IWebHostEnvironment env)
         {
-            _uploadsRoot = Path.Combine(env.ContentRootPath, "uploads");
+            _uploadsRoot = Path.GetFullPath(Path.Combine(env.ContentRootPath, "uploads"));
             Directory.CreateDirectory(_uploadsRoot);
         }
 
@@ -14,7 +16,7 @@ namespace TrainingSystem.Services
         {
             var dir = string.IsNullOrEmpty(subDirectory)
                 ? _uploadsRoot
-                : Path.Combine(_uploadsRoot, subDirectory);
+                : ResolveSafePath(subDirectory);
 
             Directory.CreateDirectory(dir);
 
@@ -45,12 +47,17 @@ namespace TrainingSystem.Services
         public string GetPhysicalPath(string relativePath)
         {
             var normalized = relativePath.Replace('\\', '/').TrimStart('/');
+            string candidate;
             if (normalized.StartsWith("uploads/", StringComparison.OrdinalIgnoreCase))
             {
                 var relative = normalized["uploads/".Length..];
-                return Path.Combine(_uploadsRoot, relative);
+                candidate = Path.Combine(_uploadsRoot, relative);
             }
-            return Path.Combine(_uploadsRoot, Path.GetFileName(relativePath));
+            else
+            {
+                candidate = Path.Combine(_uploadsRoot, Path.GetFileName(relativePath) ?? "");
+            }
+            return EnsureInsideUploads(candidate);
         }
 
         public async Task<(Stream stream, string contentType, long totalLength)?> OpenFileStreamAsync(
@@ -79,6 +86,28 @@ namespace TrainingSystem.Services
         public bool FileExists(string relativePath)
         {
             return File.Exists(GetPhysicalPath(relativePath));
+        }
+
+        private string ResolveSafePath(string relativePath)
+        {
+            var candidate = Path.Combine(_uploadsRoot, relativePath);
+            return EnsureInsideUploads(candidate);
+        }
+
+        private string EnsureInsideUploads(string candidate)
+        {
+            var resolved = Path.GetFullPath(candidate);
+            var rootWithTrailing = Path.GetFullPath(_uploadsRoot);
+            // Ensure the resolved path starts with _uploadsRoot and the boundary is exact
+            // (i.e., uploads/app is NOT allowed to match uploads/apples).
+            if (!resolved.StartsWith(rootWithTrailing, StringComparison.OrdinalIgnoreCase) ||
+                (resolved.Length > rootWithTrailing.Length &&
+                 resolved[rootWithTrailing.Length] != Path.DirectorySeparatorChar &&
+                 resolved[rootWithTrailing.Length] != Path.AltDirectorySeparatorChar))
+            {
+                throw new ArgumentException("Path attempts to escape the uploads directory.");
+            }
+            return resolved;
         }
 
         private static string GetContentType(string ext) => ext switch
