@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     getAvailableCourses,
     getClassOverview,
@@ -14,10 +14,8 @@ import useToast from "../hooks/useToast";
 import AnimatedNumber from "../components/AnimatedNumber";
 import MiniBar from "../components/MiniBar";
 import { scoreCardClass, scoreGrade } from "../utils/grading";
-import {
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-    ResponsiveContainer, Cell, LabelList, PieChart, Pie, Sector
-} from "recharts";
+import HcBarChart from "../components/charts/HcBarChart";
+import HcPieChart from "../components/charts/HcPieChart";
 
 function cssVar(name, fallback) {
     if (typeof document === "undefined") return fallback;
@@ -27,99 +25,11 @@ const SUCCESS = cssVar("--success", "#17a668");
 const BRAND = cssVar("--brand", "#6c5ce7");
 const BRAND_LIGHT = cssVar("--brand-light", "#8b7ffb");
 const DANGER = cssVar("--danger", "#e34a4a");
-const INK_SOFT = cssVar("--ink-soft", "#6b7089");
-
-function usePrefersReducedMotion() {
-    const [reduced, setReduced] = useState(
-        () => window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    );
-    useEffect(() => {
-        const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-        const handler = (e) => setReduced(e.matches);
-        mq.addEventListener("change", handler);
-        return () => mq.removeEventListener("change", handler);
-    }, []);
-    return reduced;
-}
-
-// Horizontal gradients so bars read as lit from the left rather than flat fills.
-function ScoreGradientDefs() {
-    return (
-        <defs>
-            <linearGradient id="gradSuccess" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor={SUCCESS} stopOpacity={0.75} />
-                <stop offset="100%" stopColor={SUCCESS} />
-            </linearGradient>
-            <linearGradient id="gradBrand" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor={BRAND_LIGHT} stopOpacity={0.8} />
-                <stop offset="100%" stopColor={BRAND} />
-            </linearGradient>
-            <linearGradient id="gradDanger" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor={DANGER} stopOpacity={0.75} />
-                <stop offset="100%" stopColor={DANGER} />
-            </linearGradient>
-        </defs>
-    );
-}
-function scoreFill(value) {
-    if (value >= 70) return "url(#gradSuccess)";
-    if (value >= 50) return "url(#gradBrand)";
-    return "url(#gradDanger)";
-}
 
 function scoreColor(value) {
     if (value >= 70) return SUCCESS;
     if (value >= 50) return BRAND;
     return DANGER;
-}
-
-// --- Highcharts-style animated bar shape ---
-// Bars grow from the axis (left→right) using rAF + easeInOutSine,
-// matching Highcharts' default bar animation (duration 1000ms, easeInOutSine easing).
-const HC_BAR_DURATION = 1000;
-
-function easeInOutSine(t) {
-    return -(Math.cos(Math.PI * t) - 1) / 2;
-}
-
-function useAnimatedValue(target, duration, delay, enabled) {
-    const [v, setV] = useState(enabled ? 0 : 1);
-    useEffect(() => {
-        if (!enabled) { setV(1); return; }
-        let raf;
-        let start;
-        const tick = (ts) => {
-            if (!start) start = ts + delay;
-            if (ts < start) { raf = requestAnimationFrame(tick); return; }
-            const elapsed = ts - start;
-            const t = Math.min(elapsed / duration, 1);
-            setV(easeInOutSine(t));
-            if (t < 1) raf = requestAnimationFrame(tick);
-        };
-        raf = requestAnimationFrame(tick);
-        return () => cancelAnimationFrame(raf);
-    }, [duration, delay, enabled]);
-    return v;
-}
-
-function AnimatedBarShape(props) {
-    const {
-        x, y, width, height, payload, index,
-        fill, isAnimationActive, animationBegin, animationDuration,
-    } = props;
-    const anim = useAnimatedValue(
-        width,
-        animationDuration || HC_BAR_DURATION,
-        animationBegin || 0,
-        !!isAnimationActive
-    );
-    const w = (width || 0) * anim;
-    const r = 6;
-    // Horizontal bar (layout="vertical"): grow left→right, rounded right end
-    if (w <= 0) return null;
-    const rr = Math.min(r, height / 2, w);
-    const d = `M${x},${y} h${w - rr} a${rr},${rr} 0 0 1 ${rr},${rr} v${height - 2 * rr} a${rr},${rr} 0 0 1 ${-rr},${rr} h${-(w - rr)} Z`;
-    return <path d={d} fill={fill} />;
 }
 
 function truncate(str, max = 22) {
@@ -204,22 +114,6 @@ function ChartSkeleton({ rows = 5, height }) {
     );
 }
 
-function CustomTooltip({ active, payload, label, unit = "%" }) {
-    if (!active || !payload || !payload.length) return null;
-    return (
-        <div className="chart-tooltip">
-            {label && <div className="chart-tooltip-label">{label}</div>}
-            {payload.map((p, i) => (
-                <div key={i} className="chart-tooltip-row">
-                    <span className="chart-tooltip-dot" style={{ background: p.color || p.payload?.fill || "var(--brand)" }} />
-                    <span>{p.name}</span>
-                    <span className="chart-tooltip-value">{p.value}{unit}</span>
-                </div>
-            ))}
-        </div>
-    );
-}
-
 function EmptyPrompt({ icon, text }) {
     return (
         <div className="card empty-state">
@@ -263,33 +157,6 @@ function StatusBadge({ examsTaken, needsAttention }) {
     if (examsTaken === 0) return <span className="badge" role="status">No attempts</span>;
     if (needsAttention) return <span className={`badge badge-danger ${needsAttention ? "badge-pulse" : ""}`} role="status">⚠ Needs Attention</span>;
     return <span className="badge badge-success" role="status">✓ On Track</span>;
-}
-
-function renderActivePieShape(props) {
-    const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
-    return (
-        <g style={{ filter: "drop-shadow(0 4px 12px rgba(0,0,0,.22))" }}>
-            <Sector
-                cx={cx} cy={cy}
-                innerRadius={innerRadius - 3}
-                outerRadius={outerRadius + 10}
-                startAngle={startAngle}
-                endAngle={endAngle}
-                fill={fill}
-                style={{ transition: "all .25s cubic-bezier(.4,0,.2,1)" }}
-            />
-            <Sector
-                cx={cx} cy={cy}
-                innerRadius={outerRadius + 14}
-                outerRadius={outerRadius + 17}
-                startAngle={startAngle}
-                endAngle={endAngle}
-                fill={fill}
-                opacity={0.45}
-                style={{ transition: "all .25s cubic-bezier(.4,0,.2,1)" }}
-            />
-        </g>
-    );
 }
 
 const TABS = [
@@ -597,7 +464,6 @@ function generateTrainerAiReport(detail) {
 
 function Statistics() {
     const { role } = useAuth();
-    const reducedMotion = usePrefersReducedMotion();
     const isAdmin = role === "Admin";
 
     const [activeTab, setActiveTab] = useState("class");
@@ -998,57 +864,22 @@ function Statistics() {
                                             height={Math.max(220, classChartData.length * 34)}
                                             delay={50}
                                         >
-                                            <ResponsiveContainer width="100%" height="100%">
-                                                <BarChart data={classChartData} key={classCourseId} layout="vertical" barCategoryGap="18%" barSize={20} margin={{ top: 4, right: 30, left: 8, bottom: 4 }}>
-                                                    <ScoreGradientDefs />
-                                                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
-                                                    <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 12, fill: INK_SOFT }} />
-                                                    <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 12, fill: INK_SOFT }} />
-                                                    <Tooltip content={<CustomTooltip />} labelFormatter={(_, p) => p?.[0]?.payload?.fullName} cursor={{ fill: "rgba(108,92,231,.06)" }} />
-                                                    <Bar dataKey="score" name="Average Score" radius={[0, 6, 6, 0]} shape={AnimatedBarShape}
-                                                        isAnimationActive={!reducedMotion}
-                                                        animationBegin={150}
-                                                        animationDuration={HC_BAR_DURATION}
-                                                        animationEasing="ease-in-out"
-                                                    >
-                                                        {classChartData.map((entry, i) => (
-                                                            <Cell key={i} fill={scoreFill(entry.score)} />
-                                                        ))}
-                                                        <LabelList dataKey="score" position="right" formatter={(v) => `${v}%`} style={{ fontSize: 12, fill: "var(--ink)" }} />
-                                                    </Bar>
-                                                </BarChart>
-                                            </ResponsiveContainer>
+                                            <HcBarChart
+                                                data={classChartData}
+                                                height={Math.max(220, classChartData.length * 34)}
+                                                id={`class-bar-${classCourseId}`}
+                                            />
                                         </ChartCard>
                                     )}
 
                                     {passFailData.length > 0 && (
                                         <ChartCard title="On Track vs Needs Attention" height={Math.max(220, classChartData.length * 34)} delay={150}>
-                                            <ResponsiveContainer width="100%" height="100%">
-                                                <PieChart key={classCourseId}>
-                                                    <Tooltip content={<CustomTooltip unit=" students" />} />
-                                                    <Pie
-                                                        data={passFailData}
-                                                        dataKey="value"
-                                                        nameKey="name"
-                                                        innerRadius="60%"
-                                                        outerRadius="85%"
-                                                        paddingAngle={3}
-                                                        activeShape={renderActivePieShape}
-                                                        isAnimationActive={!reducedMotion}
-                                                        animationBegin={350}
-                                                        animationDuration={1200}
-                                                        animationEasing="ease-in-out"
-                                                    >
-                                                        {passFailData.map((entry, i) => (
-                                                            <Cell key={i} fill={entry.fill} />
-                                                        ))}
-                                                    </Pie>
-                                                </PieChart>
-                                            </ResponsiveContainer>
-                                            <div style={{ display: "flex", justifyContent: "center", gap: 16, marginTop: -8, fontSize: 12.5, color: "var(--ink-soft)" }}>
-                                                <span><span style={{ color: SUCCESS }}>●</span> On Track</span>
-                                                <span><span style={{ color: DANGER }}>●</span> Needs Attention</span>
-                                            </div>
+                                            <HcPieChart
+                                                data={passFailData.map(d => ({ name: d.name, value: d.value, color: d.fill }))}
+                                                height={Math.max(220, classChartData.length * 34)}
+                                                unit=" students"
+                                                id={`class-pie-${classCourseId}`}
+                                            />
                                         </ChartCard>
                                     )}
                                 </div>
@@ -1294,26 +1125,11 @@ function Statistics() {
                                 height={Math.max(220, examChartData.length * 38)}
                                 delay={50}
                             >
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={examChartData} key={examCourseId} layout="vertical" barCategoryGap="18%" barSize={20} margin={{ top: 4, right: 30, left: 8, bottom: 4 }}>
-                                        <ScoreGradientDefs />
-                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
-                                        <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 12, fill: INK_SOFT }} />
-                                        <YAxis type="category" dataKey="name" width={170} tick={{ fontSize: 11, fill: INK_SOFT }} />
-                                        <Tooltip content={<CustomTooltip />} labelFormatter={(_, p) => p?.[0]?.payload?.fullName} cursor={{ fill: "rgba(108,92,231,.06)" }} />
-                                        <Bar dataKey="score" name="Average Score" radius={[0, 6, 6, 0]} shape={AnimatedBarShape}
-                                            isAnimationActive={!reducedMotion}
-                                            animationBegin={100}
-                                            animationDuration={HC_BAR_DURATION}
-                                            animationEasing="ease-in-out"
-                                        >
-                                            {examChartData.map((entry, i) => (
-                                                <Cell key={i} fill={scoreFill(entry.score)} />
-                                            ))}
-                                            <LabelList dataKey="score" position="right" formatter={(v) => `${v}%`} style={{ fontSize: 12, fill: "var(--ink)" }} />
-                                        </Bar>
-                                    </BarChart>
-                                </ResponsiveContainer>
+                                <HcBarChart
+                                    data={examChartData}
+                                    height={Math.max(220, examChartData.length * 38)}
+                                    id={`exam-bar-${examCourseId}`}
+                                />
                             </ChartCard>
 
                             <div className="table-scroll">
@@ -1511,26 +1327,12 @@ function Statistics() {
                                     <div style={{ marginBottom: 24 }}>
                                         <h4 style={{ marginBottom: 10 }}>Average Score by Course</h4>
                                         <div style={{ width: "100%", height: Math.max(160, trainerCourseData.length * 46) }}>
-                                            <ResponsiveContainer width="100%" height="100%">
-                                                <BarChart data={trainerCourseData} key={detail?.userID} layout="vertical" barCategoryGap="18%" barSize={20} margin={{ top: 4, right: 36, left: 8, bottom: 4 }}>
-                                                    <ScoreGradientDefs />
-                                                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
-                                                    <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: INK_SOFT }} />
-                                                    <YAxis type="category" dataKey="name" width={140} tick={{ fontSize: 11, fill: INK_SOFT }} />
-                                                    <Tooltip content={<CustomTooltip />} labelFormatter={(_, p) => p?.[0]?.payload?.fullName} cursor={{ fill: "rgba(108,92,231,.06)" }} />
-                                                    <Bar dataKey="score" name="Average Score" radius={[0, 6, 6, 0]} shape={AnimatedBarShape}
-                                                        isAnimationActive={!reducedMotion}
-                                                        animationBegin={150}
-                                                        animationDuration={HC_BAR_DURATION}
-                                                        animationEasing="ease-in-out"
-                                                    >
-                                                        {trainerCourseData.map((entry, i) => (
-                                                            <Cell key={i} fill={scoreFill(entry.score)} />
-                                                        ))}
-                                                        <LabelList dataKey="score" position="right" formatter={(v) => `${v}%`} style={{ fontSize: 11, fill: "var(--ink)" }} />
-                                                    </Bar>
-                                                </BarChart>
-                                            </ResponsiveContainer>
+                                            <HcBarChart
+                                                data={trainerCourseData}
+                                                height={Math.max(160, trainerCourseData.length * 46)}
+                                                barSize={20}
+                                                id={`trainer-bar-${detail?.userID}`}
+                                            />
                                         </div>
                                     </div>
                                 )}
@@ -1570,26 +1372,12 @@ function Statistics() {
                                     <div style={{ marginBottom: 24 }}>
                                         <h4 style={{ marginBottom: 10 }}>Score by Enrolled Course</h4>
                                         <div style={{ width: "100%", height: Math.max(140, courseBreakdownData.length * 42) }}>
-                                            <ResponsiveContainer width="100%" height="100%">
-                                                <BarChart data={courseBreakdownData} key={detail?.userID} layout="vertical" barCategoryGap="18%" barSize={20} margin={{ top: 4, right: 28, left: 8, bottom: 4 }}>
-                                                    <ScoreGradientDefs />
-                                                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
-                                                    <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: INK_SOFT }} />
-                                                    <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 11, fill: INK_SOFT }} />
-                                                    <Tooltip content={<CustomTooltip />} labelFormatter={(_, p) => p?.[0]?.payload?.fullName} cursor={{ fill: "rgba(108,92,231,.06)" }} />
-                                                    <Bar dataKey="score" name="Average Score" radius={[0, 6, 6, 0]} shape={AnimatedBarShape}
-                                                        isAnimationActive={!reducedMotion}
-                                                        animationBegin={150}
-                                                        animationDuration={HC_BAR_DURATION}
-                                                        animationEasing="ease-in-out"
-                                                    >
-                                                        {courseBreakdownData.map((entry, i) => (
-                                                            <Cell key={i} fill={scoreFill(entry.score)} />
-                                                        ))}
-                                                        <LabelList dataKey="score" position="right" formatter={(v) => `${v}%`} style={{ fontSize: 11, fill: "var(--ink)" }} />
-                                                    </Bar>
-                                                </BarChart>
-                                            </ResponsiveContainer>
+                                            <HcBarChart
+                                                data={courseBreakdownData}
+                                                height={Math.max(140, courseBreakdownData.length * 42)}
+                                                barSize={20}
+                                                id={`student-course-bar-${detail?.userID}`}
+                                            />
                                         </div>
                                     </div>
                                 )}
@@ -1598,26 +1386,12 @@ function Statistics() {
                                     <div style={{ marginBottom: 24 }}>
                                         <h4 style={{ marginBottom: 10 }}>By Question Type</h4>
                                         <div style={{ width: "100%", height: 120 }}>
-                                            <ResponsiveContainer width="100%" height="100%">
-                                                <BarChart data={skillTypeData} key={detail?.userID} layout="vertical" barCategoryGap="20%" barSize={22} margin={{ top: 4, right: 28, left: 8, bottom: 4 }}>
-                                                    <ScoreGradientDefs />
-                                                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
-                                                    <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: INK_SOFT }} />
-                                                    <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 11, fill: INK_SOFT }} />
-                                                    <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(108,92,231,.06)" }} />
-                                                    <Bar dataKey="score" name="Score" radius={[0, 6, 6, 0]} shape={AnimatedBarShape}
-                                                        isAnimationActive={!reducedMotion}
-                                                        animationBegin={150}
-                                                        animationDuration={HC_BAR_DURATION}
-                                                        animationEasing="ease-in-out"
-                                                    >
-                                                        {skillTypeData.map((entry, i) => (
-                                                            <Cell key={i} fill={scoreFill(entry.score)} />
-                                                        ))}
-                                                        <LabelList dataKey="score" position="right" formatter={(v) => `${v}%`} style={{ fontSize: 11, fill: "var(--ink)" }} />
-                                                    </Bar>
-                                                </BarChart>
-                                            </ResponsiveContainer>
+                                            <HcBarChart
+                                                data={skillTypeData}
+                                                height={120}
+                                                barSize={22}
+                                                id={`skill-type-bar-${detail?.userID}`}
+                                            />
                                         </div>
                                     </div>
                                 )}
