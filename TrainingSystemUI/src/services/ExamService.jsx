@@ -24,9 +24,10 @@ export const publishExam = async (id) =>
 export const unpublishExam = async (id) =>
     await api.post(`/Exam/${id}/unpublish`);
 
-export const submitExam = async (examId, answers, startedAt, questionIDs) =>
+export const submitExam = async (examId, answers, startedAt, questionIDs, attemptToken) =>
     await api.post(`/Exam/${examId}/submit`, {
         answers,
         startedAt: startedAt || null,
-        questionIDs: questionIDs || null
+        questionIDs: questionIDs || null,
+        attemptToken: attemptToken || null
     });

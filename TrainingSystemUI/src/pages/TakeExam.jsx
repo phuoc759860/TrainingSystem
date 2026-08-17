@@ -30,6 +30,9 @@ function TakeExam() {
     // Track if submit is in progress to prevent double-submit
     const submitLockRef = useRef(false);
 
+    // Server-assigned attempt token for question re-roll prevention
+    const attemptTokenRef = useRef(null);
+
     useEffect(() => {
         loadExam();
         return () => {
@@ -66,6 +69,7 @@ function TakeExam() {
 
             setExamMeta(data);
             setQuestions(data.questions);
+            attemptTokenRef.current = data.attemptToken || null;
 
             // Record start time
             startedAtRef.current = new Date().toISOString();
@@ -148,7 +152,7 @@ function TakeExam() {
             // random pool that was drawn for this attempt.
             const servedIDs = questions.map(q => q.questionID);
 
-            const res = await submitExam(examId, payload, startedAtRef.current, servedIDs);
+            const res = await submitExam(examId, payload, startedAtRef.current, servedIDs, attemptTokenRef.current);
             setResult(res.data);
         } catch (err) {
             console.error(err);

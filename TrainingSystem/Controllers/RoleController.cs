@@ -20,6 +20,7 @@ namespace TrainingSystem.Controllers
         }
 
         // GET: api/Role
+        // AllowAnonymous — needed for registration dropdown before user is authenticated
         [HttpGet]
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<RoleDto>>> GetRoles()
@@ -83,6 +84,9 @@ namespace TrainingSystem.Controllers
 
             if (role == null)
                 return NotFound();
+
+            if (await _context.Users.AnyAsync(u => u.RoleID == id))
+                return Conflict(new { message = "Cannot delete role: users are still assigned to it." });
 
             _context.Roles.Remove(role);
             await _context.SaveChangesAsync();

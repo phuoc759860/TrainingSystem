@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TrainingSystem.Data;
 using TrainingSystem.Models;
 using TrainingSystem.DTOs.Forum;
+using TrainingSystem.DTOs.Common;
 using TrainingSystem.Middlewares;
 using Microsoft.AspNetCore.Authorization;
 
@@ -21,16 +22,24 @@ namespace TrainingSystem.Controllers
         }
 
         [HttpGet("course/{courseId}")]
-        public async Task<ActionResult<IEnumerable<CourseThreadDto>>> GetThreads(int courseId)
+        public async Task<ActionResult<PaginatedResult<CourseThreadDto>>> GetThreads(
+            int courseId, [FromQuery] PaginationQuery pg)
         {
             if (!await IsEnrolled(courseId)) return Forbid();
 
-            var threads = await _context.CourseThreads
+            var query = _context.CourseThreads
                 .Include(t => t.Author)
                 .Include(t => t.Replies)
                 .Where(t => t.CourseID == courseId)
+                .AsQueryable();
+
+            var totalCount = await query.CountAsync();
+
+            var threads = await query
                 .OrderByDescending(t => t.IsPinned)
                 .ThenByDescending(t => t.LastActivityAt ?? t.CreatedAt)
+                .Skip((pg.Page - 1) * pg.PageSize)
+                .Take(pg.PageSize)
                 .Select(t => new CourseThreadDto
                 {
                     CourseThreadID = t.CourseThreadID,
@@ -46,7 +55,13 @@ namespace TrainingSystem.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(threads);
+            return Ok(new PaginatedResult<CourseThreadDto>
+            {
+                Items = threads,
+                TotalCount = totalCount,
+                Page = pg.Page,
+                PageSize = pg.PageSize
+            });
         }
 
         [HttpGet("{id}")]

@@ -132,6 +132,21 @@ namespace TrainingSystem.Controllers
             var userId = CurrentUserId;
             var maxAttempts = exam.MaxAttempts ?? _defaultMaxAttempts;
 
+            // Clean up expired in-progress attempts (>24h old) for this student
+            if (IsStudent())
+            {
+                var expired = await _context.ExamResult
+                    .Where(r => r.ExamID == id && r.UserID == userId
+                        && r.Status == "InProgress"
+                        && r.SubmittedAt < DateTime.UtcNow.AddHours(-24))
+                    .ToListAsync();
+                if (expired.Count > 0)
+                {
+                    _context.ExamResult.RemoveRange(expired);
+                    await _context.SaveChangesAsync();
+                }
+            }
+
             if (IsStudent() && maxAttempts > 0)
             {
                 var attemptCount = await _context.ExamResult
@@ -186,6 +201,45 @@ namespace TrainingSystem.Controllers
             if (poolSize > 0 && poolSize < questionDtos.Count)
                 questionDtos = questionDtos.Take(poolSize).ToList();
 
+            // For students: persist served question IDs to prevent re-roll attacks.
+            string? attemptToken = null;
+            if (IsStudent())
+            {
+                // Check for an existing in-progress attempt (student re-opening the exam)
+                var inProgress = await _context.ExamResult
+                    .FirstOrDefaultAsync(r => r.ExamID == id && r.UserID == userId && r.Status == "InProgress");
+
+                if (inProgress != null)
+                {
+                    // Reuse existing attempt — return the same questions
+                    attemptToken = inProgress.AttemptToken;
+                    var servedIds = System.Text.Json.JsonSerializer.Deserialize<List<int>>(inProgress.ServedQuestionIds ?? "[]");
+                    if (servedIds is { Count: > 0 })
+                        questionDtos = questionDtos.Where(q => servedIds.Contains(q.QuestionID)).ToList();
+                }
+                else
+                {
+                    // Create a new in-progress attempt
+                    attemptToken = Guid.NewGuid().ToString("N");
+                    var servedIds = questionDtos.Select(q => q.QuestionID).ToList();
+
+                    var inProgressResult = new Models.ExamResult
+                    {
+                        UserID = userId,
+                        ExamID = id,
+                        Score = 0,
+                        Passed = false,
+                        NeedsGrading = false,
+                        Status = "InProgress",
+                        AttemptToken = attemptToken,
+                        ServedQuestionIds = System.Text.Json.JsonSerializer.Serialize(servedIds),
+                        SubmittedAt = DateTime.UtcNow
+                    };
+                    _context.ExamResult.Add(inProgressResult);
+                    await _context.SaveChangesAsync();
+                }
+            }
+
             return Ok(new
             {
                 examID = exam.ExamID,
@@ -195,9 +249,10 @@ namespace TrainingSystem.Controllers
                 passingScore = exam.PassingScore,
                 timeLimitMinutes = exam.TimeLimitMinutes ?? 0,
                 attemptCount = await _context.ExamResult
-                    .CountAsync(r => r.ExamID == id && r.UserID == userId),
+                    .CountAsync(r => r.ExamID == id && r.UserID == userId && r.Status == "Submitted"),
                 totalQuestions = questionDtos.Count,
                 totalPoints = questionDtos.Sum(q => q.Score),
+                attemptToken,
                 questions = questionDtos
             });
         }
@@ -236,7 +291,7 @@ namespace TrainingSystem.Controllers
             if (IsStudent() && maxAttempts > 0)
             {
                 var attemptCount = await _context.ExamResult
-                    .CountAsync(r => r.ExamID == id && r.UserID == userId);
+                    .CountAsync(r => r.ExamID == id && r.UserID == userId && r.Status == "Submitted");
 
                 if (attemptCount >= maxAttempts)
                     return Conflict(new
@@ -266,9 +321,25 @@ namespace TrainingSystem.Controllers
                 .GroupBy(a => a.QuestionID)
                 .ToDictionary(g => g.Key, g => g.Last().Answer);
 
-            // Question pool randomization: when the exam draws N random questions per
-            // attempt, grade only the questions that were actually served to this student.
-            var servedIds = dto.QuestionIDs?.Where(id => id > 0).ToHashSet();
+            // Question pool randomization: validate against persisted served questions.
+            // If an AttemptToken is provided, verify it matches the in-progress ExamResult.
+            Models.ExamResult? inProgressResult = null;
+            if (!string.IsNullOrEmpty(dto.AttemptToken) && IsStudent())
+            {
+                inProgressResult = await _context.ExamResult
+                    .FirstOrDefaultAsync(r => r.AttemptToken == dto.AttemptToken
+                        && r.ExamID == id && r.UserID == userId && r.Status == "InProgress");
+
+                if (inProgressResult == null)
+                    return BadRequest(new { message = "Invalid or expired attempt token." });
+
+                // Use the persisted served question IDs (ignore client-supplied QuestionIDs)
+                var persistedIds = System.Text.Json.JsonSerializer.Deserialize<List<int>>(inProgressResult.ServedQuestionIds ?? "[]");
+                if (persistedIds is { Count: > 0 })
+                    dto.QuestionIDs = persistedIds;
+            }
+
+            var servedIds = dto.QuestionIDs?.Where(qid => qid > 0).ToHashSet();
             var gradedQuestions = exam.Questions;
             if (servedIds is { Count: > 0 })
                 gradedQuestions = exam.Questions.Where(q => servedIds.Contains(q.QuestionID)).ToList();
@@ -338,18 +409,34 @@ namespace TrainingSystem.Controllers
                 ? Math.Round(earned / totalPossible * 100, 2)
                 : 0;
 
-            var result = new ExamResult
+            ExamResult result;
+            if (inProgressResult != null)
             {
-                UserID = userId,
-                ExamID = exam.ExamID,
-                Score = percentage,
-                Passed = percentage >= exam.PassingScore,
-                NeedsGrading = anyNeedsGrading,
-                SubmittedAt = DateTime.Now
-            };
+                // Update the in-progress result
+                result = inProgressResult;
+                result.Score = percentage;
+                result.Passed = percentage >= exam.PassingScore;
+                result.NeedsGrading = anyNeedsGrading;
+                result.Status = "Submitted";
+                result.SubmittedAt = DateTime.Now;
+            }
+            else
+            {
+                // Create new result (Admin/Trainer or student without token)
+                result = new ExamResult
+                {
+                    UserID = userId,
+                    ExamID = exam.ExamID,
+                    Score = percentage,
+                    Passed = percentage >= exam.PassingScore,
+                    NeedsGrading = anyNeedsGrading,
+                    Status = "Submitted",
+                    SubmittedAt = DateTime.Now
+                };
+                _context.ExamResult.Add(result);
+            }
 
-            _context.ExamResult.Add(result);
-            await _context.SaveChangesAsync(); 
+            await _context.SaveChangesAsync();
 
             foreach (var a in answerEntities)
                 a.ResultID = result.ResultID;

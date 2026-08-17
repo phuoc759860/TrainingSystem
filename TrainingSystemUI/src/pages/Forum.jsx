@@ -68,7 +68,7 @@ function Forum() {
         setLoading(true);
         try {
             const res = await getThreads(courseId);
-            setThreads(res.data);
+            setThreads(res.data.items || res.data);
         } catch (err) { console.error(err);
             showToast("Could not load discussions.", "error");
         } finally {

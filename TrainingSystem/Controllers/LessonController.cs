@@ -65,6 +65,19 @@ namespace TrainingSystem.Controllers
                 .Take(pg.PageSize)
                 .ToListAsync();
 
+            // For students, batch-fetch progress records for correct unlock status
+            Dictionary<int, List<Models.LessonProgress>> progressByCourse = new();
+            if (IsStudent())
+            {
+                var courseIds = lessons.Select(l => l.CourseID).Distinct().ToList();
+                var progressRecords = await _context.LessonProgress
+                    .Where(lp => lp.UserID == CurrentUserId && courseIds.Contains(lp.CourseID))
+                    .ToListAsync();
+                progressByCourse = progressRecords
+                    .GroupBy(lp => lp.CourseID)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+            }
+
             var dtos = lessons.Select(l => new LessonDto
             {
                 LessonID = l.LessonID,
@@ -75,7 +88,7 @@ namespace TrainingSystem.Controllers
                 OrderIndex = l.OrderIndex,
                 UnlocksAfterLessonID = l.UnlocksAfterLessonID,
                 UnlocksAfterLessonTitle = l.UnlocksAfterLesson?.Title,
-                IsUnlocked = IsStudent() ? IsLessonUnlocked(l, null) : (bool?)null
+                IsUnlocked = IsStudent() ? IsLessonUnlocked(l, progressByCourse.GetValueOrDefault(l.CourseID)) : (bool?)null
             }).ToList();
 
             return Ok(new PaginatedResult<LessonDto>

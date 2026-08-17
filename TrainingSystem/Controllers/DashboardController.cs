@@ -78,7 +78,7 @@ namespace TrainingSystem.Controllers
                 TotalMessages = await _context.Messages.CountAsync(),
 
                 RecentRegistrations = users
-                    .OrderByDescending(u => u.UserID)
+                    .OrderByDescending(u => u.CreatedAt)
                     .Take(5)
                     .Select(u => new RecentRegistration
                     {
@@ -86,7 +86,7 @@ namespace TrainingSystem.Controllers
                         Name = u.Name,
                         Email = u.Email,
                         Role = u.Role!.RoleName,
-                        CreatedAt = DateTime.MinValue
+                        CreatedAt = u.CreatedAt
                     })
                     .ToList(),
 

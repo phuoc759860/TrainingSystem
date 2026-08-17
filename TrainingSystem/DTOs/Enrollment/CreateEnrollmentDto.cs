@@ -12,6 +12,7 @@ namespace TrainingSystem.DTOs.Enrollment
 
         public DateTime EnrollDate { get; set; } = DateTime.Now;
 
+        [AllowedValues("Enrolled", "In Progress", "Completed", "Dropped")]
         public string Status { get; set; } = "Enrolled";
     }
 }

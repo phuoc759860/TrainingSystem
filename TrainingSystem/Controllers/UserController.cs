@@ -19,6 +19,7 @@ using System.Text;
 namespace TrainingSystem.Controllers
 {
     [ApiController]
+    // Intentionally lowercase — user-facing routes use kebab-case convention
     [Route("api/users")]
     [Authorize]
     public class UserController : BaseApiController
@@ -503,13 +504,72 @@ namespace TrainingSystem.Controllers
             return Ok(new { message = "Logged out successfully." });
         }
 
-        [HttpGet("recipients")]
-        public async Task<ActionResult<IEnumerable<UserDto>>> GetRecipients()
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<ActionResult<UserDto>> GetCurrentUser()
         {
-            var users = await _context.Users
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.UserID == CurrentUserId);
+
+            if (user == null) return NotFound();
+
+            return Ok(new UserDto
+            {
+                UserID = user.UserID,
+                Name = user.Name,
+                Email = user.Email,
+                RoleID = user.RoleID,
+                RoleName = user.Role?.RoleName ?? ""
+            });
+        }
+
+        [HttpPut("me")]
+        [Authorize]
+        public async Task<IActionResult> UpdateCurrentUser(UpdateProfileDto dto)
+        {
+            if (!_rateLimiterService.IsAllowed(CurrentUserId.ToString(), "default"))
+                return StatusCode(429, new { message = "Too many requests. Please try again later." });
+
+            var user = await _context.Users.FindAsync(CurrentUserId);
+            if (user == null) return NotFound();
+
+            // Check email uniqueness if changed
+            if (!string.Equals(user.Email, dto.Email, StringComparison.OrdinalIgnoreCase))
+            {
+                if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
+                    return Conflict(new { message = "Email is already taken." });
+            }
+
+            user.Name = dto.Name;
+            user.Email = dto.Email;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpGet("recipients")]
+        public async Task<ActionResult<PaginatedResult<UserDto>>> GetRecipients(
+            [FromQuery] string? search,
+            [FromQuery] PaginationQuery pg)
+        {
+            var query = _context.Users
                 .Include(u => u.Role)
                 .Where(u => u.UserID != CurrentUserId)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var q = search.Trim().ToLower();
+                query = query.Where(u => u.Name.ToLower().Contains(q) || u.Email.ToLower().Contains(q));
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var users = await query
                 .OrderBy(u => u.Name)
+                .Skip((pg.Page - 1) * pg.PageSize)
+                .Take(pg.PageSize)
                 .Select(u => new UserDto
                 {
                     UserID = u.UserID,
@@ -520,7 +580,13 @@ namespace TrainingSystem.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(users);
+            return Ok(new PaginatedResult<UserDto>
+            {
+                Items = users,
+                TotalCount = totalCount,
+                Page = pg.Page,
+                PageSize = pg.PageSize
+            });
         }
 
         [HttpGet]
@@ -658,6 +724,9 @@ namespace TrainingSystem.Controllers
             {
                 var userId = user.UserID;
 
+                // Only manually delete entities NOT covered by OnDelete(Cascade) in DbContext.
+                // Cascade-deleted by EF: LessonProgress, QuizAttempts, Notifications,
+                // CourseReviews, UserBadges, UserPoints, MaterialViewed, Certificates, Payments.
                 var enrollments = await _context.Enrollments
                     .Where(e => e.UserID == userId).ToListAsync();
                 _context.Enrollments.RemoveRange(enrollments);
@@ -665,18 +734,6 @@ namespace TrainingSystem.Controllers
                 var examResults = await _context.ExamResult
                     .Where(r => r.UserID == userId).ToListAsync();
                 _context.ExamResult.RemoveRange(examResults);
-
-                var lessonProgress = await _context.LessonProgress
-                    .Where(lp => lp.UserID == userId).ToListAsync();
-                _context.LessonProgress.RemoveRange(lessonProgress);
-
-                var quizAttempts = await _context.QuizAttempts
-                    .Where(qa => qa.UserID == userId).ToListAsync();
-                _context.QuizAttempts.RemoveRange(quizAttempts);
-
-                var notifications = await _context.Notifications
-                    .Where(n => n.UserID == userId).ToListAsync();
-                _context.Notifications.RemoveRange(notifications);
 
                 var messages = await _context.Messages
                     .Where(m => m.SenderID == userId || m.ReceiverID == userId).ToListAsync();
@@ -686,21 +743,13 @@ namespace TrainingSystem.Controllers
                     .Where(t => t.AuthorID == userId).ToListAsync();
                 _context.CourseThreads.RemoveRange(threads);
 
-                var reviews = await _context.CourseReviews
-                    .Where(r => r.UserID == userId).ToListAsync();
-                _context.CourseReviews.RemoveRange(reviews);
-
-                var badges = await _context.UserBadges
-                    .Where(ub => ub.UserID == userId).ToListAsync();
-                _context.UserBadges.RemoveRange(badges);
-
-                var points = await _context.UserPoints
-                    .Where(up => up.UserID == userId).ToListAsync();
-                _context.UserPoints.RemoveRange(points);
-
                 var refreshTokens = await _context.RefreshTokens
                     .Where(rt => rt.UserID == userId).ToListAsync();
                 _context.RefreshTokens.RemoveRange(refreshTokens);
+
+                var passwordResetTokens = await _context.PasswordResetTokens
+                    .Where(prt => prt.UserID == userId).ToListAsync();
+                _context.PasswordResetTokens.RemoveRange(passwordResetTokens);
 
                 if (user.Role?.RoleName == "Trainer")
                 {

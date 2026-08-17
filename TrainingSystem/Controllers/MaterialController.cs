@@ -25,7 +25,7 @@ namespace TrainingSystem.Controllers
             _maxUserBytes = configuration.GetValue("Storage:MaxUserBytes", 500L * 1024 * 1024);
         }
 
-        private async Task<ActionResult<MaterialDto>?> CheckUploadAllowedAsync(long fileBytes)
+        private async Task<ActionResult<MaterialDto>?> CheckUploadAllowedAsync(long fileBytes, long quotaAdjustment = 0)
         {
             if (fileBytes <= 0)
                 return BadRequest(new { message = "The uploaded file is empty." });
@@ -43,10 +43,10 @@ namespace TrainingSystem.Controllers
                 .Where(m => m.UploadedByUserID == CurrentUserId && m.SizeBytes != null)
                 .SumAsync(m => m.SizeBytes!.Value);
 
-            if (used + fileBytes > _maxUserBytes)
+            if (used + quotaAdjustment + fileBytes > _maxUserBytes)
             {
                 var totalMb = _maxUserBytes / (1024.0 * 1024.0);
-                var usedMb = used / (1024.0 * 1024.0);
+                var usedMb = (used + quotaAdjustment) / (1024.0 * 1024.0);
                 return StatusCode(413, new
                 {
                     message = $"Storage quota exceeded. Your quota is {totalMb:0.#} MB and you have used {usedMb:0.#} MB."
@@ -287,7 +287,8 @@ namespace TrainingSystem.Controllers
 
             if (dto.File != null)
             {
-                var quotaError = await CheckUploadAllowedAsync(dto.File.Length);
+                var oldSize = material.SizeBytes ?? 0;
+                var quotaError = await CheckUploadAllowedAsync(dto.File.Length, -oldSize);
                 if (quotaError != null)
                     return quotaError;
 

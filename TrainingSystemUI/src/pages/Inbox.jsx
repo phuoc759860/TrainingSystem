@@ -41,7 +41,7 @@ function Inbox() {
 
     const openCompose = async () => {
         const res = await getRecipients();
-        setUsers(res.data);
+        setUsers(res.data.items || res.data);
         setForm({ receiverID: "", subject: "", body: "" });
         setPanelOpen(true);
     };

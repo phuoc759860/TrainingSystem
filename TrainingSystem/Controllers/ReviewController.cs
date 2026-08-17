@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using TrainingSystem.Data;
 using TrainingSystem.Models;
 using TrainingSystem.DTOs.Review;
+using TrainingSystem.DTOs.Common;
+using TrainingSystem.Middlewares;
 using Microsoft.AspNetCore.Authorization;
 
 namespace TrainingSystem.Controllers
@@ -12,17 +14,30 @@ namespace TrainingSystem.Controllers
     [Authorize]
     public class ReviewController : BaseApiController
     {
-        public ReviewController(AppDbContext context) : base(context) { }
+        private readonly RateLimiterService _rateLimiter;
+
+        public ReviewController(AppDbContext context, RateLimiterService rateLimiter) : base(context)
+        {
+            _rateLimiter = rateLimiter;
+        }
 
         [HttpGet("course/{courseId}")]
-        public async Task<ActionResult<IEnumerable<CourseReviewDto>>> GetReviews(int courseId)
+        public async Task<ActionResult<PaginatedResult<CourseReviewDto>>> GetReviews(
+            int courseId, [FromQuery] PaginationQuery pg)
         {
             if (!await IsEnrolled(courseId)) return Forbid();
 
-            var reviews = await _context.CourseReviews
+            var query = _context.CourseReviews
                 .Include(r => r.User)
                 .Where(r => r.CourseID == courseId)
+                .AsQueryable();
+
+            var totalCount = await query.CountAsync();
+
+            var reviews = await query
                 .OrderByDescending(r => r.CreatedAt)
+                .Skip((pg.Page - 1) * pg.PageSize)
+                .Take(pg.PageSize)
                 .Select(r => new CourseReviewDto
                 {
                     CourseReviewID = r.CourseReviewID,
@@ -35,7 +50,13 @@ namespace TrainingSystem.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(reviews);
+            return Ok(new PaginatedResult<CourseReviewDto>
+            {
+                Items = reviews,
+                TotalCount = totalCount,
+                Page = pg.Page,
+                PageSize = pg.PageSize
+            });
         }
 
         [HttpGet("course/{courseId}/summary")]
@@ -66,6 +87,9 @@ namespace TrainingSystem.Controllers
         [HttpPost]
         public async Task<ActionResult<CourseReviewDto>> CreateReview(CreateReviewDto dto)
         {
+            if (!_rateLimiter.IsAllowed(CurrentUserId.ToString(), "forum"))
+                return StatusCode(429, new { message = "Too many requests. Please try again later." });
+
             if (dto.Rating < 1 || dto.Rating > 5)
                 return BadRequest(new { message = "Rating must be between 1 and 5." });
 
@@ -105,6 +129,9 @@ namespace TrainingSystem.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateReview(int id, CreateReviewDto dto)
         {
+            if (!_rateLimiter.IsAllowed(CurrentUserId.ToString(), "forum"))
+                return StatusCode(429, new { message = "Too many requests. Please try again later." });
+
             var review = await _context.CourseReviews.FindAsync(id);
             if (review == null) return NotFound();
             if (review.UserID != CurrentUserId) return Forbid();

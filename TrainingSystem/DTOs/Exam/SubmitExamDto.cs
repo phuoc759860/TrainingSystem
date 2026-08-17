@@ -27,5 +27,11 @@ namespace TrainingSystem.DTOs.Exam
         /// from a large bank is scored fairly.
         /// </summary>
         public List<int>? QuestionIDs { get; set; }
+
+        /// <summary>
+        /// Token returned by GET /questions. Links submission to the specific
+        /// question set that was served, preventing question re-roll attacks.
+        /// </summary>
+        public string? AttemptToken { get; set; }
     }
 }

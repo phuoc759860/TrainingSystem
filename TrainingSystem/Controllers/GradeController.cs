@@ -45,11 +45,29 @@ namespace TrainingSystem.Controllers
 
             var results = new List<StudentGradeDetailDto>();
 
+            // Batch-fetch course-level data once (eliminates N+1 per student)
+            var allQuizzes = await _context.Quizzes
+                .Include(q => q.Lesson)
+                .Include(q => q.Questions)
+                .Where(q => q.Lesson != null && q.Lesson.CourseID == courseId && q.IsActive)
+                .ToListAsync();
+            var allExams = await _context.Exams
+                .Where(e => e.CourseID == courseId)
+                .ToListAsync();
+
+            // Batch-fetch all quiz attempts and exam results for enrolled students
+            var allQuizAttempts = await _context.QuizAttempts
+                .Where(a => enrolledUserIds.Contains(a.UserID) && a.CompletedAt != null)
+                .ToListAsync();
+            var allExamResults = await _context.ExamResult
+                .Include(r => r.Exam)
+                .Where(r => enrolledUserIds.Contains(r.UserID) && r.Exam != null && r.Exam.CourseID == courseId)
+                .ToListAsync();
+
             foreach (var userId in enrolledUserIds)
             {
                 var user = await _context.Users.FindAsync(userId);
-                var grades = await ComputeGrades(userId);
-                var courseGrade = grades.FirstOrDefault(g => g.CourseID == courseId);
+                var courseGrade = ComputeGradesForCourse(userId, courseId, allQuizzes, allExams, allQuizAttempts, allExamResults);
 
                 results.Add(new StudentGradeDetailDto
                 {
@@ -178,6 +196,76 @@ namespace TrainingSystem.Controllers
             }
 
             return result.OrderByDescending(g => g.FinalGrade ?? 0).ToList();
+        }
+
+        private CourseGradeDto? ComputeGradesForCourse(
+            int userId, int courseId,
+            List<Models.Quiz> allQuizzes,
+            List<Models.Exam> allExams,
+            List<Models.QuizAttempt> allQuizAttempts,
+            List<Models.ExamResult> allExamResults)
+        {
+            var courseQuizzes = allQuizzes.Where(q => q.Lesson!.CourseID == courseId).ToList();
+            var courseExams = allExams.Where(e => e.CourseID == courseId).ToList();
+            var userQuizAttempts = allQuizAttempts.Where(a => a.UserID == userId).ToList();
+            var courseExamResults = allExamResults.Where(r => r.UserID == userId && r.Exam!.CourseID == courseId).ToList();
+
+            decimal? quizScore = null;
+            int quizAttempted = 0;
+
+            if (courseQuizzes.Count > 0)
+            {
+                var bestPerQuiz = new List<decimal>();
+                foreach (var quiz in courseQuizzes)
+                {
+                    var attempts = userQuizAttempts
+                        .Where(a => a.QuizID == quiz.QuizID && a.TotalPoints > 0)
+                        .ToList();
+
+                    if (attempts.Count > 0)
+                    {
+                        quizAttempted++;
+                        var best = attempts.Max(a => (decimal)a.Score * 100 / a.TotalPoints);
+                        bestPerQuiz.Add(best);
+                    }
+                }
+
+                if (bestPerQuiz.Count > 0)
+                    quizScore = Math.Round(bestPerQuiz.Average(), 2);
+            }
+
+            decimal? examScore = null;
+            int examAttempted = 0;
+
+            if (courseExamResults.Count > 0)
+            {
+                examAttempted = courseExamResults.Count;
+                examScore = Math.Round(courseExamResults.Average(r => r.Score), 2);
+            }
+
+            decimal? finalGrade = null;
+            if (quizScore.HasValue && examScore.HasValue)
+                finalGrade = Math.Round(quizScore.Value * QuizWeight + examScore.Value * ExamWeight, 2);
+            else if (quizScore.HasValue)
+                finalGrade = Math.Round(quizScore.Value * QuizWeight, 2);
+            else if (examScore.HasValue)
+                finalGrade = Math.Round(examScore.Value * ExamWeight, 2);
+
+            if (courseQuizzes.Count == 0 && courseExams.Count == 0)
+                return null;
+
+            return new CourseGradeDto
+            {
+                CourseID = courseId,
+                CourseTitle = "", // caller already has courseTitle
+                QuizScore = quizScore,
+                ExamScore = examScore,
+                FinalGrade = finalGrade,
+                QuizCount = courseQuizzes.Count,
+                QuizAttempted = quizAttempted,
+                ExamCount = courseExams.Count,
+                ExamAttempted = examAttempted
+            };
         }
     }
 }

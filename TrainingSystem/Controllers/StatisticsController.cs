@@ -51,17 +51,23 @@ namespace TrainingSystem.Controllers
                 .Where(e => courseIds.Contains(e.CourseID))
                 .ToListAsync();
 
+            // Batch-fetch all exam results for all enrolled users (eliminates N+1)
+            var allUserIds = enrollments.Select(e => e.UserID).Distinct().ToList();
+            var allExamResults = await _context.ExamResult
+                .Include(r => r.Exam)
+                .Where(r => allUserIds.Contains(r.UserID) && courseIds.Contains(r.Exam!.CourseID))
+                .ToListAsync();
+            var resultsByUser = allExamResults
+                .GroupBy(r => r.UserID)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
             var results = new List<StudentOverviewDto>();
 
             foreach (var group in enrollments.GroupBy(e => e.UserID))
             {
                 var userId = group.Key;
-                var enrolledCourseIds = group.Select(g => g.CourseID).ToList();
 
-                var examResults = await _context.ExamResult
-                    .Include(r => r.Exam)
-                    .Where(r => r.UserID == userId && enrolledCourseIds.Contains(r.Exam!.CourseID))
-                    .ToListAsync();
+                var examResults = resultsByUser.GetValueOrDefault(userId, new List<Models.ExamResult>());
 
                 if (examResults.Count == 0)
                 {
@@ -199,13 +205,20 @@ namespace TrainingSystem.Controllers
                 .Where(q => examIds.Contains(q.ExamID))
                 .ToListAsync();
 
+            // Batch-fetch all answers for all questions (eliminates N+1)
+            var questionIds = questions.Select(q => q.QuestionID).ToList();
+            var allAnswers = await _context.ExamAnswers
+                .Where(a => questionIds.Contains(a.QuestionID) && !a.NeedsGrading)
+                .ToListAsync();
+            var answersByQuestion = allAnswers
+                .GroupBy(a => a.QuestionID)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
             var results = new List<QuestionInsightDto>();
 
             foreach (var q in questions)
             {
-                var answers = await _context.ExamAnswers
-                    .Where(a => a.QuestionID == q.QuestionID && !a.NeedsGrading)
-                    .ToListAsync();
+                var answers = answersByQuestion.GetValueOrDefault(q.QuestionID, new List<Models.ExamAnswer>());
 
                 if (answers.Count == 0) continue;
 
@@ -245,30 +258,50 @@ namespace TrainingSystem.Controllers
                 .Where(u => u.RoleID == trainerRole.RoleID)
                 .ToListAsync();
 
+            // Batch-fetch all data for all trainers (eliminates N+1)
+            var trainerIds = trainers.Select(t => t.UserID).ToList();
+            var allCourses = await _context.Courses
+                .Where(c => trainerIds.Contains(c.TrainerID))
+                .ToListAsync();
+            var courseIdsByTrainer = allCourses
+                .GroupBy(c => c.TrainerID)
+                .ToDictionary(g => g.Key, g => g.Select(c => c.CourseID).ToList());
+            var allCourseIds = allCourses.Select(c => c.CourseID).ToList();
+            var allEnrollments = await _context.Enrollments
+                .Where(e => allCourseIds.Contains(e.CourseID))
+                .ToListAsync();
+            var allResults = await _context.ExamResult
+                .Include(r => r.Exam)
+                .Where(r => r.Exam != null && allCourseIds.Contains(r.Exam.CourseID))
+                .ToListAsync();
+            var enrollmentsByCourse = allEnrollments
+                .GroupBy(e => e.CourseID)
+                .ToDictionary(g => g.Key, g => g.ToList());
+            var resultsByCourse = allResults
+                .Where(r => r.Exam != null)
+                .GroupBy(r => r.Exam!.CourseID)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
             var results = new List<TrainerOverviewDto>();
 
             foreach (var trainer in trainers)
             {
-                var courseIds = await _context.Courses
-                    .Where(c => c.TrainerID == trainer.UserID)
-                    .Select(c => c.CourseID)
-                    .ToListAsync();
+                var tCourseIds = courseIdsByTrainer.GetValueOrDefault(trainer.UserID, new List<int>());
 
-                var enrollments = await _context.Enrollments
-                    .Where(e => courseIds.Contains(e.CourseID))
-                    .ToListAsync();
+                var tEnrollments = tCourseIds
+                    .SelectMany(cid => enrollmentsByCourse.GetValueOrDefault(cid, new List<Models.Enrollment>()))
+                    .ToList();
 
-                var results2 = await _context.ExamResult
-                    .Include(r => r.Exam)
-                    .Where(r => r.Exam != null && courseIds.Contains(r.Exam.CourseID))
-                    .ToListAsync();
+                var tResults = tCourseIds
+                    .SelectMany(cid => resultsByCourse.GetValueOrDefault(cid, new List<Models.ExamResult>()))
+                    .ToList();
 
-                var avgScore = results2.Count > 0
-                    ? Math.Round(results2.Average(r => r.Score), 2)
+                var avgScore = tResults.Count > 0
+                    ? Math.Round(tResults.Average(r => r.Score), 2)
                     : 0m;
 
-                var passRate = results2.Count > 0
-                    ? Math.Round((decimal)results2.Count(r => r.Passed) / results2.Count * 100, 2)
+                var passRate = tResults.Count > 0
+                    ? Math.Round((decimal)tResults.Count(r => r.Passed) / tResults.Count * 100, 2)
                     : 0m;
 
                 results.Add(new TrainerOverviewDto
@@ -276,9 +309,9 @@ namespace TrainingSystem.Controllers
                     UserID = trainer.UserID,
                     Name = trainer.Name,
                     Email = trainer.Email,
-                    CoursesCount = courseIds.Count,
-                    TotalStudents = enrollments.Select(e => e.UserID).Distinct().Count(),
-                    TotalExams = results2.Count,
+                    CoursesCount = tCourseIds.Count,
+                    TotalStudents = tEnrollments.Select(e => e.UserID).Distinct().Count(),
+                    TotalExams = tResults.Count,
                     AverageScore = avgScore,
                     PassRate = passRate
                 });
@@ -366,13 +399,20 @@ namespace TrainingSystem.Controllers
 
             var exams = await examQuery.ToListAsync();
 
+            // Batch-fetch all results for all exams (eliminates N+1)
+            var examIds = exams.Select(e => e.ExamID).ToList();
+            var allResults = await _context.ExamResult
+                .Where(r => examIds.Contains(r.ExamID))
+                .ToListAsync();
+            var resultsByExam = allResults
+                .GroupBy(r => r.ExamID)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
             var rankings = new List<ExamRankingDto>();
 
             foreach (var exam in exams)
             {
-                var results = await _context.ExamResult
-                    .Where(r => r.ExamID == exam.ExamID)
-                    .ToListAsync();
+                var results = resultsByExam.GetValueOrDefault(exam.ExamID, new List<Models.ExamResult>());
 
                 if (results.Count == 0) continue;
 

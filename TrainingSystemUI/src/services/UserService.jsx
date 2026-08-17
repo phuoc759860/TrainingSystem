@@ -23,8 +23,12 @@ export const updateUser = async (id, data) =>
 export const deleteUser = async (id) =>
     await api.delete(`/users/${id}`);
 
-export const getRecipients = async () => {
-    return await api.get("/users/recipients");
+export const getRecipients = async (search = "", page = 1, pageSize = 25) => {
+    const params = new URLSearchParams();
+    params.append("page", page);
+    params.append("pageSize", pageSize);
+    if (search.trim()) params.append("search", search.trim());
+    return await api.get(`/users/recipients?${params.toString()}`);
 };
 
 export const getTrainers = async () => {

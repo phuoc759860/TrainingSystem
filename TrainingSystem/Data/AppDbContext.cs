@@ -345,6 +345,11 @@ namespace TrainingSystem.Data
                 .IsUnique();
             modelBuilder.Entity<Payment>()
                 .HasQueryFilter(p => p.Course == null || !p.Course.IsDeleted);
+
+            modelBuilder.Entity<ExamResult>()
+                .HasIndex(e => e.AttemptToken)
+                .IsUnique()
+                .HasFilter(null);
         }
     }
 }
