@@ -73,6 +73,55 @@ function scoreColor(value) {
     return DANGER;
 }
 
+// --- Highcharts-style animated bar shape ---
+// Bars grow from the axis (left→right) using rAF + easeInOutSine,
+// matching Highcharts' default bar animation (duration 1000ms, easeInOutSine easing).
+const HC_BAR_DURATION = 1000;
+
+function easeInOutSine(t) {
+    return -(Math.cos(Math.PI * t) - 1) / 2;
+}
+
+function useAnimatedValue(target, duration, delay, enabled) {
+    const [v, setV] = useState(enabled ? 0 : 1);
+    useEffect(() => {
+        if (!enabled) { setV(1); return; }
+        let raf;
+        let start;
+        const tick = (ts) => {
+            if (!start) start = ts + delay;
+            if (ts < start) { raf = requestAnimationFrame(tick); return; }
+            const elapsed = ts - start;
+            const t = Math.min(elapsed / duration, 1);
+            setV(easeInOutSine(t));
+            if (t < 1) raf = requestAnimationFrame(tick);
+        };
+        raf = requestAnimationFrame(tick);
+        return () => cancelAnimationFrame(raf);
+    }, [duration, delay, enabled]);
+    return v;
+}
+
+function AnimatedBarShape(props) {
+    const {
+        x, y, width, height, payload, index,
+        fill, isAnimationActive, animationBegin, animationDuration,
+    } = props;
+    const anim = useAnimatedValue(
+        width,
+        animationDuration || HC_BAR_DURATION,
+        animationBegin || 0,
+        !!isAnimationActive
+    );
+    const w = (width || 0) * anim;
+    const r = 6;
+    // Horizontal bar (layout="vertical"): grow left→right, rounded right end
+    if (w <= 0) return null;
+    const rr = Math.min(r, height / 2, w);
+    const d = `M${x},${y} h${w - rr} a${rr},${rr} 0 0 1 ${rr},${rr} v${height - 2 * rr} a${rr},${rr} 0 0 1 ${-rr},${rr} h${-(w - rr)} Z`;
+    return <path d={d} fill={fill} />;
+}
+
 function truncate(str, max = 22) {
     if (!str) return "";
     return str.length > max ? `${str.slice(0, max)}…` : str;
@@ -217,26 +266,27 @@ function StatusBadge({ examsTaken, needsAttention }) {
 }
 
 function renderActivePieShape(props) {
-    const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload, value } = props;
+    const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
     return (
-        <g>
+        <g style={{ filter: "drop-shadow(0 4px 12px rgba(0,0,0,.22))" }}>
             <Sector
                 cx={cx} cy={cy}
-                innerRadius={innerRadius - 2}
-                outerRadius={outerRadius + 8}
+                innerRadius={innerRadius - 3}
+                outerRadius={outerRadius + 10}
                 startAngle={startAngle}
                 endAngle={endAngle}
                 fill={fill}
-                style={{ filter: "drop-shadow(0 3px 8px rgba(0,0,0,.2))", transition: "all .2s ease" }}
+                style={{ transition: "all .25s cubic-bezier(.4,0,.2,1)" }}
             />
             <Sector
                 cx={cx} cy={cy}
-                innerRadius={outerRadius + 12}
-                outerRadius={outerRadius + 15}
+                innerRadius={outerRadius + 14}
+                outerRadius={outerRadius + 17}
                 startAngle={startAngle}
                 endAngle={endAngle}
                 fill={fill}
-                opacity={0.5}
+                opacity={0.45}
+                style={{ transition: "all .25s cubic-bezier(.4,0,.2,1)" }}
             />
         </g>
     );
@@ -955,11 +1005,11 @@ function Statistics() {
                                                     <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 12, fill: INK_SOFT }} />
                                                     <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 12, fill: INK_SOFT }} />
                                                     <Tooltip content={<CustomTooltip />} labelFormatter={(_, p) => p?.[0]?.payload?.fullName} cursor={{ fill: "rgba(108,92,231,.06)" }} />
-                                                    <Bar dataKey="score" name="Average Score" radius={[0, 6, 6, 0]}
+                                                    <Bar dataKey="score" name="Average Score" radius={[0, 6, 6, 0]} shape={AnimatedBarShape}
                                                         isAnimationActive={!reducedMotion}
                                                         animationBegin={150}
-                                                        animationDuration={1400}
-                                                        animationEasing="ease-out"
+                                                        animationDuration={HC_BAR_DURATION}
+                                                        animationEasing="ease-in-out"
                                                     >
                                                         {classChartData.map((entry, i) => (
                                                             <Cell key={i} fill={scoreFill(entry.score)} />
@@ -986,8 +1036,8 @@ function Statistics() {
                                                         activeShape={renderActivePieShape}
                                                         isAnimationActive={!reducedMotion}
                                                         animationBegin={350}
-                                                        animationDuration={1400}
-                                                        animationEasing="ease-out"
+                                                        animationDuration={1200}
+                                                        animationEasing="ease-in-out"
                                                     >
                                                         {passFailData.map((entry, i) => (
                                                             <Cell key={i} fill={entry.fill} />
@@ -1245,11 +1295,11 @@ function Statistics() {
                                         <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 12, fill: INK_SOFT }} />
                                         <YAxis type="category" dataKey="name" width={170} tick={{ fontSize: 11, fill: INK_SOFT }} />
                                         <Tooltip content={<CustomTooltip />} labelFormatter={(_, p) => p?.[0]?.payload?.fullName} cursor={{ fill: "rgba(108,92,231,.06)" }} />
-                                        <Bar dataKey="score" name="Average Score" radius={[0, 6, 6, 0]}
+                                        <Bar dataKey="score" name="Average Score" radius={[0, 6, 6, 0]} shape={AnimatedBarShape}
                                             isAnimationActive={!reducedMotion}
                                             animationBegin={100}
-                                            animationDuration={1000}
-                                            animationEasing="ease-out"
+                                            animationDuration={HC_BAR_DURATION}
+                                            animationEasing="ease-in-out"
                                         >
                                             {examChartData.map((entry, i) => (
                                                 <Cell key={i} fill={scoreFill(entry.score)} />
@@ -1458,11 +1508,11 @@ function Statistics() {
                                                     <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: INK_SOFT }} />
                                                     <YAxis type="category" dataKey="name" width={140} tick={{ fontSize: 11, fill: INK_SOFT }} />
                                                     <Tooltip content={<CustomTooltip />} labelFormatter={(_, p) => p?.[0]?.payload?.fullName} cursor={{ fill: "rgba(108,92,231,.06)" }} />
-                                                    <Bar dataKey="score" name="Average Score" radius={[0, 6, 6, 0]}
+                                                    <Bar dataKey="score" name="Average Score" radius={[0, 6, 6, 0]} shape={AnimatedBarShape}
                                                         isAnimationActive={!reducedMotion}
                                                         animationBegin={150}
-                                                        animationDuration={1400}
-                                                        animationEasing="ease-out"
+                                                        animationDuration={HC_BAR_DURATION}
+                                                        animationEasing="ease-in-out"
                                                     >
                                                         {trainerCourseData.map((entry, i) => (
                                                             <Cell key={i} fill={scoreFill(entry.score)} />
@@ -1517,11 +1567,11 @@ function Statistics() {
                                                     <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: INK_SOFT }} />
                                                     <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 11, fill: INK_SOFT }} />
                                                     <Tooltip content={<CustomTooltip />} labelFormatter={(_, p) => p?.[0]?.payload?.fullName} cursor={{ fill: "rgba(108,92,231,.06)" }} />
-                                                    <Bar dataKey="score" name="Average Score" radius={[0, 6, 6, 0]}
+                                                    <Bar dataKey="score" name="Average Score" radius={[0, 6, 6, 0]} shape={AnimatedBarShape}
                                                         isAnimationActive={!reducedMotion}
                                                         animationBegin={150}
-                                                        animationDuration={1400}
-                                                        animationEasing="ease-out"
+                                                        animationDuration={HC_BAR_DURATION}
+                                                        animationEasing="ease-in-out"
                                                     >
                                                         {courseBreakdownData.map((entry, i) => (
                                                             <Cell key={i} fill={scoreFill(entry.score)} />
@@ -1545,11 +1595,11 @@ function Statistics() {
                                                     <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: INK_SOFT }} />
                                                     <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 11, fill: INK_SOFT }} />
                                                     <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(108,92,231,.06)" }} />
-                                                    <Bar dataKey="score" name="Score" radius={[0, 6, 6, 0]}
+                                                    <Bar dataKey="score" name="Score" radius={[0, 6, 6, 0]} shape={AnimatedBarShape}
                                                         isAnimationActive={!reducedMotion}
                                                         animationBegin={150}
-                                                        animationDuration={1400}
-                                                        animationEasing="ease-out"
+                                                        animationDuration={HC_BAR_DURATION}
+                                                        animationEasing="ease-in-out"
                                                     >
                                                         {skillTypeData.map((entry, i) => (
                                                             <Cell key={i} fill={scoreFill(entry.score)} />
