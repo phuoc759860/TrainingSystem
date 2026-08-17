@@ -220,7 +220,9 @@ function TakeExam() {
                         <span className="badge" style={{ fontSize: 16, background: "rgba(255,255,255,.2)", color: "#fff" }}>
                             {result.passed ? "\u2713 Passed" : "\u2717 Failed"}
                         </span>
-                        <div className="label" style={{ color: "rgba(255,255,255,.9)" }}>Status</div>
+                        <div className="label" style={{ color: "rgba(255,255,255,.9)" }}>
+                            Status {examMeta?.passingScore ? `(need ≥ ${examMeta.passingScore}%)` : ""}
+                        </div>
                     </div>
                     {tabSwitches > 0 && (
                         <div className="stat-card stat-card-yellow">

@@ -64,7 +64,8 @@ namespace TrainingSystem.Controllers
                     AttemptCount = e.ExamResults.Count(r => r.UserID == CurrentUserId),
                     IsPublished = e.IsPublished,
                     ContentVersion = e.ContentVersion,
-                    QuestionsPerAttempt = e.QuestionsPerAttempt
+                    QuestionsPerAttempt = e.QuestionsPerAttempt,
+                    PassingScore = e.PassingScore
                 })
                 .ToListAsync();
 
@@ -96,7 +97,8 @@ namespace TrainingSystem.Controllers
                     AttemptCount = e.ExamResults.Count(r => r.UserID == CurrentUserId),
                     IsPublished = e.IsPublished,
                     ContentVersion = e.ContentVersion,
-                    QuestionsPerAttempt = e.QuestionsPerAttempt
+                    QuestionsPerAttempt = e.QuestionsPerAttempt,
+                    PassingScore = e.PassingScore
                 })
                 .FirstOrDefaultAsync();
 
@@ -190,6 +192,7 @@ namespace TrainingSystem.Controllers
                 title = exam.Title,
                 courseTitle = exam.Course!.Title,
                 maxAttempts,
+                passingScore = exam.PassingScore,
                 timeLimitMinutes = exam.TimeLimitMinutes ?? 0,
                 attemptCount = await _context.ExamResult
                     .CountAsync(r => r.ExamID == id && r.UserID == userId),
@@ -340,7 +343,7 @@ namespace TrainingSystem.Controllers
                 UserID = userId,
                 ExamID = exam.ExamID,
                 Score = percentage,
-                Passed = percentage >= 50,
+                Passed = percentage >= exam.PassingScore,
                 NeedsGrading = anyNeedsGrading,
                 SubmittedAt = DateTime.Now
             };
@@ -389,6 +392,7 @@ namespace TrainingSystem.Controllers
                 MaxAttempts = dto.MaxAttempts > 0 ? dto.MaxAttempts : _defaultMaxAttempts,
                 TimeLimitMinutes = dto.TimeLimitMinutes > 0 ? dto.TimeLimitMinutes : null,
                 QuestionsPerAttempt = dto.QuestionsPerAttempt > 0 ? dto.QuestionsPerAttempt : null,
+                PassingScore = dto.PassingScore > 0 ? dto.PassingScore : 50,
                 IsPublished = false
             };
 
@@ -406,7 +410,8 @@ namespace TrainingSystem.Controllers
                 TimeLimitMinutes = exam.TimeLimitMinutes ?? 0,
                 IsPublished = exam.IsPublished,
                 ContentVersion = exam.ContentVersion,
-                QuestionsPerAttempt = exam.QuestionsPerAttempt
+                QuestionsPerAttempt = exam.QuestionsPerAttempt,
+                PassingScore = exam.PassingScore
             };
 
             return CreatedAtAction(nameof(GetExam),
@@ -444,6 +449,7 @@ namespace TrainingSystem.Controllers
             exam.MaxAttempts = dto.MaxAttempts > 0 ? dto.MaxAttempts : _defaultMaxAttempts;
             exam.TimeLimitMinutes = dto.TimeLimitMinutes > 0 ? dto.TimeLimitMinutes : null;
             exam.QuestionsPerAttempt = dto.QuestionsPerAttempt > 0 ? dto.QuestionsPerAttempt : null;
+            if (dto.PassingScore > 0) exam.PassingScore = dto.PassingScore;
 
             // Editing a live exam mid-term silently changes it for everyone.
             // Send it back to draft; the trainer republishes when ready.

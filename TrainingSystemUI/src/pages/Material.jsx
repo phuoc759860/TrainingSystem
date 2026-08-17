@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import { getFileUrl } from "../api/axios";
@@ -236,6 +236,17 @@ function DropZone({ onFileSelect, currentFile, accept }) {
     const [dragOver, setDragOver] = useState(false);
     const inputRef = useRef(null);
 
+    const previewUrl = useMemo(() => {
+        if (!currentFile) return null;
+        return URL.createObjectURL(currentFile);
+    }, [currentFile]);
+
+    useEffect(() => {
+        return () => {
+            if (previewUrl) URL.revokeObjectURL(previewUrl);
+        };
+    }, [previewUrl]);
+
     const handleDrop = (e) => {
         e.preventDefault();
         setDragOver(false);
@@ -252,7 +263,6 @@ function DropZone({ onFileSelect, currentFile, accept }) {
     const mime = currentFile?.type || "";
     const isVideo = mime.startsWith("video/") || isVideoExt(ext);
     const isAudio = !isVideo && (mime.startsWith("audio/") || isAudioExt(ext));
-    const previewUrl = currentFile ? URL.createObjectURL(currentFile) : null;
 
     return (
         <div>

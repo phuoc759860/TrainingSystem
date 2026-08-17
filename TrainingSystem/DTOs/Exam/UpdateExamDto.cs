@@ -18,5 +18,8 @@ namespace TrainingSystem.DTOs.Exam
 
         /// <summary>Random question pool size per attempt. 0 = use all questions.</summary>
         public int QuestionsPerAttempt { get; set; } = 0;
+
+        /// <summary>Percentage required to pass. 0 defaults to 50 server-side.</summary>
+        public int PassingScore { get; set; } = 0;
     }
 }

@@ -63,7 +63,6 @@ export default function AdminDashboard() {
     const greeting = getGreeting();
     const today = formatTime();
 
-    const STAT_ICONS = { Users, BookOpen, BookOpen, CheckCircle, ClipboardList };
     const statCards = [
         { key: "totalUsers", label: "Total Users", gradient: "stat-card-purple", icon: Users },
         { key: "totalCourses", label: "Courses", gradient: "stat-card-blue", icon: BookOpen },

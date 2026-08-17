@@ -22,5 +22,8 @@ namespace TrainingSystem.DTOs.Exam
 
         /// <summary>0/null = use all questions per attempt.</summary>
         public int? QuestionsPerAttempt { get; set; }
+
+        /// <summary>Percentage required to pass. Default 50.</summary>
+        public int PassingScore { get; set; } = 50;
     }
 }

@@ -22,6 +22,7 @@ const blankForm = () => ({
     maxAttempts: "",
     timeLimitMinutes: "",
     questionsPerAttempt: "",
+    passingScore: 50,
     questionCount: 5
 });
 
@@ -100,6 +101,7 @@ function Exam() {
             maxAttempts: exam.maxAttempts || "",
             timeLimitMinutes: exam.timeLimitMinutes || "",
             questionsPerAttempt: exam.questionsPerAttempt || "",
+            passingScore: exam.passingScore || 50,
             questionCount: 5
         });
         setPanelOpen(true);
@@ -119,7 +121,8 @@ function Exam() {
                 courseID: Number(form.courseID),
                 maxAttempts: Number(form.maxAttempts) || 0,
                 timeLimitMinutes: Number(form.timeLimitMinutes) || 0,
-                questionsPerAttempt: Number(form.questionsPerAttempt) || 0
+                questionsPerAttempt: Number(form.questionsPerAttempt) || 0,
+                passingScore: Math.min(100, Math.max(0, Number(form.passingScore) || 50))
             };
 
             if (editingId == null) {
@@ -409,6 +412,21 @@ function Exam() {
                     />
                     <p style={{ fontSize: 12, color: "var(--ink-soft)", marginTop: 6 }}>
                         Set how many random questions each student gets per attempt. Leave 0 to use the whole question bank.
+                    </p>
+                </div>
+
+                <div className="field" style={{ marginBottom: 16 }}>
+                    <label>Passing Score (%)</label>
+                    <input
+                        type="number"
+                        name="passingScore"
+                        min="0"
+                        max="100"
+                        value={form.passingScore}
+                        onChange={handleChange}
+                    />
+                    <p style={{ fontSize: 12, color: "var(--ink-soft)", marginTop: 6 }}>
+                        Minimum percentage required to pass. Defaults to 50.
                     </p>
                 </div>
 

@@ -38,6 +38,11 @@ namespace TrainingSystem.Models
         /// </summary>
         public int? QuestionsPerAttempt { get; set; }
 
+        /// <summary>
+        /// Percentage score required to pass. Defaults to 50.
+        /// </summary>
+        public int PassingScore { get; set; } = 50;
+
         public ICollection<QuestionBank> Questions { get; set; }
             = new List<QuestionBank>();
 

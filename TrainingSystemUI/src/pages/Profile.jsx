@@ -8,6 +8,7 @@ function Profile() {
     const [badges, setBadges] = useState([]);
     const [leaderboard, setLeaderboard] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { name, role } = useAuth();
     const { showToast, toastEl } = useToast();
 
     useEffect(() => {
@@ -36,8 +37,6 @@ function Profile() {
     if (loading) {
         return <div className="page"><div className="loading-row"><span className="spinner" /> Loading profile...</div></div>;
     }
-
-    const { name, role } = useAuth();
     const progressPercent = points ? Math.min(100, Math.round((points.points % 100) / 100 * 100)) : 0;
 
     return (

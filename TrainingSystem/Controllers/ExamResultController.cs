@@ -180,7 +180,7 @@ namespace TrainingSystem.Controllers
             result.Score = totalPossible > 0
                 ? Math.Round(earned / totalPossible * 100, 2)
                 : 0;
-            result.Passed = result.Score >= 50;
+            result.Passed = result.Score >= result.Exam!.PassingScore;
             var fullyGraded = !result.Answers.Any(a => a.NeedsGrading);
             result.NeedsGrading = !fullyGraded;
 
@@ -217,7 +217,7 @@ namespace TrainingSystem.Controllers
                 UserID = dto.UserID,
                 ExamID = dto.ExamID,
                 Score = dto.Score,
-                Passed = dto.Score >= 50,
+                Passed = dto.Score >= exam.PassingScore,
                 SubmittedAt = DateTime.Now
             };
 
@@ -271,7 +271,7 @@ namespace TrainingSystem.Controllers
             result.UserID = dto.UserID;
             result.ExamID = dto.ExamID;
             result.Score = dto.Score;
-            result.Passed = dto.Score >= 50;
+            result.Passed = dto.Score >= newExam.PassingScore;
 
             await _context.SaveChangesAsync();
 
