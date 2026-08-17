@@ -35,6 +35,12 @@ desktop.ini
 logs/
 server.err
 
+# Dev server / build log captures
+dotnet_out*.txt
+dotnet_err*.txt
+vite_out*.txt
+vite_err*.txt
+
 # NuGet
 *.nupkg
 *.snupkg

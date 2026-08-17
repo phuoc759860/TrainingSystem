@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import useDebouncedValue from "../hooks/useDebouncedValue";
 import { getUsers } from "../services/UserService";
 import {
     getCourses,
@@ -40,11 +41,16 @@ function Course() {
     const [totalPages, setTotalPages] = useState(1);
 
     const [form, setForm] = useState(blankForm());
+    const debouncedSearch = useDebouncedValue(search);
+
+    useEffect(() => {
+        setPage(1);
+    }, [debouncedSearch]);
 
     useEffect(() => {
         loadCourses();
         if (role === "Student") loadEnrollments();
-    }, [search, page]);
+    }, [debouncedSearch, page]);
 
     useEffect(() => {
         if (role === "Admin") {
@@ -60,7 +66,7 @@ function Course() {
     const loadCourses = async () => {
         setLoading(true);
         try {
-            const res = await getCourses(search, page);
+            const res = await getCourses(debouncedSearch, page);
             setCourses(res.data.items);
             setTotalPages(res.data.totalPages);
         }

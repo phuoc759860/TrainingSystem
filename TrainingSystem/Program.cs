@@ -70,7 +70,14 @@ builder.Services.AddSingleton<RateLimiterService>(_ =>
     rl.Configure("resendverify", 5, 60);
     return rl;
 });
-builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+builder.Services.AddScoped<IFileStorageService>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var provider = config.GetValue("Storage:Provider", "Local");
+    return provider.Equals("S3", StringComparison.OrdinalIgnoreCase)
+        ? new S3FileStorageService(config)
+        : new LocalFileStorageService(sp.GetRequiredService<IWebHostEnvironment>());
+});
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IEmailNotificationService, EmailNotificationService>();
 builder.Services.AddSignalR();

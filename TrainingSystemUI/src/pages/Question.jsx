@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import useDebouncedValue from "../hooks/useDebouncedValue";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
     getQuestions,
@@ -52,6 +53,7 @@ function Question() {
     // Filter for the table / which exam we're managing
     const [filterExamId, setFilterExamId] = useState(preselectedExamId);
     const [search, setSearch] = useState("");
+    const debouncedSearch = useDebouncedValue(search);
 
     // ---- Bulk create mode (triggered by ?examId=X&count=N from Exams.jsx) ----
     const [bulkMode, setBulkMode] = useState(initialCount > 1);
@@ -76,17 +78,17 @@ function Question() {
 
     useEffect(() => {
         setPage(1);
-    }, [search, filterExamId]);
+    }, [debouncedSearch, filterExamId]);
 
     useEffect(() => {
         loadQuestions();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [search, filterExamId, page]);
+    }, [debouncedSearch, filterExamId, page]);
 
     const loadQuestions = async () => {
         setLoading(true);
         try {
-            const res = await getQuestions(filterExamId, page, 20, search);
+            const res = await getQuestions(filterExamId, page, 20, debouncedSearch);
             setQuestions(res.data.items);
             setTotalPages(res.data.totalPages);
         }

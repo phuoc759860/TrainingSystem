@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import useDebouncedValue from "../hooks/useDebouncedValue";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
     getLessons,
@@ -48,11 +49,16 @@ function Lesson() {
     const [form, setForm] = useState(blankForm());
     const [versions, setVersions] = useState([]);
     const [showVersions, setShowVersions] = useState(false);
+    const debouncedSearch = useDebouncedValue(search);
+
+    useEffect(() => {
+        setPage(1);
+    }, [debouncedSearch]);
 
     useEffect(() => {
         loadLessons();
         loadProgress();
-    }, [search, courseId, page]);
+    }, [debouncedSearch, courseId, page]);
 
     useEffect(() => {
         loadProgress();
@@ -73,7 +79,7 @@ function Lesson() {
     const loadLessons = async () => {
         setLoading(true);
         try {
-            const res = await getLessons(search, courseId, page);
+            const res = await getLessons(debouncedSearch, courseId, page);
             setLessons(res.data.items);
             setTotalPages(res.data.totalPages);
         }

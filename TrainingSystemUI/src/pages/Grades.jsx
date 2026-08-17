@@ -1,45 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
 import { getMyGrades } from "../services/GradeService";
 import useToast from "../hooks/useToast";
-
-function scoreColor(value) {
-    if (value >= 70) return "var(--success)";
-    if (value >= 50) return "var(--brand)";
-    return "var(--danger)";
-}
-
-function scoreCardClass(value) {
-    if (value >= 70) return "stat-card-green";
-    if (value >= 50) return "stat-card-purple";
-    return "stat-card-coral";
-}
-
-function scoreGrade(value) {
-    if (value >= 90) return "A";
-    if (value >= 80) return "B";
-    if (value >= 70) return "C";
-    if (value >= 60) return "D";
-    return "F";
-}
-
-function MiniBar({ value, max = 100, delay = 0 }) {
-    const [width, setWidth] = useState(0);
-    useEffect(() => {
-        const timer = setTimeout(() => setWidth(Math.max(0, Math.min(100, (value / max) * 100))), delay);
-        return () => clearTimeout(timer);
-    }, [value, max, delay]);
-
-    const fillClass = value >= 70 ? "fill-success" : value >= 50 ? "fill-brand" : "fill-danger";
-
-    return (
-        <span className="mini-bar">
-            <span
-                className={`mini-bar-fill ${fillClass}`}
-                style={{ width: `${width}%` }}
-            />
-        </span>
-    );
-}
+import MiniBar from "../components/MiniBar";
+import { scoreColor, scoreCardClass, scoreGrade } from "../utils/grading";
 
 function Grades() {
     const [grades, setGrades] = useState([]);

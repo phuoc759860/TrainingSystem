@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import useDebouncedValue from "../hooks/useDebouncedValue";
 import { useNavigate } from "react-router-dom";
 import {
     getExams,
@@ -44,20 +45,21 @@ function Exam() {
     const [totalPages, setTotalPages] = useState(1);
 
     const [form, setForm] = useState(blankForm());
+    const debouncedSearch = useDebouncedValue(search);
 
     useEffect(() => {
         setPage(1);
-    }, [search]);
+    }, [debouncedSearch]);
 
     useEffect(() => {
         loadExams();
         loadCourses();
-    }, [search, page]);
+    }, [debouncedSearch, page]);
 
     const loadExams = async () => {
         setLoading(true);
         try {
-            const res = await getExams(page, 20, search);
+            const res = await getExams(page, 20, debouncedSearch);
             setExams(res.data.items);
             setTotalPages(res.data.totalPages);
         }

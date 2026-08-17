@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import useDebouncedValue from "../hooks/useDebouncedValue";
 import {
     getEnrollments,
     createEnrollment,
@@ -36,21 +37,22 @@ function Enrollment() {
     const [totalPages, setTotalPages] = useState(1);
 
     const [form, setForm] = useState(blankForm());
+    const debouncedSearch = useDebouncedValue(search);
 
     useEffect(() => {
         setPage(1);
-    }, [search]);
+    }, [debouncedSearch]);
 
     useEffect(() => {
         loadEnrollments();
         loadUsers();
         loadCourses();
-    }, [search, page]);
+    }, [debouncedSearch, page]);
 
     const loadEnrollments = async () => {
         setLoading(true);
         try {
-            const res = await getEnrollments(page, 20, search);
+            const res = await getEnrollments(page, 20, debouncedSearch);
             setEnrollments(res.data.items);
             setTotalPages(res.data.totalPages);
         }

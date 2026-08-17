@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import useDebouncedValue from "../hooks/useDebouncedValue";
 import {
     getUsers,
     createUser,
@@ -34,20 +35,21 @@ function User() {
     const [totalPages, setTotalPages] = useState(1);
 
     const [form, setForm] = useState(blankForm());
+    const debouncedSearch = useDebouncedValue(search);
 
     useEffect(() => {
         setPage(1);
-    }, [search, roleFilter]);
+    }, [debouncedSearch, roleFilter]);
 
     useEffect(() => {
         loadUsers();
         loadRoles();
-    }, [page, search, roleFilter]);
+    }, [page, debouncedSearch, roleFilter]);
 
     const loadUsers = async () => {
         setLoading(true);
         try {
-            const res = await getUsers(page, 20, search, roleFilter);
+            const res = await getUsers(page, 20, debouncedSearch, roleFilter);
             setUsers(res.data.items);
             setTotalPages(res.data.totalPages);
         }

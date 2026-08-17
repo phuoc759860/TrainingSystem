@@ -1,35 +1,10 @@
 import useAuth from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { BookOpen, CheckCircle, Target, ClipboardList, FileText, BarChart3, ArrowRight } from "lucide-react";
 import { getTrainerDashboard } from "../../services/DashboardService";
 import { getQuickAccess, getSidebarIcon } from "../../config/navigation";
-
-function AnimatedNumber({ value, duration = 700 }) {
-    const [display, setDisplay] = useState(0);
-    const frameRef = useRef(null);
-    const prevValue = useRef(value);
-
-    useEffect(() => {
-        if (value == null) return;
-        const target = Number(value) || 0;
-        const startTime = performance.now();
-        const startValue = prevValue.current != null ? Number(prevValue.current) : 0;
-        prevValue.current = target;
-
-        const tick = (now) => {
-            const progress = Math.min((now - startTime) / duration, 1);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            setDisplay(Math.round(startValue + (target - startValue) * eased));
-            if (progress < 1) frameRef.current = requestAnimationFrame(tick);
-        };
-        frameRef.current = requestAnimationFrame(tick);
-        return () => cancelAnimationFrame(frameRef.current);
-    }, [value, duration]);
-
-    if (value == null) return <>&ndash;</>;
-    return <>{display}</>;
-}
+import AnimatedNumber from "../../components/AnimatedNumber";
 
 function getGreeting() {
     const h = new Date().getHours();

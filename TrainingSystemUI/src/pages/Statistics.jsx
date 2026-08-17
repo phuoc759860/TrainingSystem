@@ -11,6 +11,9 @@ import useAuth from "../hooks/useAuth";
 import { getStudentGrades, getCourseGrades } from "../services/GradeService";
 import SidePanel from "../components/SidePanel";
 import useToast from "../hooks/useToast";
+import AnimatedNumber from "../components/AnimatedNumber";
+import MiniBar from "../components/MiniBar";
+import { scoreCardClass, scoreGrade } from "../utils/grading";
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
     ResponsiveContainer, Cell, LabelList, PieChart, Pie, Sector
@@ -70,19 +73,6 @@ function scoreColor(value) {
     return DANGER;
 }
 
-function scoreGrade(value) {
-    if (value >= 90) return "A";
-    if (value >= 80) return "B";
-    if (value >= 70) return "C";
-    if (value >= 60) return "D";
-    return "F";
-}
-function scoreCardClass(value) {
-    if (value >= 70) return "stat-card-green";
-    if (value >= 50) return "stat-card-purple";
-    return "stat-card-coral";
-}
-
 function truncate(str, max = 22) {
     if (!str) return "";
     return str.length > max ? `${str.slice(0, max)}…` : str;
@@ -117,59 +107,6 @@ function SortableTh({ label, sortKey, currentSort, onSort }) {
             </span>
         </th>
     );
-}
-
-function scoreFillClass(value) {
-    if (value >= 70) return "fill-success";
-    if (value >= 50) return "fill-brand";
-    return "fill-danger";
-}
-
-function MiniBar({ value, max = 100, delay = 0 }) {
-    const [width, setWidth] = useState(0);
-    useEffect(() => {
-        const timer = setTimeout(() => setWidth(Math.max(0, Math.min(100, (value / max) * 100))), delay);
-        return () => clearTimeout(timer);
-    }, [value, max, delay]);
-
-    return (
-        <span className="mini-bar">
-            <span
-                className={`mini-bar-fill ${scoreFillClass(value)}`}
-                style={{ width: `${width}%` }}
-            />
-        </span>
-    );
-}
-
-function AnimatedNumber({ value, duration = 700 }) {
-    const [display, setDisplay] = useState(0);
-    const frameRef = useRef(null);
-    const prevValue = useRef(value);
-
-    useEffect(() => {
-        if (value == null) return;
-
-        const target = Number(value) || 0;
-        const startTime = performance.now();
-        const startValue = prevValue.current != null ? Number(prevValue.current) : 0;
-        prevValue.current = target;
-
-        const tick = (now) => {
-            const progress = Math.min((now - startTime) / duration, 1);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            setDisplay(Math.round(startValue + (target - startValue) * eased));
-            if (progress < 1) {
-                frameRef.current = requestAnimationFrame(tick);
-            }
-        };
-
-        frameRef.current = requestAnimationFrame(tick);
-        return () => cancelAnimationFrame(frameRef.current);
-    }, [value, duration]);
-
-    if (value == null) return <>–</>;
-    return <>{display}</>;
 }
 
 function ChartCard({ title, subtitle, children, height = 300, delay = 0 }) {

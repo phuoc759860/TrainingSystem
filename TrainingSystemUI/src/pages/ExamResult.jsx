@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import useDebouncedValue from "../hooks/useDebouncedValue";
 import { useNavigate } from "react-router-dom";
 import { getExamResults, createExamResult, updateExamResult, deleteExamResult } from "../services/ExamResultService";
 import { getUsers } from "../services/UserService";
@@ -23,19 +24,20 @@ function ExamResult() {
     const { showToast, toastEl } = useToast();
     const [form, setForm] = useState(blankForm());
     const [search, setSearch] = useState("");
+    const debouncedSearch = useDebouncedValue(search);
     const [gradingFilter, setGradingFilter] = useState("all");
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
-    useEffect(() => { setPage(1); }, [search, gradingFilter]);
+    useEffect(() => { setPage(1); }, [debouncedSearch, gradingFilter]);
 
-    useEffect(() => { loadResults(); }, [search, gradingFilter, page]);
+    useEffect(() => { loadResults(); }, [debouncedSearch, gradingFilter, page]);
     useEffect(() => { loadUsers(); loadExams(); }, []);
 
     const loadResults = async () => {
         setLoading(true);
         try {
-            const res = await getExamResults(page, 20, search, gradingFilter === "all" ? "" : gradingFilter);
+            const res = await getExamResults(page, 20, debouncedSearch, gradingFilter === "all" ? "" : gradingFilter);
             setResults(res.data.items);
             setTotalPages(res.data.totalPages);
         }
