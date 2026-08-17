@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { login, resendVerification } from "../services/authService";
 import AuthCard from "../components/AuthCard";
 import useToast from "../hooks/useToast";
+import useFocusTrap from "../hooks/useFocusTrap";
 
 function Login() {
     const navigate = useNavigate();
@@ -12,6 +13,15 @@ function Login() {
     const [verifyPanelOpen, setVerifyPanelOpen] = useState(false);
     const [resendMsg, setResendMsg] = useState("");
     const [resending, setResending] = useState(false);
+
+    const verifyTrapRef = useFocusTrap(verifyPanelOpen);
+
+    useEffect(() => {
+        if (!verifyPanelOpen) return;
+        const onKey = (e) => { if (e.key === "Escape") setVerifyPanelOpen(false); };
+        document.addEventListener("keydown", onKey);
+        return () => document.removeEventListener("keydown", onKey);
+    }, [verifyPanelOpen]);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -103,7 +113,7 @@ function Login() {
         </AuthCard>
 
         {verifyPanelOpen && (
-            <div className="modal-backdrop" onMouseDown={() => setVerifyPanelOpen(false)}>
+            <div className="modal-backdrop" ref={verifyTrapRef} onMouseDown={() => setVerifyPanelOpen(false)}>
                 <div
                     className="modal-card"
                     role="alertdialog"

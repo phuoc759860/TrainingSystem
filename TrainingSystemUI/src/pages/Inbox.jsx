@@ -167,7 +167,7 @@ function Inbox() {
                                     {tab === "inbox" ? msg.senderName : msg.receiverName} &middot; {new Date(msg.sentAt).toLocaleDateString()}
                                 </div>
                             </div>
-                            <button className="btn btn-danger btn-sm" onClick={(e) => { e.stopPropagation(); handleDelete(msg); }}>
+                            <button className="btn btn-danger btn-sm" aria-label="Delete message" onClick={(e) => { e.stopPropagation(); handleDelete(msg); }}>
                                 &times;
                             </button>
                         </div>

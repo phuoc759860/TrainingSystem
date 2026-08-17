@@ -105,7 +105,7 @@ function DashboardLayout({ children }) {
                     <button
                         className="btn btn-sm sidebar-logout"
                         onClick={logout}
-                        title="Logout"
+                        aria-label="Logout"
                     >
                         {collapsed ? <LogOut size={16} /> : "Logout"}
                     </button>

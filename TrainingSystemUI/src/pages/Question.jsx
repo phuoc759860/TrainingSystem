@@ -619,6 +619,7 @@ function Question() {
                                                             <button
                                                                 type="button"
                                                                 className="btn btn-danger btn-sm"
+                                                                aria-label={`Remove rubric criterion ${ci + 1}`}
                                                                 onClick={() => removeBulkRubricCriterion(i, ci)}
                                                             >
                                                                 ×
@@ -855,6 +856,7 @@ function Question() {
                                     <button
                                         type="button"
                                         className="btn btn-danger btn-sm"
+                                        aria-label={`Remove rubric criterion ${index + 1}`}
                                         onClick={() => removeRubricCriterion(index)}
                                     >
                                         ×

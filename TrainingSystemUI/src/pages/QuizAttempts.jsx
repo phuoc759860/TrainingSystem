@@ -97,6 +97,7 @@ function QuizAttempts() {
                 </div>
             ) : (
                 <div className="card fade-in">
+                    <div className="table-scroll">
                     <table className="table-modern">
                         <thead>
                             <tr>
@@ -133,6 +134,7 @@ function QuizAttempts() {
                             })}
                         </tbody>
                     </table>
+                    </div>
                 </div>
             )}
 

@@ -260,9 +260,9 @@ function KpiRow({ items }) {
 }
 
 function StatusBadge({ examsTaken, needsAttention }) {
-    if (examsTaken === 0) return <span className="badge">No attempts</span>;
-    if (needsAttention) return <span className={`badge badge-danger ${needsAttention ? "badge-pulse" : ""}`}>Needs Attention</span>;
-    return <span className="badge badge-success">On Track</span>;
+    if (examsTaken === 0) return <span className="badge" role="status">No attempts</span>;
+    if (needsAttention) return <span className={`badge badge-danger ${needsAttention ? "badge-pulse" : ""}`} role="status">⚠ Needs Attention</span>;
+    return <span className="badge badge-success" role="status">✓ On Track</span>;
 }
 
 function renderActivePieShape(props) {
@@ -1063,6 +1063,7 @@ function Statistics() {
                                 </button>
                             </div>
 
+                            <div className="table-scroll">
                             <table className="table-modern fade-in">
                                 <thead>
                                     <tr>
@@ -1102,6 +1103,7 @@ function Statistics() {
                                     ))}
                                 </tbody>
                             </table>
+                            </div>
                         </>
                     )}
                 </div>
@@ -1139,6 +1141,7 @@ function Statistics() {
                             text={studentSearch ? "No students match that name." : "No enrolled students found."}
                         />
                     ) : (
+                        <div className="table-scroll">
                         <table className="table-modern fade-in">
                             <thead>
                                 <tr>
@@ -1178,6 +1181,7 @@ function Statistics() {
                                 ))}
                             </tbody>
                         </table>
+                        </div>
                     )}
                 </div>
             )}
@@ -1208,6 +1212,7 @@ function Statistics() {
                             text={trainerSearch ? "No trainers match that search." : "No trainers found."}
                         />
                     ) : (
+                        <div className="table-scroll">
                         <table className="table-modern fade-in">
                             <thead>
                                 <tr>
@@ -1256,6 +1261,7 @@ function Statistics() {
                                 ))}
                             </tbody>
                         </table>
+                        </div>
                     )}
                 </div>
             )}
@@ -1310,6 +1316,7 @@ function Statistics() {
                                 </ResponsiveContainer>
                             </ChartCard>
 
+                            <div className="table-scroll">
                             <table className="table-modern fade-in">
                                 <thead>
                                     <tr>
@@ -1335,6 +1342,7 @@ function Statistics() {
                                     ))}
                                 </tbody>
                             </table>
+                            </div>
                         </>
                     )}
                 </div>
@@ -1372,6 +1380,7 @@ function Statistics() {
                                 })(), cardClass: gradesData.filter(g => g.overallAverage != null).length ? scoreCardClass(Math.round(gradesData.filter(g => g.overallAverage != null).reduce((s, g) => s + g.overallAverage, 0) / gradesData.filter(g => g.overallAverage != null).length)) : undefined }
                             ]} />
 
+                            <div className="table-scroll">
                             <table className="table-modern fade-in">
                                 <thead>
                                     <tr>
@@ -1433,6 +1442,7 @@ function Statistics() {
                                     })}
                                 </tbody>
                             </table>
+                            </div>
                         </>
                     )}
                 </div>

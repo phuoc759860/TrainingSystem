@@ -117,6 +117,7 @@ function Profile() {
                 {leaderboard.length === 0 ? (
                     <p style={{ color: "var(--ink-soft)" }}>No participants yet.</p>
                 ) : (
+                    <div className="table-scroll">
                     <table className="table-modern">
                         <thead>
                             <tr>
@@ -141,6 +142,7 @@ function Profile() {
                             ))}
                         </tbody>
                     </table>
+                    </div>
                 )}
             </div>
 

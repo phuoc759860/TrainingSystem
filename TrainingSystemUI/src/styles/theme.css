@@ -1,12 +1,21 @@
 :root {
-  /* ---- Palette: unified with Tailwind theme tokens ---- */
-  --brand: var(--color-brand-500, #6c5ce7);
-  --brand-dark: var(--color-brand-600, #5646c9);
-  --brand-light: var(--color-brand-400, #8b7ffb);
-  --brand-bg: var(--color-brand-50, #f1effe);
+  /* ---- Palette: single source of truth (also referenced by Tailwind @theme) ---- */
+  --color-brand-50: #f1effe;
+  --color-brand-100: #e6e3fd;
+  --color-brand-200: #d5d0fa;
+  --color-brand-300: #b8aff7;
+  --color-brand-400: #8b7ffb;
+  --color-brand-500: #6c5ce7;
+  --color-brand-600: #5646c9;
+  --color-brand-700: #4035a0;
+
+  --brand: #6c5ce7;
+  --brand-dark: #5646c9;
+  --brand-light: #8b7ffb;
+  --brand-bg: #f1effe;
 
   --ink: #10122a;
-  --ink-soft: #6b7089;
+  --ink-soft: #525878;
   --surface: #ffffff;
   --surface-alt: #f7f7fb;
   --surface-sunken: #f0f0f7;
@@ -22,7 +31,7 @@
   --info-bg: #e0f0ff;
 
   /* CoreUI-inspired card gradients */
-  --gradient-purple: linear-gradient(135deg, var(--color-brand-500, #6c5ce7) 0%, var(--color-brand-400, #8b7ffb) 100%);
+  --gradient-purple: linear-gradient(135deg, #6c5ce7 0%, #8b7ffb 100%);
   --gradient-blue: linear-gradient(135deg, #3b97f6 0%, #60b3f7 100%);
   --gradient-yellow: linear-gradient(135deg, #f9b115 0%, #ffc857 100%);
   --gradient-coral: linear-gradient(135deg, #e55353 0%, #f17e7e 100%);
@@ -734,6 +743,32 @@
 .btn:active { transform: translateY(1px); }
 .btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 
+/* ---- Focus-visible: consistent keyboard navigation across all controls ---- */
+.pagination-btn:focus-visible,
+.chip-toggle:focus-visible,
+.tabs-segment button:focus-visible,
+.panel-close:focus-visible,
+.topnav-icon-btn:focus-visible,
+.sidebar-link:focus-visible,
+.module-card:focus-visible,
+.search-input:focus-visible,
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible,
+.check-btn:focus-visible,
+.input-tab:focus-visible,
+.dropzone:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+/* Prevent double-outline on controls that also set :focus box-shadow */
+.search-input:focus-visible,
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible {
+  box-shadow: 0 0 0 3px var(--brand-bg);
+}
+
 /* ---------------- Cards ---------------- */
 .card {
   background: var(--surface);
@@ -1139,7 +1174,11 @@
 
 @media (prefers-reduced-motion: reduce) {
   .card, .table-modern tr td, .btn, .module-card, .modal-backdrop, .modal-card,
-  .toast, .chevron, .panel, .panel-backdrop { animation: none !important; transition: none !important; }
+  .toast, .chevron, .panel, .panel-backdrop,
+  .stat-card, .chart-card, .hover-lift,
+  .badge-pulse, .popup-item { animation: none !important; transition: none !important; }
+  .stat-card:hover, .card:hover, .chart-card:hover, .hover-lift:hover,
+  .module-card:hover { transform: none !important; box-shadow: var(--shadow-sm) !important; }
 }
 
 /* ---------------- Slide-in panel ---------------- */
@@ -1368,7 +1407,9 @@
 .module-card:hover .arrow { opacity: 1; transform: translateX(0); }
 
 @media (prefers-reduced-motion: reduce) {
-  .stat-card, .module-card, .btn-primary::after, .card { animation: none !important; transition: none !important; }
+  .stat-card, .module-card, .btn-primary::after, .card,
+  .stat-card:hover, .chart-card:hover, .badge-pulse { animation: none !important; transition: none !important; }
+  .stat-card:hover { transform: none !important; box-shadow: var(--shadow-sm) !important; }
 }
 
 /* ---- Statistics page: entrance & hover animations ---- */
@@ -2758,7 +2799,7 @@
 }
 @media (max-width: 768px) {
   .lesson-viewer { flex-direction: column; }
-  .viewer-sidebar { width: 100%; min-width: 0; max-height: 240px; }
+  .viewer-sidebar { width: 100%; min-width: 0; max-height: 40vh; overflow-y: auto; }
   .viewer-pdf-canvas-wrap { padding: 8px; }
   .viewer-file-card { flex-direction: column; align-items: center; text-align: center; }
   .viewer-file-btns { justify-content: center; }
