@@ -198,7 +198,9 @@ function Forum() {
                             placeholder="Write a reply..."
                             value={replyText}
                             onChange={(e) => setReplyText(e.target.value)}
+                            maxLength={2000}
                         />
+                        <span className={`char-counter${replyText.length > 1900 ? " warn" : ""}`}>{replyText.length}/2000</span>
                         <button className="btn btn-primary btn-sm" onClick={handleReply} disabled={replying || !replyText.trim()} style={{ marginTop: 8 }}>
                             {replying ? "Posting..." : "Post Reply"}
                         </button>
@@ -292,8 +294,10 @@ function Forum() {
                         placeholder="e.g. Question about Lesson 3"
                         value={form.title}
                         onChange={(e) => setForm({ ...form, title: e.target.value })}
+                        maxLength={200}
                         autoFocus
                     />
+                    <span className={`char-counter${form.title.length > 180 ? " warn" : ""}`}>{form.title.length}/200</span>
                 </div>
                 <div className="field">
                     <label>Content</label>
@@ -302,7 +306,9 @@ function Forum() {
                         placeholder="Write your question or discussion topic..."
                         value={form.content}
                         onChange={(e) => setForm({ ...form, content: e.target.value })}
+                        maxLength={2000}
                     />
+                    <span className={`char-counter${form.content.length > 1900 ? " warn" : ""}`}>{form.content.length}/2000</span>
                 </div>
             </SidePanel>
 

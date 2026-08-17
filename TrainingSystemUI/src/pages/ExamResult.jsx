@@ -8,6 +8,7 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import useToast from "../hooks/useToast";
 import SidePanel from "../components/SidePanel";
 import Pagination from "../components/Pagination";
+import TableSkeleton from "../components/TableSkeleton";
 
 const blankForm = () => ({ userID: "", examID: "", score: "" });
 
@@ -155,9 +156,7 @@ function ExamResult() {
             </div>
 
             {loading ? (
-                <div className="loading-row">
-                    <span className="spinner" /> Loading results...
-                </div>
+                <TableSkeleton rows={5} columns={7} />
             ) : results.length === 0 ? (
                 <div className="card empty-state">
                     <div className="empty-icon">📊</div>
@@ -168,6 +167,7 @@ function ExamResult() {
                     </p>
                 </div>
             ) : (
+                <div className="table-scroll">
                 <table className="table-modern fade-in">
                     <thead><tr><th>User</th><th>Exam</th><th>Score</th><th>Status</th><th>Grading</th><th>Submitted</th><th></th></tr></thead>
                     <tbody>
@@ -192,6 +192,7 @@ function ExamResult() {
                         ))}
                     </tbody>
                 </table>
+                </div>
             )}
 
             <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />

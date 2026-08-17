@@ -9,6 +9,7 @@ import {
 
 import { getUsers } from "../services/UserService";
 import { getCourses } from "../services/CourseService";
+import TableSkeleton from "../components/TableSkeleton";
 import useToast from "../hooks/useToast";
 import ConfirmDialog from "../components/ConfirmDialog";
 import SidePanel from "../components/SidePanel";
@@ -194,9 +195,7 @@ function Enrollment() {
             </div>
 
             {loading ? (
-                <div className="loading-row">
-                    <span className="spinner" /> Loading enrollments...
-                </div>
+                <TableSkeleton rows={5} columns={5} />
             ) : enrollments.length === 0 ? (
                 <div className="card empty-state">
                     <div className="empty-icon">🎓</div>
@@ -207,6 +206,7 @@ function Enrollment() {
                     </p>
                 </div>
             ) : (
+                <div className="table-scroll">
                 <table className="table-modern fade-in">
 
                     <thead>
@@ -251,6 +251,7 @@ function Enrollment() {
                     </tbody>
 
                 </table>
+                </div>
             )}
 
             <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />

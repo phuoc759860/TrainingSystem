@@ -9,6 +9,7 @@ import {
 } from "../services/QuestionService";
 
 import { getExams } from "../services/ExamService";
+import TableSkeleton from "../components/TableSkeleton";
 import ConfirmDialog from "../components/ConfirmDialog";
 import Pagination from "../components/Pagination";
 import useToast from "../hooks/useToast";
@@ -659,9 +660,7 @@ function Question() {
             )}
 
             {loading ? (
-                <div className="loading-row">
-                    <span className="spinner" /> Loading questions...
-                </div>
+                <TableSkeleton rows={5} columns={6} />
             ) : questions.length === 0 ? (
                 <div className="card empty-state">
                     <div className="empty-icon">❓</div>
@@ -674,6 +673,7 @@ function Question() {
                     </p>
                 </div>
             ) : (
+                <div className="table-scroll">
                 <table className="table-modern fade-in">
 
                     <thead>
@@ -720,6 +720,7 @@ function Question() {
                     </tbody>
 
                 </table>
+                </div>
             )}
 
             <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />

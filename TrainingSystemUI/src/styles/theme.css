@@ -763,6 +763,8 @@
   background: #fff;
   box-shadow: 0 0 0 4px var(--brand-bg);
 }
+.char-counter { display: block; text-align: right; font-size: 11px; color: var(--ink-soft); margin-top: 4px; }
+.char-counter.warn { color: var(--danger); font-weight: 600; }
 
 /* ---------------- Tables ---------------- */
 .table-modern { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
@@ -781,6 +783,17 @@
 .table-modern tr:last-child td { border-bottom: none; }
 .table-modern tr td { transition: background-color .12s ease; }
 .table-modern tr:hover td { background: var(--surface-alt); }
+
+/* Table scroll wrapper for responsive overflow */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--radius); box-shadow: var(--shadow-sm); }
+.table-scroll .table-modern { box-shadow: none; }
+
+/* Table skeleton loading placeholder */
+.table-skeleton .skel { display: block; height: 12px; border-radius: 6px; background: var(--surface-sunken); animation: skeletonPulse 1.2s ease-in-out infinite; }
+.table-skeleton .skel-th { height: 10px; width: 60%; }
+.table-skeleton .skel-td { height: 14px; }
+.table-skeleton th { padding: 14px 18px; background: var(--surface-sunken); }
+.table-skeleton td { padding: 14px 18px; border-bottom: 1px solid var(--border); }
 
 /* ---------------- Badges & pills ---------------- */
 .badge { display: inline-flex; align-items: center; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; }

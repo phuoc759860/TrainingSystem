@@ -9,6 +9,7 @@ import {
 import { getRoles } from "../services/RoleService";
 import ConfirmDialog from "../components/ConfirmDialog";
 import SidePanel from "../components/SidePanel";
+import TableSkeleton from "../components/TableSkeleton";
 import Pagination from "../components/Pagination";
 import useToast from "../hooks/useToast";
 
@@ -200,9 +201,7 @@ function User() {
             </div>
 
             {loading ? (
-                <div className="loading-row">
-                    <span className="spinner" /> Loading users...
-                </div>
+                <TableSkeleton rows={5} columns={4} />
             ) : users.length === 0 ? (
                 <div className="card empty-state">
                     <div className="empty-icon">👤</div>
@@ -213,6 +212,7 @@ function User() {
                     </p>
                 </div>
             ) : (
+                <div className="table-scroll">
                 <table className="table-modern fade-in">
 
                     <thead>
@@ -251,6 +251,7 @@ function User() {
                     </tbody>
 
                 </table>
+                </div>
             )}
 
             {!loading && totalPages > 1 && (

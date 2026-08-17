@@ -199,11 +199,13 @@ function Inbox() {
                 </div>
                 <div className="field" style={{ marginBottom: 16 }}>
                     <label>Subject</label>
-                    <input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} placeholder="Subject" />
+                    <input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} placeholder="Subject" maxLength={200} />
+                    <span className={`char-counter${form.subject.length > 180 ? " warn" : ""}`}>{form.subject.length}/200</span>
                 </div>
                 <div className="field">
                     <label>Message</label>
-                    <textarea rows="8" value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} placeholder="Write your message..." />
+                    <textarea rows="8" value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} placeholder="Write your message..." maxLength={2000} />
+                    <span className={`char-counter${form.body.length > 1900 ? " warn" : ""}`}>{form.body.length}/2000</span>
                 </div>
             </SidePanel>
 

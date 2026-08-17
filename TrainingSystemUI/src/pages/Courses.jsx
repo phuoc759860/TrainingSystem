@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import useDebouncedValue from "../hooks/useDebouncedValue";
 import { getUsers } from "../services/UserService";
+import TableSkeleton from "../components/TableSkeleton";
 import {
     getCourses,
     createCourse,
@@ -232,9 +233,7 @@ function Course() {
             </div>
 
             {loading ? (
-                <div className="loading-row">
-                    <span className="spinner" /> Loading courses...
-                </div>
+                <TableSkeleton rows={5} columns={6} />
             ) : courses.length === 0 ? (
                 <div className="card empty-state">
                     <div className="empty-icon">📚</div>
@@ -245,6 +244,7 @@ function Course() {
                     </p>
                 </div>
             ) : (
+                <div className="table-scroll">
                 <table className="table-modern fade-in">
 
                     <thead>
@@ -307,6 +307,7 @@ function Course() {
                     </tbody>
 
                 </table>
+                </div>
             )}
 
             <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />

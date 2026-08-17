@@ -100,9 +100,11 @@ export default function CourseChat({ courseId, courseTitle }) {
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSend()}
                     placeholder="Type a message..."
+                    maxLength={2000}
                     disabled={!connected}
                 />
                 <button className="btn btn-primary btn-sm" onClick={handleSend} disabled={!connected || !input.trim()}>Send</button>
+                <span className={`char-counter${input.length > 1900 ? " warn" : ""}`}>{input.length}/2000</span>
             </div>
         </div>
     );

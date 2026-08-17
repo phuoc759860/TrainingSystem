@@ -3,6 +3,7 @@ import { getMyGrades } from "../services/GradeService";
 import useToast from "../hooks/useToast";
 import MiniBar from "../components/MiniBar";
 import { scoreColor, scoreCardClass, scoreGrade } from "../utils/grading";
+import TableSkeleton from "../components/TableSkeleton";
 
 function Grades() {
     const [grades, setGrades] = useState([]);
@@ -41,9 +42,7 @@ function Grades() {
             </div>
 
             {loading ? (
-                <div className="loading-row">
-                    <span className="spinner" /> Loading grades...
-                </div>
+                <TableSkeleton rows={5} columns={5} />
             ) : grades.length === 0 ? (
                 <div className="card empty-state">
                     <div className="empty-icon">📋</div>
@@ -72,6 +71,7 @@ function Grades() {
                         </div>
                     </div>
 
+                    <div className="table-scroll">
                     <table className="table-modern fade-in">
                         <thead>
                             <tr>
@@ -155,6 +155,7 @@ function Grades() {
                             ))}
                         </tbody>
                     </table>
+                </div>
                 </>
             )}
 

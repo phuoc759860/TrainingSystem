@@ -8,6 +8,7 @@ import {
 import ConfirmDialog from "../components/ConfirmDialog";
 import useToast from "../hooks/useToast";
 import SidePanel from "../components/SidePanel";
+import TableSkeleton from "../components/TableSkeleton";
 
 function Role() {
 
@@ -141,9 +142,7 @@ function Role() {
             </div>
 
             {loading ? (
-                <div className="loading-row">
-                    <span className="spinner" /> Loading roles...
-                </div>
+                <TableSkeleton rows={5} columns={2} />
             ) : filteredRoles.length === 0 ? (
                 <div className="card empty-state">
                     <div className="empty-icon">🏷️</div>
@@ -154,6 +153,7 @@ function Role() {
                     </p>
                 </div>
             ) : (
+                <div className="table-scroll">
                 <table className="table-modern fade-in">
 
                     <thead>
@@ -188,6 +188,7 @@ function Role() {
                     </tbody>
 
                 </table>
+                </div>
             )}
 
             <SidePanel
