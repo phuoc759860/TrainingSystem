@@ -73,28 +73,37 @@ function Login() {
         >
             <form onSubmit={handleLogin} className="space-y-5">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email</label>
                     <input
                         type="email"
                         placeholder="you@example.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:bg-white focus:border-brand-400 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all"
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200/80 text-sm outline-none transition-all"
+                        style={{ background: "rgba(247,247,251,.7)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}
+                        onFocus={(e) => { e.target.style.background = "#fff"; e.target.style.boxShadow = "0 0 0 4px rgba(108,92,231,.1), 0 4px 12px -2px rgba(108,92,231,.12)"; e.target.style.borderColor = "#6c5ce7"; }}
+                        onBlur={(e) => { e.target.style.background = "rgba(247,247,251,.7)"; e.target.style.boxShadow = "none"; e.target.style.borderColor = ""; }}
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Password</label>
                     <input
                         type="password"
                         placeholder="••••••••"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:bg-white focus:border-brand-400 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all"
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200/80 text-sm outline-none transition-all"
+                        style={{ background: "rgba(247,247,251,.7)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}
+                        onFocus={(e) => { e.target.style.background = "#fff"; e.target.style.boxShadow = "0 0 0 4px rgba(108,92,231,.1), 0 4px 12px -2px rgba(108,92,231,.12)"; e.target.style.borderColor = "#6c5ce7"; }}
+                        onBlur={(e) => { e.target.style.background = "rgba(247,247,251,.7)"; e.target.style.boxShadow = "none"; e.target.style.borderColor = ""; }}
                     />
                 </div>
                 <button
                     type="submit"
-                    className="w-full py-2.5 px-4 rounded-xl bg-linear-to-t from-brand-600 to-brand-500 text-white font-semibold text-sm shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 hover:from-brand-700 hover:to-brand-600 active:scale-[0.98] transition-all"
+                    className="w-full py-2.5 px-4 rounded-xl text-white font-semibold text-sm transition-all"
+                    style={{ background: "linear-gradient(135deg, #6c5ce7, #a78bfa)", boxShadow: "0 6px 20px -4px rgba(108,92,231,.5), inset 0 1px 0 rgba(255,255,255,.15)" }}
+                    onMouseEnter={(e) => { e.target.style.boxShadow = "0 10px 30px -4px rgba(108,92,231,.6), inset 0 1px 0 rgba(255,255,255,.15)"; e.target.style.transform = "translateY(-1px)"; }}
+                    onMouseLeave={(e) => { e.target.style.boxShadow = "0 6px 20px -4px rgba(108,92,231,.5), inset 0 1px 0 rgba(255,255,255,.15)"; e.target.style.transform = "none"; }}
                 >
                     Sign in
                 </button>
