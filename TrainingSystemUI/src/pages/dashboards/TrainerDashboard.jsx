@@ -5,19 +5,7 @@ import { BookOpen, CheckCircle, Target, ClipboardList, FileText, BarChart3, Arro
 import { getTrainerDashboard } from "../../services/DashboardService";
 import { getQuickAccess, getSidebarIcon } from "../../config/navigation";
 import AnimatedNumber from "../../components/AnimatedNumber";
-
-function getGreeting() {
-    const h = new Date().getHours();
-    if (h < 12) return "Good morning";
-    if (h < 18) return "Good afternoon";
-    return "Good evening";
-}
-
-function formatTime() {
-    return new Date().toLocaleDateString("en-US", {
-        weekday: "long", year: "numeric", month: "long", day: "numeric"
-    });
-}
+import { getGreeting, formatTime } from "../../utils/dashboard";
 
 export default function TrainerDashboard() {
     const navigate = useNavigate();
@@ -53,7 +41,7 @@ export default function TrainerDashboard() {
         <div className="page">
             <div className="welcome-banner">
                 <div>
-                    <h2>{greeting}, {name || "Trainer"} 👋</h2>
+                    <h2>{greeting}, {name || "Trainer"}</h2>
                     <p>{today} &middot; Training Management Panel</p>
                 </div>
                 <span className="badge" style={{ fontSize: 13, padding: "6px 14px", background: "rgba(255,255,255,.2)", color: "#fff" }}>Trainer</span>

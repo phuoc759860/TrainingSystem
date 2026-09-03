@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { User as UserIcon } from "lucide-react";
 import useDebouncedValue from "../hooks/useDebouncedValue";
 import {
     getUsers,
@@ -204,7 +205,7 @@ function User() {
                 <TableSkeleton rows={5} columns={4} />
             ) : users.length === 0 ? (
                 <div className="card empty-state">
-                    <div className="empty-icon">👤</div>
+                    <div className="empty-icon"><UserIcon size={28} strokeWidth={1.7} /></div>
                     <p>
                         {search || roleFilter
                             ? "No users match your filters."

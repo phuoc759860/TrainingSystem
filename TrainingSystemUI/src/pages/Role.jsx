@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { Tag } from "lucide-react";
 import {
     getRoles,
     createRole,
@@ -145,7 +146,7 @@ function Role() {
                 <TableSkeleton rows={5} columns={2} />
             ) : filteredRoles.length === 0 ? (
                 <div className="card empty-state">
-                    <div className="empty-icon">🏷️</div>
+                    <div className="empty-icon"><Tag size={28} strokeWidth={1.7} /></div>
                     <p>
                         {search
                             ? "No roles match your search."

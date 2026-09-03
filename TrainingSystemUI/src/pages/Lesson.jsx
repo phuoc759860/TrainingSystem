@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FileText } from "lucide-react";
 import useDebouncedValue from "../hooks/useDebouncedValue";
 import { useNavigate, useLocation } from "react-router-dom";
 import TableSkeleton from "../components/TableSkeleton";
@@ -299,7 +300,7 @@ function Lesson() {
                 <TableSkeleton rows={5} columns={7} />
             ) : filteredLessons.length === 0 ? (
                 <div className="card empty-state">
-                    <div className="empty-icon">📓</div>
+                    <div className="empty-icon"><FileText size={28} strokeWidth={1.7} /></div>
                     <p>
                         {search || courseId || completionFilter
                             ? "No lessons match your filters."

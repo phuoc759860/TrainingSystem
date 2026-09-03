@@ -1,23 +1,14 @@
 import useAuth from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Users, BookOpen, CheckCircle, ClipboardList, KeyRound, ArrowRight } from "lucide-react";
+import {
+    Users, BookOpen, CheckCircle, ClipboardList, ArrowRight,
+    Key, GraduationCap, Paperclip, Target, BarChart3,
+} from "lucide-react";
 import { getAdminDashboard } from "../../services/DashboardService";
 import { getQuickAccess, getSidebarIcon } from "../../config/navigation";
 import AnimatedNumber from "../../components/AnimatedNumber";
-
-function getGreeting() {
-    const h = new Date().getHours();
-    if (h < 12) return "Good morning";
-    if (h < 18) return "Good afternoon";
-    return "Good evening";
-}
-
-function formatTime() {
-    return new Date().toLocaleDateString("en-US", {
-        weekday: "long", year: "numeric", month: "long", day: "numeric"
-    });
-}
+import { getGreeting, formatTime } from "../../utils/dashboard";
 
 export default function AdminDashboard() {
     const navigate = useNavigate();
@@ -50,7 +41,7 @@ export default function AdminDashboard() {
         <div className="page">
             <div className="welcome-banner">
                 <div>
-                    <h2>{greeting}, {name || "Admin"} 👋</h2>
+                    <h2>{greeting}, {name || "Admin"}</h2>
                     <p>{today} &middot; System Administration Panel</p>
                 </div>
                 <span className="badge" style={{ fontSize: 13, padding: "6px 14px", background: "rgba(255,255,255,.2)", color: "#fff" }}>Admin</span>
@@ -89,17 +80,17 @@ export default function AdminDashboard() {
                                             <div className="stat-card-popup-arrow" />
                                             <div className="popup-title">Role Breakdown</div>
                                             <div className="popup-item">
-                                                <span className="popup-icon">🔑</span>
+                                                <span className="popup-icon"><Key size={14} strokeWidth={2} /></span>
                                                 <span className="popup-label">Admins</span>
                                                 <span className="popup-count"><AnimatedNumber value={stats.adminCount} /></span>
                                             </div>
                                             <div className="popup-item">
-                                                <span className="popup-icon">👨‍🏫</span>
+                                                <span className="popup-icon"><GraduationCap size={14} strokeWidth={2} /></span>
                                                 <span className="popup-label">Trainers</span>
                                                 <span className="popup-count"><AnimatedNumber value={stats.trainerCount} /></span>
                                             </div>
                                             <div className="popup-item">
-                                                <span className="popup-icon">🎓</span>
+                                                <span className="popup-icon"><Users size={14} strokeWidth={2} /></span>
                                                 <span className="popup-label">Students</span>
                                                 <span className="popup-count"><AnimatedNumber value={stats.studentCount} /></span>
                                             </div>
@@ -111,17 +102,17 @@ export default function AdminDashboard() {
                                             <div className="stat-card-popup-arrow" />
                                             <div className="popup-title">Course Overview</div>
                                             <div className="popup-item">
-                                                <span className="popup-icon">📖</span>
+                                                <span className="popup-icon"><BookOpen size={14} strokeWidth={2} /></span>
                                                 <span className="popup-label">Total Lessons</span>
                                                 <span className="popup-count"><AnimatedNumber value={stats.totalLessons} /></span>
                                             </div>
                                             <div className="popup-item">
-                                                <span className="popup-icon">📋</span>
+                                                <span className="popup-icon"><ClipboardList size={14} strokeWidth={2} /></span>
                                                 <span className="popup-label">Enrollments</span>
                                                 <span className="popup-count"><AnimatedNumber value={stats.totalEnrollments} /></span>
                                             </div>
                                             <div className="popup-item">
-                                                <span className="popup-icon">📎</span>
+                                                <span className="popup-icon"><Paperclip size={14} strokeWidth={2} /></span>
                                                 <span className="popup-label">Materials</span>
                                                 <span className="popup-count"><AnimatedNumber value={stats.totalMaterials} /></span>
                                             </div>
@@ -133,17 +124,17 @@ export default function AdminDashboard() {
                                             <div className="stat-card-popup-arrow" />
                                             <div className="popup-title">Content Stats</div>
                                             <div className="popup-item">
-                                                <span className="popup-icon">📚</span>
+                                                <span className="popup-icon"><BookOpen size={14} strokeWidth={2} /></span>
                                                 <span className="popup-label">Courses</span>
                                                 <span className="popup-count"><AnimatedNumber value={stats.totalCourses} /></span>
                                             </div>
                                             <div className="popup-item">
-                                                <span className="popup-icon">📎</span>
+                                                <span className="popup-icon"><Paperclip size={14} strokeWidth={2} /></span>
                                                 <span className="popup-label">Materials</span>
                                                 <span className="popup-count"><AnimatedNumber value={stats.totalMaterials} /></span>
                                             </div>
                                             <div className="popup-item">
-                                                <span className="popup-icon">🎯</span>
+                                                <span className="popup-icon"><Target size={14} strokeWidth={2} /></span>
                                                 <span className="popup-label">Quizzes</span>
                                                 <span className="popup-count"><AnimatedNumber value={stats.totalQuizzes} /></span>
                                             </div>
@@ -155,19 +146,19 @@ export default function AdminDashboard() {
                                             <div className="stat-card-popup-arrow" />
                                             <div className="popup-title">Exam Performance</div>
                                             <div className="popup-item">
-                                                <span className="popup-icon">📊</span>
+                                                <span className="popup-icon"><BarChart3 size={14} strokeWidth={2} /></span>
                                                 <span className="popup-label">Results Submitted</span>
                                                 <span className="popup-count"><AnimatedNumber value={stats.totalResults} /></span>
                                             </div>
                                             <div className="popup-item">
-                                                <span className="popup-icon">✅</span>
+                                                <span className="popup-icon"><CheckCircle size={14} strokeWidth={2} /></span>
                                                 <span className="popup-label">Pass Rate</span>
                                                 <span className={`popup-count ${stats.totalResults > 0 && stats.passedResults / stats.totalResults >= 0.5 ? "stat-card-popup-count-pass" : "stat-card-popup-count-fail"}`}>
                                                     {stats.totalResults > 0 ? Math.round(stats.passedResults / stats.totalResults * 100) + "%" : "—"}
                                                 </span>
                                             </div>
                                             <div className="popup-item">
-                                                <span className="popup-icon">🎯</span>
+                                                <span className="popup-icon"><Target size={14} strokeWidth={2} /></span>
                                                 <span className="popup-label">Quizzes</span>
                                                 <span className="popup-count"><AnimatedNumber value={stats.totalQuizzes} /></span>
                                             </div>
@@ -179,17 +170,17 @@ export default function AdminDashboard() {
                                             <div className="stat-card-popup-arrow" />
                                             <div className="popup-title">Enrollment Details</div>
                                             <div className="popup-item">
-                                                <span className="popup-icon">✅</span>
+                                                <span className="popup-icon"><CheckCircle size={14} strokeWidth={2} /></span>
                                                 <span className="popup-label">Active Now</span>
                                                 <span className="popup-count"><AnimatedNumber value={stats.activeEnrollments} /></span>
                                             </div>
                                             <div className="popup-item">
-                                                <span className="popup-icon">👥</span>
+                                                <span className="popup-icon"><Users size={14} strokeWidth={2} /></span>
                                                 <span className="popup-label">Total Users</span>
                                                 <span className="popup-count"><AnimatedNumber value={stats.totalUsers} /></span>
                                             </div>
                                             <div className="popup-item">
-                                                <span className="popup-icon">🎓</span>
+                                                <span className="popup-icon"><GraduationCap size={14} strokeWidth={2} /></span>
                                                 <span className="popup-label">Students</span>
                                                 <span className="popup-count"><AnimatedNumber value={stats.studentCount} /></span>
                                             </div>

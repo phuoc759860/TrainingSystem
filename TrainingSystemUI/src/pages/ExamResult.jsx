@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { BarChart3 } from "lucide-react";
 import useDebouncedValue from "../hooks/useDebouncedValue";
 import { useNavigate } from "react-router-dom";
 import { getExamResults, createExamResult, updateExamResult, deleteExamResult } from "../services/ExamResultService";
@@ -159,7 +160,7 @@ function ExamResult() {
                 <TableSkeleton rows={5} columns={7} />
             ) : results.length === 0 ? (
                 <div className="card empty-state">
-                    <div className="empty-icon">📊</div>
+                    <div className="empty-icon"><BarChart3 size={28} strokeWidth={1.7} /></div>
                     <p>
                         {search || gradingFilter !== "all"
                             ? "No results match your filters."

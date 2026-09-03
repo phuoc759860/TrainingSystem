@@ -589,6 +589,26 @@ namespace TrainingSystem.Controllers
             });
         }
 
+        [HttpGet("trainers")]
+        public async Task<ActionResult<IEnumerable<UserDto>>> GetTrainers()
+        {
+            var trainers = await _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.Role!.RoleName == "Trainer")
+                .OrderBy(u => u.Name)
+                .Select(u => new UserDto
+                {
+                    UserID = u.UserID,
+                    Name = u.Name,
+                    Email = u.Email,
+                    RoleID = u.RoleID,
+                    RoleName = u.Role!.RoleName
+                })
+                .ToListAsync();
+
+            return Ok(trainers);
+        }
+
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<PaginatedResult<UserDto>>> GetUsers(

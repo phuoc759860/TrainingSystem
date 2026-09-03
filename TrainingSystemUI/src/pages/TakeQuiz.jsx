@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getQuizForTaking, submitQuiz } from "../services/QuizService";
 import useToast from "../hooks/useToast";
+import { Check } from "lucide-react";
 
 function TakeQuiz() {
     const { quizId } = useParams();
@@ -123,7 +124,7 @@ function TakeQuiz() {
                                     border: oIdx === ans.selectedIndex ? "1px solid var(--border)" : "1px solid transparent"
                                 }}>
                                     {oIdx === ans.selectedIndex && "→ "}{opt}
-                                    {oIdx === ans.correctIndex && " ✓"}
+                                    {oIdx === ans.correctIndex && <Check size={14} strokeWidth={2.5} style={{ color: "var(--success)", verticalAlign: -2 }} />}
                                 </div>
                             ))}
                         </div>

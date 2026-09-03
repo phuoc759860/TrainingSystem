@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { GraduationCap } from "lucide-react";
 import useDebouncedValue from "../hooks/useDebouncedValue";
 import {
     getEnrollments,
@@ -198,7 +199,7 @@ function Enrollment() {
                 <TableSkeleton rows={5} columns={5} />
             ) : enrollments.length === 0 ? (
                 <div className="card empty-state">
-                    <div className="empty-icon">🎓</div>
+                    <div className="empty-icon"><GraduationCap size={28} strokeWidth={1.7} /></div>
                     <p>
                         {search
                             ? "No enrollments match your search."

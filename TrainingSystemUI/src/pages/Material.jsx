@@ -13,6 +13,7 @@ import {
 import { getLessons } from "../services/LessonService";
 import ConfirmDialog from "../components/ConfirmDialog";
 import useToast from "../hooks/useToast";
+import { Video, FileText, FolderOpen, Paperclip, Upload, Link, Check } from "lucide-react";
 import SidePanel from "../components/SidePanel";
 import Pagination from "../components/Pagination";
 
@@ -158,7 +159,7 @@ function VideoRecorder({ onRecordingComplete }) {
     if (state === "idle") {
         return (
             <div className="recorder-start">
-                <div className="recorder-icon">🎥</div>
+                <div className="recorder-icon"><Video size={32} /></div>
                 <p>Record a video using your camera and microphone</p>
                 <button className="btn btn-primary" onClick={startCamera}>
                     Start Camera
@@ -283,7 +284,7 @@ function DropZone({ onFileSelect, currentFile, accept }) {
                                 <audio controls src={previewUrl} />
                             </div>
                         ) : (
-                            <div className="dropzone-file-icon">📄</div>
+                            <div className="dropzone-file-icon"><FileText size={32} /></div>
                         )}
                         <div className="dropzone-file-info">
                             <span className="dropzone-file-name" title={currentFile.name}>{truncateFilename(currentFile.name)}</span>
@@ -295,7 +296,7 @@ function DropZone({ onFileSelect, currentFile, accept }) {
                     </div>
                 ) : (
                     <div className="dropzone-empty">
-                        <div className="dropzone-icon">📁</div>
+                        <div className="dropzone-icon"><FolderOpen size={32} /></div>
                         <p>Drag & drop a file here, or click to browse</p>
                         <p className="dropzone-hint">Supports: MP4, WebM, MOV, MP3, WAV, M4A, PDF, DOC, PPT, images, and more (up to 500MB for video & audio)</p>
                     </div>
@@ -595,7 +596,7 @@ function Material() {
                 </div>
             ) : materials.length === 0 ? (
                 <div className="card empty-state">
-                    <div className="empty-icon">📎</div>
+                    <div className="empty-icon"><Paperclip size={32} /></div>
                     <p>
                         {lessonFilter
                             ? "No materials for this lesson yet."
@@ -719,19 +720,19 @@ function Material() {
                                 className={`input-tab ${inputTab === "upload" ? "active" : ""}`}
                                 onClick={() => { setInputTab("upload"); setForm(prev => ({ ...prev, file: null, videoUrl: "" })); }}
                             >
-                                📤 Upload File
+                                <Upload size={16} style={{ verticalAlign: -2 }} /> Upload File
                             </button>
                             <button
                                 className={`input-tab ${inputTab === "record" ? "active" : ""}`}
                                 onClick={() => { setInputTab("record"); setForm(prev => ({ ...prev, file: null, videoUrl: "" })); }}
                             >
-                                🎥 Record Video
+                                <Video size={16} style={{ verticalAlign: -2 }} /> Record Video
                             </button>
                             <button
                                 className={`input-tab ${inputTab === "url" ? "active" : ""}`}
                                 onClick={() => { setInputTab("url"); setForm(prev => ({ ...prev, file: null, videoUrl: "" })); }}
                             >
-                                🔗 Video URL
+                                <Link size={16} style={{ verticalAlign: -2 }} /> Video URL
                             </button>
                         </div>
                     </div>
@@ -759,7 +760,7 @@ function Material() {
                         />
                         {form.file && form.file.name?.startsWith("recording-") && (
                             <div className="recorder-done">
-                                ✓ Recording ready: {form.file.name} ({formatFileSize(form.file.size)})
+                                <Check size={14} strokeWidth={2.5} style={{ color: "var(--success)", verticalAlign: -2 }} /> Recording ready: {form.file.name} ({formatFileSize(form.file.size)})
                             </div>
                         )}
                     </div>

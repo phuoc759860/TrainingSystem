@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
+import { AlertTriangle } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getExamQuestions, submitExam } from "../services/ExamService";
 import useToast from "../hooks/useToast";
@@ -192,7 +193,7 @@ function TakeExam() {
                     <p>{error}</p>
                 </div>
                 <div className="card empty-state">
-                    <div className="empty-icon">⚠️</div>
+                    <div className="empty-icon"><AlertTriangle size={28} strokeWidth={1.7} /></div>
                     <p style={{ color: "var(--danger)" }}>{error}</p>
                     <button className="btn btn-outline" onClick={() => navigate(-1)} style={{ marginTop: 12 }}>
                         Go Back

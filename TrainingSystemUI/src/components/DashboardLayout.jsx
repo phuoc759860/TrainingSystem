@@ -1,6 +1,6 @@
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
-import { PanelLeftClose, PanelLeft, LogOut } from "lucide-react";
+import { PanelLeftClose, PanelLeft, LogOut, Menu } from "lucide-react";
 import NotificationsDropdown from "./NotificationsDropdown";
 import { SIDEBAR, getSidebarIcon } from "../config/navigation";
 import useAuth from "../hooks/useAuth";
@@ -9,7 +9,8 @@ function DashboardLayout({ children }) {
     const navigate = useNavigate();
     const location = useLocation();
     const { role, name, email, logout: doLogout } = useAuth();
-    const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, setCollapsed] = useState(() => window.innerWidth > 768);
+    const [mobileOpen, setMobileOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const userMenuRef = useRef(null);
 
@@ -21,6 +22,23 @@ function DashboardLayout({ children }) {
         };
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    useEffect(() => {
+        if (window.innerWidth <= 768) {
+            setMobileOpen(false);
+            setUserMenuOpen(false);
+        }
+    }, [location.pathname]);
+
+    useEffect(() => {
+        const onResize = () => {
+            if (window.innerWidth > 768) {
+                setMobileOpen(false);
+            }
+        };
+        window.addEventListener("resize", onResize);
+        return () => window.removeEventListener("resize", onResize);
     }, []);
 
     const logout = () => {
@@ -37,9 +55,15 @@ function DashboardLayout({ children }) {
     const allItems = groups.flatMap(g => g.items || []);
     const currentPage = allItems.find(item => location.pathname === item.path);
 
+    const showMobileBackdrop = mobileOpen && window.innerWidth <= 768;
+
     return (
         <div className={`layout ${collapsed ? "layout-collapsed" : ""}`}>
-            <aside className="sidebar">
+            {showMobileBackdrop && (
+                <div className="sidebar-backdrop" onClick={() => setMobileOpen(false)} />
+            )}
+
+            <aside className={`sidebar ${mobileOpen ? "sidebar-mobile-open" : ""}`}>
                 <div className="sidebar-header">
                     <div className="sidebar-logo">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--brand-light)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -49,7 +73,7 @@ function DashboardLayout({ children }) {
                         {!collapsed && <span className="sidebar-brand-text">TrainingHub</span>}
                     </div>
                     <button
-                        className="sidebar-toggle"
+                        className="sidebar-toggle sidebar-toggle-desktop"
                         onClick={() => setCollapsed(!collapsed)}
                         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
                         title={collapsed ? "Expand" : "Collapse"}
@@ -115,6 +139,13 @@ function DashboardLayout({ children }) {
             <div className="layout-main-wrapper">
                 <header className="topnav">
                     <div className="topnav-left">
+                        <button
+                            className="topnav-hamburger"
+                            onClick={() => setMobileOpen(true)}
+                            aria-label="Open navigation menu"
+                        >
+                            <Menu size={20} />
+                        </button>
                         <div className="topnav-breadcrumb">
                             <a href="/dashboard">Home</a>
                             <span className="separator">/</span>

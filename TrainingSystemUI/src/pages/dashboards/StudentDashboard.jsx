@@ -1,23 +1,11 @@
 import useAuth from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { BookOpen, BookMarked, CheckCircle, GraduationCap, BarChart3, ArrowRight } from "lucide-react";
+import { BookOpen, BookMarked, CheckCircle, GraduationCap, BarChart3, ArrowRight, XCircle } from "lucide-react";
 import { getStudentDashboard } from "../../services/DashboardService";
 import { getQuickAccess, getSidebarIcon } from "../../config/navigation";
 import AnimatedNumber from "../../components/AnimatedNumber";
-
-function getGreeting() {
-    const h = new Date().getHours();
-    if (h < 12) return "Good morning";
-    if (h < 18) return "Good afternoon";
-    return "Good evening";
-}
-
-function formatTime() {
-    return new Date().toLocaleDateString("en-US", {
-        weekday: "long", year: "numeric", month: "long", day: "numeric"
-    });
-}
+import { getGreeting, formatTime } from "../../utils/dashboard";
 
 export default function StudentDashboard() {
     const navigate = useNavigate();
@@ -42,7 +30,7 @@ export default function StudentDashboard() {
         <div className="page">
             <div className="welcome-banner">
                 <div>
-                    <h2>{greeting}, {name || "Student"} 👋</h2>
+                    <h2>{greeting}, {name || "Student"}</h2>
                     <p>{today} &middot; Learning Panel</p>
                 </div>
                 <span className="badge" style={{ fontSize: 13, padding: "6px 14px", background: "rgba(255,255,255,.2)", color: "#fff" }}>Student</span>
@@ -162,7 +150,7 @@ export default function StudentDashboard() {
                                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                                         {stats.recentGrades.map((g) => (
                                             <div key={g.resultID} className="exam-row">
-                                                <span style={{ fontSize: 16 }}>{g.passed ? "✅" : "❌"}</span>
+                                                <span style={{ fontSize: 16, color: g.passed ? "var(--success)" : "var(--danger)" }}>{g.passed ? <CheckCircle size={18} /> : <XCircle size={18} />}</span>
                                                 <div style={{ flex: 1, minWidth: 0 }}>
                                                     <div className="exam-row-title">{g.examTitle}</div>
                                                     <div className="exam-row-course">{g.courseTitle}</div>

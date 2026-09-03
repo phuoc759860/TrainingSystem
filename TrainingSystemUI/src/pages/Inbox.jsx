@@ -5,6 +5,7 @@ import { getRecipients } from "../services/UserService";
 import SidePanel from "../components/SidePanel";
 import ConfirmDialog from "../components/ConfirmDialog";
 import useToast from "../hooks/useToast";
+import { Mail } from "lucide-react";
 
 function Inbox() {
     const navigate = useNavigate();
@@ -144,7 +145,7 @@ function Inbox() {
                 <div className="loading-row"><span className="spinner" /> Loading...</div>
             ) : messages.length === 0 ? (
                 <div className="card empty-state">
-                    <div className="empty-icon">📧</div>
+                    <div className="empty-icon"><Mail size={28} strokeWidth={1.7} /></div>
                     <p>{tab === "inbox" ? "No messages yet." : "No sent messages."}</p>
                 </div>
             ) : (

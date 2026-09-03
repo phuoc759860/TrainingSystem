@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ClipboardList, Check } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 import { useParams, useNavigate } from "react-router-dom";
 import { getQuizAttempts, getAttemptDetail, getQuiz } from "../services/QuizService";
@@ -72,7 +73,7 @@ function QuizAttempts() {
                                     fontWeight: oIdx === ans.selectedIndex ? 600 : 400
                                 }}>
                                     {oIdx === ans.selectedIndex && "→ "}{opt}
-                                    {oIdx === ans.correctIndex && " ✓"}
+                                    {oIdx === ans.correctIndex && <Check size={14} strokeWidth={2.5} style={{ color: "var(--success)", verticalAlign: -2 }} />}
                                 </div>
                             ))}
                         </div>
@@ -92,7 +93,7 @@ function QuizAttempts() {
 
             {attempts.length === 0 ? (
                 <div className="card empty-state">
-                    <div className="empty-icon">📋</div>
+                    <div className="empty-icon"><ClipboardList size={28} strokeWidth={1.7} /></div>
                     <p>No attempts yet.</p>
                 </div>
             ) : (

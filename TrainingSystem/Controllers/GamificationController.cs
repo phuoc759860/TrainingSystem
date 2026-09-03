@@ -41,7 +41,8 @@ namespace TrainingSystem.Controllers
 
             var earnedBadges = await _context.UserBadges
                 .Where(ub => ub.UserID == CurrentUserId)
-                .ToDictionaryAsync(ub => ub.BadgeID, ub => ub.EarnedAt);
+                .GroupBy(ub => ub.BadgeID)
+                .ToDictionaryAsync(g => g.Key, g => g.First().EarnedAt);
 
             var dtos = allBadges.Select(b => new BadgeDto
             {

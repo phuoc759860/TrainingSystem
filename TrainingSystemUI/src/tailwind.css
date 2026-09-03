@@ -9,14 +9,14 @@
   --font-sora: Sora, Inter, system-ui, sans-serif;
   --font-mono: Roboto Mono, monospace;
 
-  --color-brand-50: #f1effe;
-  --color-brand-100: #e6e3fd;
-  --color-brand-200: #d5d0fa;
-  --color-brand-300: #b8aff7;
-  --color-brand-400: #8b7ffb;
-  --color-brand-500: #6c5ce7;
-  --color-brand-600: #5646c9;
-  --color-brand-700: #4035a0;
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-300: #93c5fd;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #2563eb;
+  --color-brand-600: #1d4ed8;
+  --color-brand-700: #1e40af;
 
   --text-xs: 0.75rem;
   --text-xs--line-height: 1.5;

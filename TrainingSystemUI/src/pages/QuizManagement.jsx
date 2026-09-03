@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { PenTool } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { getQuizzes, createQuiz, updateQuiz, deleteQuiz, addQuestion, deleteQuestion } from "../services/QuizService";
@@ -207,7 +208,7 @@ function QuizManagement() {
                 <div className="loading-row"><span className="spinner" /> Loading quizzes...</div>
             ) : quizzes.length === 0 ? (
                 <div className="card empty-state">
-                    <div className="empty-icon">📝</div>
+                    <div className="empty-icon"><PenTool size={28} strokeWidth={1.7} /></div>
                     <p>No quizzes yet. Create one to get started.</p>
                 </div>
             ) : (

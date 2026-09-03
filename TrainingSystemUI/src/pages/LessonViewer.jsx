@@ -12,6 +12,7 @@ import { getQuizzes } from "../services/QuizService";
 import * as pdfjsLib from "pdfjs-dist";
 import { getFileUrl } from "../api/axios";
 import useToast from "../hooks/useToast";
+import { Check } from "lucide-react";
 pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
 
 function getEmbedUrl(url) {
@@ -546,7 +547,7 @@ function LessonViewer() {
                                 onClick={() => handleMaterialClick(idx)}
                             >
                                 <div className="viewer-material-check">
-                                    {viewedIds.has(mat.materialID) ? "✓" : (idx + 1)}
+                                    {viewedIds.has(mat.materialID) ? <Check size={14} strokeWidth={2.5} style={{ color: "var(--success)", verticalAlign: -2 }} /> : (idx + 1)}
                                 </div>
                                 <div className="viewer-material-info">
                                     <span className="viewer-material-title">{mat.title}</span>
@@ -562,7 +563,7 @@ function LessonViewer() {
                 {isCompleted ? (
                     <div style={{ padding: "0 16px 8px" }}>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 0", color: "var(--success)", fontWeight: 700, fontSize: 14 }}>
-                            ✓ Lesson Complete
+                            <Check size={14} strokeWidth={2.5} style={{ color: "var(--success)", verticalAlign: -2 }} /> Lesson Complete
                         </div>
                     </div>
                 ) : progressPercent === 100 ? (

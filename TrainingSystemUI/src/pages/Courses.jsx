@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { BookOpen } from "lucide-react";
 import useDebouncedValue from "../hooks/useDebouncedValue";
 import { getUsers } from "../services/UserService";
 import TableSkeleton from "../components/TableSkeleton";
@@ -236,7 +237,7 @@ function Course() {
                 <TableSkeleton rows={5} columns={6} />
             ) : courses.length === 0 ? (
                 <div className="card empty-state">
-                    <div className="empty-icon">📚</div>
+                    <div className="empty-icon"><BookOpen size={28} strokeWidth={1.7} /></div>
                     <p>
                         {search
                             ? "No courses match your search."

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { BookOpen } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { getMyEnrollments } from "../services/EnrollmentService";
@@ -126,7 +127,7 @@ function MyLearning() {
 
             {enrollments.length === 0 ? (
                 <div className="card empty-state">
-                    <div className="empty-icon">📚</div>
+                    <div className="empty-icon"><BookOpen size={28} strokeWidth={1.7} /></div>
                     <p>You're not enrolled in any courses yet.</p>
                 </div>
             ) : (

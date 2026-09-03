@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ClipboardList } from "lucide-react";
 import useDebouncedValue from "../hooks/useDebouncedValue";
 import { useNavigate } from "react-router-dom";
 import TableSkeleton from "../components/TableSkeleton";
@@ -221,7 +222,7 @@ function Exam() {
                 <TableSkeleton rows={5} columns={6} />
             ) : exams.length === 0 ? (
                 <div className="card empty-state">
-                    <div className="empty-icon">📋</div>
+                    <div className="empty-icon"><ClipboardList size={28} strokeWidth={1.7} /></div>
                     <p>
                         {search
                             ? "No exams match your search."

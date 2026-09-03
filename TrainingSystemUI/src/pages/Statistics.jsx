@@ -16,14 +16,19 @@ import MiniBar from "../components/MiniBar";
 import { scoreCardClass, scoreGrade } from "../utils/grading";
 import HcBarChart from "../components/charts/HcBarChart";
 import HcPieChart from "../components/charts/HcPieChart";
+import {
+    AlertTriangle, CheckCircle2, Search, ClipboardList,
+    Lightbulb, BarChart3, BookOpen, Target, Award,
+    Crown, Medal, GraduationCap, FileText, TrendingUp,
+} from "lucide-react";
 
 function cssVar(name, fallback) {
     if (typeof document === "undefined") return fallback;
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
 }
 const SUCCESS = cssVar("--success", "#17a668");
-const BRAND = cssVar("--brand", "#6c5ce7");
-const BRAND_LIGHT = cssVar("--brand-light", "#8b7ffb");
+const BRAND = cssVar("--brand", "#2563eb");
+const BRAND_LIGHT = cssVar("--brand-light", "#60a5fa");
 const DANGER = cssVar("--danger", "#e34a4a");
 
 function scoreColor(value) {
@@ -114,11 +119,15 @@ function ChartSkeleton({ rows = 5, height }) {
     );
 }
 
-function EmptyPrompt({ icon, text }) {
+function EmptyPrompt({ icon: Icon, text }) {
     return (
-        <div className="card empty-state">
-            <div className="empty-icon">{icon}</div>
-            <p>{text}</p>
+        <div className="card empty-state" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", padding: "40px 24px" }}>
+            {Icon && (
+                <div style={{ width: "48px", height: "48px", borderRadius: "14px", background: "var(--surface-sunken, #f1f5f9)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <Icon size={22} strokeWidth={1.7} color="var(--ink-soft, #64748b)" />
+                </div>
+            )}
+            <p style={{ fontSize: "13px", color: "var(--ink-soft, #64748b)", margin: 0, textAlign: "center" }}>{text}</p>
         </div>
     );
 }
@@ -155,8 +164,8 @@ function KpiRow({ items }) {
 
 function StatusBadge({ examsTaken, needsAttention }) {
     if (examsTaken === 0) return <span className="badge" role="status">No attempts</span>;
-    if (needsAttention) return <span className={`badge badge-danger ${needsAttention ? "badge-pulse" : ""}`} role="status">⚠ Needs Attention</span>;
-    return <span className="badge badge-success" role="status">✓ On Track</span>;
+    if (needsAttention) return <span className={`badge badge-danger ${needsAttention ? "badge-pulse" : ""}`} role="status"><AlertTriangle size={12} style={{ marginRight: 4, verticalAlign: -2 }} />Needs Attention</span>;
+    return <span className="badge badge-success" role="status"><CheckCircle2 size={12} style={{ marginRight: 4, verticalAlign: -2 }} />On Track</span>;
 }
 
 const TABS = [
@@ -179,8 +188,8 @@ function generateAiReport(detail, type = "student") {
             summary: `${detail?.name || "This student"} has not taken any exams yet. No performance data is available for analysis.`,
             level: "neutral",
             sections: [
-                { title: "Engagement", icon: "📋", text: "No exam submissions recorded. Consider reaching out to encourage participation in upcoming assessments." },
-                { title: "Recommendation", icon: "💡", text: "Schedule a one-on-one meeting to understand any barriers to participation and provide support." }
+                { title: "Engagement", icon: ClipboardList, text: "No exam submissions recorded. Consider reaching out to encourage participation in upcoming assessments." },
+                { title: "Recommendation", icon: Lightbulb, text: "Schedule a one-on-one meeting to understand any barriers to participation and provide support." }
             ]
         };
     }
@@ -214,7 +223,7 @@ function generateAiReport(detail, type = "student") {
 
     sections.push({
         title: "Performance Summary",
-        icon: "📊",
+        icon: BarChart3,
         text: summaryParts.join(" "),
         metrics: [
             { label: "Average Score", value: `${avg}%`, color: avg >= 70 ? "var(--success)" : avg >= 50 ? "var(--brand)" : "var(--danger)" },
@@ -241,7 +250,7 @@ function generateAiReport(detail, type = "student") {
 
         sections.push({
             title: "Course-Level Analysis",
-            icon: "📚",
+            icon: BookOpen,
             text: courseText.join(" "),
             accent: weakCourses.length > 0 ? "danger" : strongCourses.length > 0 ? "success" : undefined,
             metrics: courses.length <= 5 ? courses.map(c => ({
@@ -268,7 +277,7 @@ function generateAiReport(detail, type = "student") {
 
         sections.push({
             title: "Skill Analysis",
-            icon: "🎯",
+            icon: Target,
             text: skillText.join(" "),
             metrics: mcAcc != null && essayAvg != null ? [
                 { label: "MC Accuracy", value: `${mcAcc}%`, color: mcAcc >= 70 ? "var(--success)" : "var(--danger)" },
@@ -290,7 +299,7 @@ function generateAiReport(detail, type = "student") {
 
         sections.push({
             title: "Strengths",
-            icon: "💪",
+            icon: Award,
             text: strengthText.join(" "),
             accent: "success"
         });
@@ -308,7 +317,7 @@ function generateAiReport(detail, type = "student") {
 
         sections.push({
             title: "Areas for Improvement",
-            icon: "⚠️",
+            icon: AlertTriangle,
             text: weakText.join(" "),
             accent: "danger"
         });
@@ -345,7 +354,7 @@ function generateAiReport(detail, type = "student") {
 
     sections.push({
         title: "Recommendations",
-        icon: "💡",
+        icon: Lightbulb,
         items: recommendations
     });
 
@@ -357,7 +366,7 @@ function generateTrainerAiReport(detail) {
         return {
             summary: "No data available for this trainer.",
             level: "neutral",
-            sections: [{ title: "No Data", icon: "📋", text: "No performance data available yet." }]
+            sections: [{ title: "No Data", icon: ClipboardList, text: "No performance data available yet." }]
         };
     }
 
@@ -389,7 +398,7 @@ function generateTrainerAiReport(detail) {
 
     sections.push({
         title: "Trainer Overview",
-        icon: "📊",
+        icon: BarChart3,
         text: summaryParts.join(" "),
         metrics: [
             { label: "Courses", value: detail.coursesCount, color: "var(--brand)" },
@@ -420,7 +429,7 @@ function generateTrainerAiReport(detail) {
 
         sections.push({
             title: "Course Analysis",
-            icon: "📚",
+            icon: BookOpen,
             text: courseAnalysis.join(" "),
             accent: weakCourses.length > 0 ? "danger" : strongCourses.length > 0 ? "success" : undefined,
             metrics: courses.length <= 6 ? courses.map(c => ({
@@ -455,7 +464,7 @@ function generateTrainerAiReport(detail) {
 
     sections.push({
         title: "Recommendations",
-        icon: "💡",
+        icon: Lightbulb,
         items: recommendations
     });
 
@@ -804,7 +813,12 @@ function Statistics() {
           ].filter(Boolean)
         : [];
 
-    const rankMedal = (rank) => (rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : `#${rank}`);
+    const rankMedal = (rank) => {
+        if (rank === 1) return <span style={{ color: "#f59e0b", display: "inline-flex", alignItems: "center", gap: 3 }}><Crown size={14} strokeWidth={2.2} />1st</span>;
+        if (rank === 2) return <span style={{ color: "#9ca3af", display: "inline-flex", alignItems: "center", gap: 3 }}><Medal size={14} strokeWidth={2.2} />2nd</span>;
+        if (rank === 3) return <span style={{ color: "#d97706", display: "inline-flex", alignItems: "center", gap: 3 }}><Award size={14} strokeWidth={2.2} />3rd</span>;
+        return <span style={{ color: "var(--ink-soft)" }}>#{rank}</span>;
+    };
 
     return (
         <div className="page">
@@ -844,13 +858,13 @@ function Statistics() {
                     />
 
                     {!classCourseId ? (
-                        <EmptyPrompt icon="🏫" text="Select a course above to view its class statistics." />
+                        <EmptyPrompt icon={GraduationCap} text="Select a course above to view its class statistics." />
                     ) : classLoading ? (
                         <ChartCard title="Class Score Distribution" height={260}>
                             <ChartSkeleton rows={6} height={220} />
                         </ChartCard>
                     ) : classStudents.length === 0 ? (
-                        <EmptyPrompt icon="📈" text="No enrolled students in this course yet." />
+                        <EmptyPrompt icon={TrendingUp} text="No enrolled students in this course yet." />
                     ) : (
                         <>
                             <KpiRow items={classKpis} />
@@ -867,6 +881,7 @@ function Statistics() {
                                             <HcBarChart
                                                 data={classChartData}
                                                 height={Math.max(220, classChartData.length * 34)}
+                                                showAverage
                                                 id={`class-bar-${classCourseId}`}
                                             />
                                         </ChartCard>
@@ -878,6 +893,7 @@ function Statistics() {
                                                 data={passFailData.map(d => ({ name: d.name, value: d.value, color: d.fill }))}
                                                 height={Math.max(220, classChartData.length * 34)}
                                                 unit=" students"
+                                                centerText={classStudents.length}
                                                 id={`class-pie-${classCourseId}`}
                                             />
                                         </ChartCard>
@@ -890,7 +906,7 @@ function Statistics() {
                                     className={`chip-toggle ${classAttentionOnly ? "active" : ""}`}
                                     onClick={() => setClassAttentionOnly(v => !v)}
                                 >
-                                    ⚠ Needs Attention only
+                                     <AlertTriangle size={12} style={{ verticalAlign: -1 }} /> Needs Attention only
                                 </button>
                             </div>
 
@@ -958,7 +974,7 @@ function Statistics() {
                             className={`chip-toggle ${studentAttentionOnly ? "active" : ""}`}
                             onClick={() => setStudentAttentionOnly(v => !v)}
                         >
-                            ⚠ Needs Attention only
+                             <AlertTriangle size={12} style={{ verticalAlign: -1 }} /> Needs Attention only
                         </button>
                     </div>
 
@@ -968,7 +984,7 @@ function Statistics() {
                         </div>
                     ) : filteredStudents.length === 0 ? (
                         <EmptyPrompt
-                            icon="🔍"
+                            icon={Search}
                             text={studentSearch ? "No students match that name." : "No enrolled students found."}
                         />
                     ) : (
@@ -1039,7 +1055,7 @@ function Statistics() {
                         </div>
                     ) : filteredTrainers.length === 0 ? (
                         <EmptyPrompt
-                            icon="🔍"
+                            icon={Search}
                             text={trainerSearch ? "No trainers match that search." : "No trainers found."}
                         />
                     ) : (
@@ -1108,13 +1124,13 @@ function Statistics() {
                     />
 
                     {!examCourseId ? (
-                        <EmptyPrompt icon="🏆" text="Select a course above to see its exams ranked by performance." />
+                        <EmptyPrompt icon={Award} text="Select a course above to see its exams ranked by performance." />
                     ) : examLoading ? (
                         <ChartCard title="Exam Ranking" height={260}>
                             <ChartSkeleton rows={6} height={220} />
                         </ChartCard>
                     ) : examRanking.length === 0 ? (
-                        <EmptyPrompt icon="🗒️" text="No graded attempts for this course's exams yet." />
+                        <EmptyPrompt icon={FileText} text="No graded attempts for this course's exams yet." />
                     ) : (
                         <>
                             <KpiRow items={examKpis} />
@@ -1128,6 +1144,7 @@ function Statistics() {
                                 <HcBarChart
                                     data={examChartData}
                                     height={Math.max(220, examChartData.length * 38)}
+                                    showAverage
                                     id={`exam-bar-${examCourseId}`}
                                 />
                             </ChartCard>
@@ -1178,13 +1195,13 @@ function Statistics() {
                     />
 
                     {!gradesCourseId ? (
-                        <EmptyPrompt icon="📊" text="Select a course above to view student grades." />
+                        <EmptyPrompt icon={BarChart3} text="Select a course above to view student grades." />
                     ) : gradesLoading ? (
                         <ChartCard title="Student Grades" height={260}>
                             <ChartSkeleton rows={5} height={220} />
                         </ChartCard>
                     ) : gradesData.length === 0 ? (
-                        <EmptyPrompt icon="📋" text="No enrolled students in this course yet." />
+                        <EmptyPrompt icon={ClipboardList} text="No enrolled students in this course yet." />
                     ) : (
                         <>
                             <KpiRow items={[
@@ -1338,7 +1355,7 @@ function Statistics() {
                                 )}
 
                                 {detail.courses?.length === 0 && (
-                                    <EmptyPrompt icon="📚" text="This trainer has no courses assigned yet." />
+                                    <EmptyPrompt icon={BookOpen} text="This trainer has no courses assigned yet." />
                                 )}
                             </>
                         )}
@@ -1360,10 +1377,10 @@ function Statistics() {
                                 {(detail.strongestCourse || detail.weakestCourse) && (
                                     <div style={{ display: "flex", gap: 10, marginBottom: 22, flexWrap: "wrap" }}>
                                         {detail.strongestCourse && (
-                                            <span className="badge badge-success">💪 Strongest: {detail.strongestCourse}</span>
+                                            <span className="badge badge-success"><Award size={12} style={{ marginRight: 4, verticalAlign: -2 }} />Strongest: {detail.strongestCourse}</span>
                                         )}
                                         {detail.weakestCourse && detail.weakestCourse !== detail.strongestCourse && (
-                                            <span className="badge badge-danger">⚠️ Weakest: {detail.weakestCourse}</span>
+                                            <span className="badge badge-danger"><AlertTriangle size={12} style={{ marginRight: 4, verticalAlign: -2 }} />Weakest: {detail.weakestCourse}</span>
                                         )}
                                     </div>
                                 )}
@@ -1455,7 +1472,7 @@ function Statistics() {
                                         className={`ai-report-section ${section.accent ? `ai-report-section--${section.accent}` : ""}`}
                                     >
                                         <div className="ai-report-section-title">
-                                            <span>{section.icon}</span> {section.title}
+                                            {(() => { const Icon = section.icon; return Icon ? <span style={{ display: "inline-flex", alignItems: "center", marginRight: 6, verticalAlign: -3 }}><Icon size={16} strokeWidth={2} /></span> : null; })()} {section.title}
                                         </div>
                                         <p className="ai-report-section-text">{section.text}</p>
 

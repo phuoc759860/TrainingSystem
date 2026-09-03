@@ -7,6 +7,7 @@ import { getMyEnrollments } from "../services/EnrollmentService";
 import CourseChat from "../components/CourseChat";
 import SidePanel from "../components/SidePanel";
 import useToast from "../hooks/useToast";
+import { ClipboardList, MessageSquare, Pin } from "lucide-react";
 
 function Forum() {
     const { courseId } = useParams();
@@ -213,13 +214,13 @@ function Forum() {
                             className={`input-tab ${tab === "chat" ? "active" : ""}`}
                             onClick={() => setTab("chat")}
                         >
-                            💬 Chat
+                            <MessageSquare size={14} /> Chat
                         </button>
                         <button
                             className={`input-tab ${tab === "threads" ? "active" : ""}`}
                             onClick={() => setTab("threads")}
                         >
-                            📋 Threads
+                            <ClipboardList size={16} style={{ verticalAlign: -2 }} /> Threads
                         </button>
                     </div>
 
@@ -240,7 +241,7 @@ function Forum() {
                                 <div className="loading-row"><span className="spinner" /> Loading threads...</div>
                             ) : threads.length === 0 ? (
                                 <div className="card empty-state">
-                                    <div className="empty-icon">💬</div>
+                                    <div className="empty-icon"><MessageSquare size={28} strokeWidth={1.7} /></div>
                                     <p>No discussions yet. Start one!</p>
                                 </div>
                             ) : (
@@ -254,7 +255,7 @@ function Forum() {
                                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                             <div>
                                                 <div style={{ fontWeight: 600, marginBottom: 4 }}>
-                                                    {thread.isPinned && <span style={{ marginRight: 8 }}>📌</span>}
+                                                    {thread.isPinned && <span style={{ marginRight: 8 }}><Pin size={14} strokeWidth={2} style={{ color: "var(--brand)", verticalAlign: -2 }} /></span>}
                                                     {thread.title}
                                                 </div>
                                                 <div style={{ fontSize: 12, color: "var(--ink-soft)" }}>

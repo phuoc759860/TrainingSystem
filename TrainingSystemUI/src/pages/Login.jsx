@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 import { login, resendVerification } from "../services/authService";
 import AuthCard from "../components/AuthCard";
 import useToast from "../hooks/useToast";
@@ -9,6 +10,8 @@ function Login() {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
     const { showToast, toastEl } = useToast();
     const [verifyPanelOpen, setVerifyPanelOpen] = useState(false);
     const [resendMsg, setResendMsg] = useState("");
@@ -25,6 +28,7 @@ function Login() {
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        setSubmitting(true);
         try {
             const result = await login({ email, password });
             if (!result.token) {
@@ -47,6 +51,8 @@ function Login() {
             } else {
                 showToast(msg || error.message, "error");
             }
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -80,32 +86,41 @@ function Login() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="w-full px-4 py-2.5 rounded-xl border border-gray-200/80 text-sm outline-none transition-all"
-                        style={{ background: "rgba(247,247,251,.7)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}
-                        onFocus={(e) => { e.target.style.background = "#fff"; e.target.style.boxShadow = "0 0 0 4px rgba(108,92,231,.1), 0 4px 12px -2px rgba(108,92,231,.12)"; e.target.style.borderColor = "#6c5ce7"; }}
-                        onBlur={(e) => { e.target.style.background = "rgba(247,247,251,.7)"; e.target.style.boxShadow = "none"; e.target.style.borderColor = ""; }}
+                        required
                     />
                 </div>
-                <div>
+                <div className="login-field-wrapper">
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5">Password</label>
-                    <input
-                        type="password"
-                        placeholder="••••••••"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200/80 text-sm outline-none transition-all"
-                        style={{ background: "rgba(247,247,251,.7)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}
-                        onFocus={(e) => { e.target.style.background = "#fff"; e.target.style.boxShadow = "0 0 0 4px rgba(108,92,231,.1), 0 4px 12px -2px rgba(108,92,231,.12)"; e.target.style.borderColor = "#6c5ce7"; }}
-                        onBlur={(e) => { e.target.style.background = "rgba(247,247,251,.7)"; e.target.style.boxShadow = "none"; e.target.style.borderColor = ""; }}
-                    />
+                    <div className="login-password-wrapper">
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full px-4 py-2.5 rounded-xl border border-gray-200/80 text-sm outline-none transition-all pr-11"
+                            required
+                        />
+                        <button
+                            type="button"
+                            className="login-password-toggle"
+                            onClick={() => setShowPassword(!showPassword)}
+                            aria-label={showPassword ? "Hide password" : "Show password"}
+                            tabIndex={-1}
+                        >
+                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                    </div>
                 </div>
                 <button
                     type="submit"
-                    className="w-full py-2.5 px-4 rounded-xl text-white font-semibold text-sm transition-all"
-                    style={{ background: "linear-gradient(135deg, #6c5ce7, #a78bfa)", boxShadow: "0 6px 20px -4px rgba(108,92,231,.5), inset 0 1px 0 rgba(255,255,255,.15)" }}
-                    onMouseEnter={(e) => { e.target.style.boxShadow = "0 10px 30px -4px rgba(108,92,231,.6), inset 0 1px 0 rgba(255,255,255,.15)"; e.target.style.transform = "translateY(-1px)"; }}
-                    onMouseLeave={(e) => { e.target.style.boxShadow = "0 6px 20px -4px rgba(108,92,231,.5), inset 0 1px 0 rgba(255,255,255,.15)"; e.target.style.transform = "none"; }}
+                    className="btn btn-primary w-full login-submit-btn"
+                    disabled={submitting}
                 >
-                    Sign in
+                    {submitting ? (
+                        <span className="login-spinner" />
+                    ) : (
+                        "Sign in"
+                    )}
                 </button>
                 <div className="text-center mt-2">
                     <button

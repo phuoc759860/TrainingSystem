@@ -13,6 +13,7 @@ import TableSkeleton from "../components/TableSkeleton";
 import ConfirmDialog from "../components/ConfirmDialog";
 import Pagination from "../components/Pagination";
 import useToast from "../hooks/useToast";
+import { Check, HelpCircle } from "lucide-react";
 import SidePanel from "../components/SidePanel";
 
 const blankQuestion = () => ({
@@ -492,7 +493,7 @@ function Question() {
                                 >
                                     <p style={{ fontWeight: 600, margin: 0 }}>
                                         <span className={`chip ${done ? "done" : ""}`}>
-                                            {done ? "✓" : i + 1}
+                                            {done ? <Check size={14} strokeWidth={2.5} style={{ color: "var(--success)", verticalAlign: -2 }} /> : i + 1}
                                         </span>
                                         Question {i + 1}
                                         {isCollapsed && q.content && (
@@ -664,7 +665,7 @@ function Question() {
                 <TableSkeleton rows={5} columns={6} />
             ) : questions.length === 0 ? (
                 <div className="card empty-state">
-                    <div className="empty-icon">❓</div>
+                    <div className="empty-icon"><HelpCircle size={28} strokeWidth={1.7} /></div>
                     <p>
                         {search
                             ? "No questions match your search."

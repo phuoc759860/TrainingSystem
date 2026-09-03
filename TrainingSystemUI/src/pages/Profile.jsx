@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import useAuth from "../hooks/useAuth";
 import { getPoints, getBadges, getLeaderboard } from "../services/GamificationService";
 import useToast from "../hooks/useToast";
+import { Flame } from "lucide-react";
 
 function Profile() {
     const [points, setPoints] = useState(null);
@@ -58,7 +59,7 @@ function Profile() {
                 <div className="stat-card stat-card-green">
                     <div className="num" style={{ color: "#fff" }}>
                         {points?.streakDays || 0}
-                        {points?.streakDays && points.streakDays >= 7 ? " 🔥" : ""}
+                        {points?.streakDays && points.streakDays >= 7 ? <Flame size={14} strokeWidth={2} style={{ color: "#f59e0b", verticalAlign: -2 }} /> : ""}
                     </div>
                     <div className="label" style={{ color: "rgba(255,255,255,.9)" }}>Day Streak</div>
                 </div>
@@ -137,7 +138,7 @@ function Profile() {
                                     </td>
                                     <td>{entry.level}</td>
                                     <td>{entry.points}</td>
-                                    <td>{entry.streakDays}{entry.streakDays >= 7 ? " 🔥" : ""}</td>
+                                    <td>{entry.streakDays}{entry.streakDays >= 7 ? <Flame size={14} strokeWidth={2} style={{ color: "#f59e0b", verticalAlign: -2, marginLeft: 4 }} /> : ""}</td>
                                 </tr>
                             ))}
                         </tbody>

@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { ClipboardList } from "lucide-react";
 import { getMyGrades } from "../services/GradeService";
 import useToast from "../hooks/useToast";
 import MiniBar from "../components/MiniBar";
@@ -45,7 +46,7 @@ function Grades() {
                 <TableSkeleton rows={5} columns={5} />
             ) : grades.length === 0 ? (
                 <div className="card empty-state">
-                    <div className="empty-icon">📋</div>
+                    <div className="empty-icon"><ClipboardList size={28} strokeWidth={1.7} /></div>
                     <p>You are not enrolled in any courses yet.</p>
                 </div>
             ) : (

@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import useAuth from "../hooks/useAuth";
+import { Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
     getScheduleEntries,
@@ -312,7 +313,7 @@ function Schedule() {
                 </div>
             ) : entries.length === 0 ? (
                 <div className="card empty-state">
-                    <div className="empty-icon">📅</div>
+                    <div className="empty-icon"><Calendar size={28} strokeWidth={1.7} /></div>
                     <p>
                         {courseFilter
                             ? "No schedule entries for this course."
